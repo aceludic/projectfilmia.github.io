@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import HomePage from './components/HomePage';
@@ -160,7 +161,8 @@ const App: React.FC = () => {
   };
 
   const handleRemoveAppLink = (id: string) => {
-    setAppLinks(prev => prev.filter(l => l !== id));
+    // FIX: The filter should compare the link's id property with the provided id string.
+    setAppLinks(prev => prev.filter(l => l.id !== id));
   };
 
   const handleAddJournalEntry = (entry: Omit<JournalEntry, 'id'>) => {
