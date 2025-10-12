@@ -78,7 +78,8 @@ const EssayPlanner: React.FC = () => {
         `;
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+            // FIX: Use process.env.API_KEY as per the guidelines.
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             const result = await ai.models.generateContent({
                 model: 'gemini-2.5-flash',
                 contents: prompt,

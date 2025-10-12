@@ -18,7 +18,8 @@ const AiTutorChat: React.FC = () => {
     // Initialize the AI chat session
     useEffect(() => {
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+            // FIX: Use process.env.API_KEY as per the guidelines.
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             const chatSession = ai.chats.create({
                 model: 'gemini-2.5-flash',
                 config: {
