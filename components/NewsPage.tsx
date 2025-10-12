@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import ProjectMedia from './ProjectMedia';
 import { mediaStories } from '../data/newsData';
@@ -18,7 +19,7 @@ const NewsPage: React.FC = () => {
     }, [selectedCategory]);
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-center mb-12 animate-fade-in-up">
                 <h1 className="text-4xl font-black uppercase">Project Filmia News</h1>
                 <p className="mt-2 text-lg text-stone-500 dark:text-stone-400">Keeping you up to date with popular media stories.</p>

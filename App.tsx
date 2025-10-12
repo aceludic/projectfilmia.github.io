@@ -11,6 +11,7 @@ import NewsPage from './components/NewsPage';
 import NotesPanel from './components/NotesPanel';
 import JournalPage from './components/JournalPage';
 import GlobalSearch from './components/GlobalSearch';
+import SettingsPanel from './components/SettingsPanel';
 import { NotesPanelState, PinnedItem, TimetableEntry, AppLink, JournalEntry, FontFamily, SearchResult } from './types';
 import { theoristData } from './data/theoristsData';
 import { cspsData } from './data/cspsData';
@@ -52,6 +53,8 @@ const App: React.FC = () => {
   const [theme, setTheme] = useState<Theme>(() => loadFromLocalStorage('theme', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
   const [fontFamily, setFontFamily] = useState<FontFamily>(() => loadFromLocalStorage('fontFamily', 'lora'));
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isSettingsPanelOpen, setIsSettingsPanelOpen] = useState(false);
+  const [showWarningBanner, setShowWarningBanner] = useState(false);
   
   const [notesPanelState, setNotesPanelState] = useState<NotesPanelState>(() => loadFromLocalStorage('notesPanelState', {
       isOpen: false,
@@ -136,6 +139,19 @@ const App: React.FC = () => {
     };
   }, []);
 
+  // Early access warning banner logic
+  useEffect(() => {
+    const hasSeenBanner = sessionStorage.getItem('hasSeenWarningBanner');
+    if (!hasSeenBanner) {
+        setShowWarningBanner(true);
+    }
+  }, []);
+
+  const handleCloseWarningBanner = () => {
+      setShowWarningBanner(false);
+      sessionStorage.setItem('hasSeenWarningBanner', 'true');
+  };
+
   const handleTogglePin = (item: PinnedItem) => {
     setPinnedItems(prev => {
         const isPinned = prev.some(p => p.id === item.id);
@@ -161,7 +177,6 @@ const App: React.FC = () => {
   };
 
   const handleRemoveAppLink = (id: string) => {
-    // FIX: The filter should compare the link's id property with the provided id string.
     setAppLinks(prev => prev.filter(l => l.id !== id));
   };
 
@@ -197,6 +212,10 @@ const App: React.FC = () => {
     }
   };
 
+  const handleToggleNotesPanel = () => {
+    setNotesPanelState(prev => ({ ...prev, isOpen: !prev.isOpen }));
+  };
+
   const handleEnter = () => {
     setAppState('main');
   };
@@ -208,7 +227,15 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-beige-100 dark:bg-stone-900 animate-fade-in">
       <Navbar view={view} setView={setView} onOpenSearch={() => setIsSearchOpen(true)} />
-      <main>
+      {showWarningBanner && (
+        <div role="alert" className="bg-red-100 border-b-2 border-red-200 text-red-800 px-4 py-3 dark:bg-red-900/30 dark:border-red-500/50 dark:text-red-300 relative text-center text-sm animate-slide-down">
+          <span>The website will have issues and are being worked on daily, feel free to report them (in the <b>settings menu</b>).</span>
+          <button onClick={handleCloseWarningBanner} className="absolute top-1/2 right-3 -translate-y-1/2 p-1 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50" aria-label="Close warning banner">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+      )}
+      <main className="pt-20">
         <div key={view}>
             {view === 'dashboard' && (
               <Dashboard
@@ -246,15 +273,20 @@ const App: React.FC = () => {
         </div>
       </main>
       <FloatingTools 
-        theme={theme} 
-        setTheme={setTheme} 
-        setNotesPanelState={setNotesPanelState}
-        fontFamily={fontFamily}
-        setFontFamily={setFontFamily}
+        onOpenSettings={() => setIsSettingsPanelOpen(true)}
+        onToggleNotes={handleToggleNotesPanel}
       />
       <NotesPanel 
         state={notesPanelState} 
         setState={setNotesPanelState} 
+      />
+      <SettingsPanel 
+        isOpen={isSettingsPanelOpen} 
+        onClose={() => setIsSettingsPanelOpen(false)} 
+        theme={theme} 
+        setTheme={setTheme}
+        fontFamily={fontFamily}
+        setFontFamily={setFontFamily}
       />
       <GlobalSearch 
         isOpen={isSearchOpen}

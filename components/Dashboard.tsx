@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useMemo } from 'react';
 import DashboardSection from './DashboardSection';
 import SocialIntegrations from './SocialIntegrations';
 import RecentPosts from './RecentPosts';
@@ -42,6 +43,16 @@ const defaultLayout: LayoutItem[] = [
     { i: 'news', x: 0, y: 22, w: 12, h: 3 },
 ];
 
+const useWindowSize = () => {
+    const [size, setSize] = useState([window.innerWidth, window.innerHeight]);
+    useEffect(() => {
+        const handleResize = () => setSize([window.innerWidth, window.innerHeight]);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return size;
+};
+
 
 const Dashboard: React.FC<DashboardProps> = (props) => {
     const { 
@@ -52,6 +63,9 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         theme,
         setTheme,
     } = props;
+    
+    const [windowWidth] = useWindowSize();
+    const isMobile = windowWidth < 768;
 
     const [accounts, setAccounts] = useState<SocialAccount[]>([]);
     const [isCustomizing, setIsCustomizing] = useState(false);
@@ -68,15 +82,16 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     });
 
     useEffect(() => {
-        const hasCompletedTour = localStorage.getItem('hasCompletedTour');
-        if (!hasCompletedTour) {
-            setShowInitialWelcome(true);
+        const hasSeenWelcome = localStorage.getItem('hasSeenDashboardWelcome');
+        if (!hasSeenWelcome) {
+            const timer = setTimeout(() => setShowInitialWelcome(true), 500);
+            return () => clearTimeout(timer);
         }
     }, []);
     
     const handleCloseWelcome = () => {
         setShowInitialWelcome(false);
-        localStorage.setItem('hasCompletedTour', 'true');
+        localStorage.setItem('hasSeenDashboardWelcome', 'true');
     };
 
     useEffect(() => {
@@ -161,16 +176,21 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         .map(item => ({ id: item.i, title: sections[item.i]?.title || item.i }));
 
     const totalHeight = layout.length > 0 ? Math.max(...layout.map(l => l.y + l.h)) * CELL_HEIGHT : 0;
+    
+    const sortedLayout = useMemo(() => {
+        return isMobile ? [...layout].sort((a, b) => a.y - b.y || a.x - b.x) : layout;
+    }, [layout, isMobile]);
+
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 animate-fade-in-up">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
             {showInitialWelcome && <InitialWelcomeModal onClose={handleCloseWelcome} theme={theme} setTheme={setTheme} />}
             <div className="flex justify-between items-center mb-12">
                 <div className="text-center flex-grow">
-                    <h1 className="text-4xl font-black uppercase">Dashboard</h1>
+                    <h1 id="dashboard-title" className="text-4xl font-black uppercase">Dashboard</h1>
                     <p className="mt-2 text-lg text-stone-500 dark:text-stone-400">Your personalized media and film studies hub.</p>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="hidden md:flex items-center space-x-2">
                     {isCustomizing && (
                         <button 
                         onClick={handleResetLayout}
@@ -192,10 +212,10 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
             </div>
 
             <div 
-                className="relative" 
-                style={{ height: `${totalHeight}px` }}
+                className={`transition-all duration-300 ${isMobile ? 'space-y-4' : 'relative'}`}
+                style={{ height: isMobile ? 'auto' : `${totalHeight}px` }}
             >
-                {layout.map(item => {
+                {sortedLayout.map(item => {
                     const section = sections[item.i];
                     if (!section) return null;
                     return (
@@ -215,7 +235,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                     );
                 })}
             </div>
-            {isCustomizing && (
+            {isCustomizing && !isMobile && (
                 <CustomizationToolbar 
                     onAddWidget={handleAddWidget}
                     availableWidgets={availableWidgets}

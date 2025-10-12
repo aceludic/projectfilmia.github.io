@@ -38,9 +38,17 @@ const HomePage: React.FC<HomePageProps> = ({ onEnter }) => {
         <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-r from-brand-brown-800 to-brand-brown-600 uppercase">
           Discover Your Media Story
         </h1>
-        <p className="max-w-2xl mx-auto text-lg md:text-xl text-stone-700 dark:text-stone-300 mb-12">
+        <p className="max-w-2xl mx-auto text-lg md:text-xl text-stone-700 dark:text-stone-300 mb-8">
           Your essential toolkit for media and film studies. No sign-up required.
         </p>
+
+        <div className="max-w-2xl mx-auto my-8 p-4 bg-red-100/50 dark:bg-red-900/20 border-l-4 border-red-500 text-red-800 dark:text-red-300 rounded-r-lg" role="alert">
+            <p className="font-bold">Early Access Warning</p>
+            <p className="text-sm mt-1">
+                This website is in active development. You may encounter issues, glitches, and incorrect information. The full release is coming soon. <strong>See the "Full Release" schedule in the top bar to find out more.</strong>
+                Please report any problems you find in the <strong>Settings menu</strong>. Thank you for your feedback!
+            </p>
+        </div>
         
         <div className="max-w-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 text-left mb-12">
             <Feature icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>} title="Privacy-Focused">

@@ -1,3 +1,5 @@
+
+
 import React, { useState } from 'react';
 import { JournalEntry } from '../types';
 
@@ -49,7 +51,7 @@ const JournalModal: React.FC<{ entry: JournalEntry | null; onSave: (entry: Omit<
     };
     
     return (
-        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
             <div className="bg-beige-50 dark:bg-stone-800 rounded-lg shadow-2xl max-w-lg w-full p-6 animate-fade-in-up border border-beige-200 dark:border-stone-700" onClick={e => e.stopPropagation()}>
                 <h2 className="text-2xl font-bold text-stone-800 dark:text-beige-100 mb-4">{entry ? 'Edit Entry' : 'New Journal Entry'}</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -101,7 +103,7 @@ const JournalPage: React.FC<JournalPageProps> = ({ entries, onAdd, onUpdate, onR
     };
     
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {isModalOpen && <JournalModal entry={editingEntry} onSave={handleSave} onClose={() => { setIsModalOpen(false); setEditingEntry(null); }} />}
             <div className="flex justify-between items-center mb-12 animate-fade-in-up">
                 <div className="text-center flex-grow">

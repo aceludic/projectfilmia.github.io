@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Theme } from '../App';
 
@@ -21,7 +22,7 @@ const FeatureSection: React.FC<{ title: string; children: string; icon: React.Re
 
 
 const InitialWelcomeModal: React.FC<InitialWelcomeModalProps> = ({ onClose, theme, setTheme }) => (
-    <div className="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-fade-in">
+    <div className="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
         <div className="bg-beige-50 dark:bg-stone-800 rounded-lg shadow-2xl max-w-lg w-full p-8 animate-fade-in-up border border-beige-200 dark:border-stone-700">
             <h2 className="text-2xl font-bold text-stone-800 dark:text-beige-100 mb-2 text-center">Welcome to Project Filmia!</h2>
             <p className="text-base text-stone-600 dark:text-stone-300 mb-8 text-center">

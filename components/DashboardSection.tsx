@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useEffect, useState } from 'react';
 import { LayoutItem } from '../types';
 
 interface DashboardSectionProps {
@@ -13,6 +13,16 @@ interface DashboardSectionProps {
   cellHeight: number;
 }
 
+const useWindowSize = () => {
+    const [size, setSize] = useState([window.innerWidth, window.innerHeight]);
+    useEffect(() => {
+        const handleResize = () => setSize([window.innerWidth, window.innerHeight]);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return size;
+};
+
 const DashboardSection: React.FC<DashboardSectionProps> = ({
   title,
   description,
@@ -25,10 +35,12 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
   cellHeight,
 }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const [windowWidth] = useWindowSize();
+  const isMobile = windowWidth < 768;
 
   const handleDragStart = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isCustomizing || !sectionRef.current) return;
-    if ((e.target as HTMLElement).closest('button')) return; // Don't drag if clicking a button
+    if (isMobile || !isCustomizing || !sectionRef.current) return;
+    if ((e.target as HTMLElement).closest('button')) return;
     e.preventDefault();
     const startX = e.clientX;
     const startY = e.clientY;
@@ -60,10 +72,10 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
-  }, [isCustomizing, layoutItem, onLayoutChange, gridCols, cellHeight]);
+  }, [isMobile, isCustomizing, layoutItem, onLayoutChange, gridCols, cellHeight]);
 
   const handleResizeStart = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isCustomizing) return;
+    if (isMobile || !isCustomizing) return;
     e.preventDefault();
     e.stopPropagation();
 
@@ -97,28 +109,35 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
-  }, [isCustomizing, layoutItem, onLayoutChange, gridCols, cellHeight]);
+  }, [isMobile, isCustomizing, layoutItem, onLayoutChange, gridCols, cellHeight]);
 
   const width = `${(layoutItem.w / gridCols) * 100}%`;
   const height = `${layoutItem.h * cellHeight}px`;
   const x = `${(layoutItem.x / gridCols) * 100}%`;
   const y = `${layoutItem.y * cellHeight}px`;
 
+  const sectionStyle = isMobile ? { minHeight: '350px' } : { left: x, top: y, width, height };
+  const sectionClasses = `bg-beige-50/50 backdrop-blur-sm rounded-lg shadow-sm border border-beige-200/50 dark:bg-stone-800/50 dark:border-stone-700/50 transition-all duration-200 ease-in-out ${
+    isMobile ? 'relative w-full' : 'absolute'
+  } ${
+    isCustomizing && !isMobile ? 'ring-2 ring-brand-brown-700 ring-offset-2 ring-offset-beige-100 dark:ring-offset-stone-900' : ''
+  }`;
+
   return (
     <div
       ref={sectionRef}
       id={`widget-${layoutItem.i}`}
-      className={`absolute bg-beige-50/50 backdrop-blur-sm rounded-lg shadow-sm border border-beige-200/50 dark:bg-stone-800/50 dark:border-stone-700/50 transition-all duration-200 ease-in-out ${isCustomizing ? 'ring-2 ring-brand-brown-700 ring-offset-2 ring-offset-beige-100 dark:ring-offset-stone-900' : ''}`}
-      style={{ left: x, top: y, width, height }}
+      className={sectionClasses}
+      style={sectionStyle}
     >
         <div className="flex flex-col h-full">
             <div 
                 onMouseDown={handleDragStart}
-                className={`relative p-4 border-b border-beige-200/50 dark:border-stone-700/50 flex-shrink-0 ${isCustomizing ? 'cursor-move' : ''}`}
+                className={`relative p-4 border-b border-beige-200/50 dark:border-stone-700/50 flex-shrink-0 ${isCustomizing && !isMobile ? 'cursor-move' : ''}`}
             >
                 <h2 className="text-xl font-bold text-stone-700 dark:text-beige-100 pr-8">{title}</h2>
                 {description && <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">{description}</p>}
-                {isCustomizing && (
+                {isCustomizing && !isMobile && (
                     <button
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={() => onRemoveWidget(layoutItem.i)}
@@ -135,7 +154,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
                 {children}
             </div>
         </div>
-        {isCustomizing && (
+        {isCustomizing && !isMobile && (
             <div
                 onMouseDown={handleResizeStart}
                 className="absolute bottom-0 right-0 w-6 h-6 bg-brand-brown-700 rounded-tl-lg cursor-se-resize flex items-end justify-end p-1"

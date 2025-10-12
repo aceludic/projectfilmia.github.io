@@ -1,3 +1,5 @@
+
+
 import React, { useState } from 'react';
 import { Theme } from '../App';
 import { FontFamily } from '../types';
@@ -36,12 +38,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
 
     const handleResetModals = () => {
         try {
-            sessionStorage.removeItem('hasSeenWelcomeModal');
             sessionStorage.removeItem('hasSeenMediaStudiesDisclaimer');
-            localStorage.removeItem('hasCompletedTour');
+            localStorage.removeItem('hasSeenDashboardWelcome');
             setFeedback({...feedback, modals: 'Welcome pop-ups will now show again.' });
         } catch (error) {
-            console.error("Could not reset modals in sessionStorage", error);
+            console.error("Could not reset modals", error);
             setFeedback({...feedback, modals: 'Could not reset pop-ups.' });
         }
     };
@@ -83,7 +84,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
     };
 
     return (
-        <div className="fixed inset-0 bg-black/30 dark:bg-black/50 z-40 animate-fade-in flex items-center justify-center p-4" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/30 dark:bg-black/50 z-50 animate-fade-in flex items-center justify-center p-4" onClick={onClose}>
             <div 
                 className="w-full max-w-md h-auto max-h-[85vh] bg-beige-50 dark:bg-stone-800 rounded-lg shadow-2xl flex flex-col animate-fade-in-up"
                 onClick={(e) => e.stopPropagation()}
@@ -126,6 +127,20 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
                                 </select>
                             </div>
                         </div>
+                    </SettingsSection>
+                    
+                    <SettingsSection title="Support & Feedback">
+                        <a
+                            href="https://docs.google.com/forms/d/e/1FAIpQLSctftbiSZdIgzk3YXlsMaEOh1Q1sI70nQ5DiKbK2I3Qd19uHw/viewform?usp=header"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-between w-full px-4 py-3 bg-beige-100 dark:bg-stone-700/50 rounded-md hover:bg-beige-200 dark:hover:bg-stone-700 transition-colors"
+                        >
+                            <span className="font-bold text-sm text-stone-700 dark:text-beige-100">Report an Issue</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                        </a>
                     </SettingsSection>
 
                     <SettingsSection title="Data Management" description="Manage data stored in your browser.">

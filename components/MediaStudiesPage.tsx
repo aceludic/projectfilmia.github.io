@@ -1,3 +1,5 @@
+
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { theoristData } from '../data/theoristsData';
 import { cspsData } from '../data/cspsData';
@@ -15,7 +17,7 @@ interface MediaStudiesPageProps {
 }
 
 const DisclaimerModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
-    <div className="fixed inset-0 backdrop-blur-md z-[100] flex items-start justify-center pt-28 p-4 animate-fade-in">
+    <div className="fixed inset-0 backdrop-blur-md z-50 flex items-start justify-center pt-28 p-4 animate-fade-in">
         <div className="bg-beige-50 dark:bg-stone-800 rounded-lg shadow-2xl max-w-lg w-full p-8 text-center animate-fade-in-up border border-beige-200 dark:border-stone-700">
             <h2 className="text-2xl font-bold text-stone-800 dark:text-beige-100 mb-4">AQA A-Level Focus</h2>
             <p className="text-base text-stone-600 dark:text-stone-300 mb-8">
@@ -157,7 +159,7 @@ const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogg
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {showDisclaimer && <DisclaimerModal onClose={handleDisclaimerClose} />}
         <div className={`transition-opacity duration-500 ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
             <div className="text-center mb-12 animate-fade-in-up">
@@ -182,7 +184,7 @@ const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogg
                         className="w-full md:w-64 pl-10 pr-4 py-2 border border-beige-300 rounded-md focus:ring-brand-brown-700 focus:border-brand-brown-700 bg-beige-50 dark:bg-stone-800 dark:border-stone-600 dark:text-beige-100 dark:placeholder-stone-400"
                     />
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg xmlns="http://www.w.org/2000/svg" className="h-5 w-5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>

@@ -1,4 +1,5 @@
-import React, { useRef, useCallback, useState, ChangeEvent } from 'react';
+
+import React, { useRef, useCallback, useState, ChangeEvent, useEffect } from 'react';
 import { NotesPanelState, NoteTab } from '../types';
 
 interface NotesPanelProps {
@@ -9,13 +10,25 @@ interface NotesPanelProps {
 const MIN_WIDTH = 320;
 const MIN_HEIGHT = 250;
 
+const useWindowSize = () => {
+    const [size, setSize] = useState([window.innerWidth, window.innerHeight]);
+    useEffect(() => {
+        const handleResize = () => setSize([window.innerWidth, window.innerHeight]);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return size;
+};
+
 const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const dragHandleRef = useRef<HTMLDivElement>(null);
   const [renamingTabId, setRenamingTabId] = useState<string | null>(null);
+  const [windowWidth] = useWindowSize();
+  const isMobile = windowWidth < 768;
 
   const handleDragStart = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-      // Prevent drag from starting if the user clicks on an interactive element like a button or a tab.
+      if (isMobile) return;
       if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('[role="tab"]')) {
           return;
       }
@@ -41,9 +54,10 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
 
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
-  }, [state.position, setState]);
+  }, [isMobile, state.position, setState]);
 
   const handleResizeStart = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+      if (isMobile) return;
       e.preventDefault();
       e.stopPropagation();
       const startPos = { x: e.clientX, y: e.clientY };
@@ -68,7 +82,7 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
 
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
-  }, [state.size, setState]);
+  }, [isMobile, state.size, setState]);
 
   const handleTabClick = (tabId: string) => {
       if (renamingTabId !== tabId) {
@@ -130,22 +144,25 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
 
   if (!state.isOpen) return null;
 
+  const panelStyle = isMobile 
+    ? {} 
+    : {
+        top: `${state.position.y}px`,
+        left: `${state.position.x}px`,
+        width: `${state.size.width}px`,
+        height: `${state.size.height}px`,
+      };
+  
+  const panelClasses = `bg-beige-50 dark:bg-stone-800 shadow-2xl flex flex-col border border-beige-200 dark:border-stone-700 animate-fade-in-up z-40 ${
+    isMobile ? 'fixed bottom-0 left-0 w-full h-[70vh] rounded-t-lg' : 'fixed rounded-lg'
+  }`;
+
   return (
-    <div
-      ref={panelRef}
-      className="fixed bg-beige-50 dark:bg-stone-800 rounded-lg shadow-2xl flex flex-col border border-beige-200 dark:border-stone-700 animate-fade-in-up"
-      style={{
-          top: `${state.position.y}px`,
-          left: `${state.position.x}px`,
-          width: `${state.size.width}px`,
-          height: `${state.size.height}px`,
-          zIndex: 40
-      }}
-    >
+    <div ref={panelRef} className={panelClasses} style={panelStyle}>
         <div 
           ref={dragHandleRef}
           onMouseDown={handleDragStart}
-          className="flex-shrink-0 flex items-center justify-between pl-2 pr-1 border-b border-beige-200 dark:border-stone-700 cursor-move h-12"
+          className={`flex-shrink-0 flex items-center justify-between pl-2 pr-1 border-b border-beige-200 dark:border-stone-700 h-12 ${!isMobile ? 'cursor-move' : ''}`}
         >
             <div className="flex-grow flex items-end h-full overflow-x-auto">
                {state.tabs.map(tab => (
@@ -153,7 +170,7 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
                         key={tab.id}
                         role="tab"
                         onClick={() => handleTabClick(tab.id)}
-                        onDoubleClick={() => setRenamingTabId(tab.id)}
+                        onDoubleClick={() => !isMobile && setRenamingTabId(tab.id)}
                         className={`flex-shrink-0 flex items-center h-full max-w-[150px] px-3 text-sm font-medium rounded-t-md cursor-pointer border-b-2 transition-colors ${
                             state.activeTabId === tab.id
                                 ? 'border-brand-brown-700 text-brand-brown-700 dark:text-amber-400 bg-beige-100 dark:bg-stone-800'
@@ -161,7 +178,7 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
                         }`}
                         title={tab.title}
                     >
-                        {renamingTabId === tab.id ? (
+                        {renamingTabId === tab.id && !isMobile ? (
                             <input
                                 type="text"
                                 defaultValue={tab.title}
@@ -216,15 +233,17 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
             </div>
         </div>
 
-        <div 
-            onMouseDown={handleResizeStart}
-            className="absolute bottom-0 right-0 w-5 h-5 cursor-se-resize flex items-end justify-end p-px"
-            title="Resize"
-        >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full text-stone-400 dark:text-stone-500 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 20L20 12M16 20h4v-4" />
-            </svg>
-        </div>
+        {!isMobile && (
+            <div 
+                onMouseDown={handleResizeStart}
+                className="absolute bottom-0 right-0 w-5 h-5 cursor-se-resize flex items-end justify-end p-px"
+                title="Resize"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full text-stone-400 dark:text-stone-500 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 20L20 12M16 20h4v-4" />
+                </svg>
+            </div>
+        )}
     </div>
   );
 };

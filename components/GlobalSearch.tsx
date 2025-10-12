@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { TheoristCategory, CSPCategory, JournalEntry, NoteTab, SearchResult } from '../types';
 
@@ -123,7 +124,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose, theorists,
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm z-[100] flex justify-center p-4 pt-[15vh] animate-fade-in" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm z-50 flex justify-center p-4 pt-[15vh] animate-fade-in" onClick={onClose}>
             <div 
                 className="w-full max-w-2xl h-auto max-h-[70vh] bg-beige-50 dark:bg-stone-800 rounded-lg shadow-2xl flex flex-col animate-fade-in-up border border-beige-200 dark:border-stone-700"
                 onClick={(e) => e.stopPropagation()}

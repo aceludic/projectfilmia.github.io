@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import AiTutorChat from './AiTutorChat';
 import EssayPlanner from './EssayPlanner';
@@ -22,10 +23,15 @@ const AiTutorPage: React.FC = () => {
     );
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 animate-fade-in-up">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
             <div className="text-center mb-12">
                 <h1 className="text-4xl font-black uppercase">AI Tutor Hub</h1>
                 <p className="mt-2 text-lg text-stone-500 dark:text-stone-400 max-w-2xl mx-auto">Your personal assistant for Media & Film Studies.</p>
+            </div>
+
+            <div role="alert" className="max-w-3xl mx-auto bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 rounded-r-lg mb-12 dark:bg-amber-900/20 dark:border-amber-500 dark:text-amber-300" style={{ animationDelay: '100ms' }}>
+                <p className="font-bold">A Note on Using AI</p>
+                <p className="mt-1 text-sm">AI should be used as a powerful tool to <strong className="text-amber-800 dark:text-amber-200">aid revision</strong>, not replace critical thinking. Use it to clarify concepts, generate ideas, and test your knowledge, but always develop your own understanding and analysis.</p>
             </div>
 
             <div className="flex justify-center items-center space-x-4 mb-12">
@@ -38,13 +44,6 @@ const AiTutorPage: React.FC = () => {
                 {mode === 'tutor' && <AiTutorChat />}
                 {mode === 'planner' && <EssayPlanner />}
                 {mode === 'resources' && <AiResources />}
-            </div>
-
-            <div className="mt-16 text-center">
-                 <h2 className="text-2xl font-bold uppercase tracking-wider mb-4">A Note on Using AI</h2>
-                 <div className="max-w-xl mx-auto text-sm text-stone-600 dark:text-stone-300 bg-amber-100 dark:bg-amber-900/20 p-4 rounded-lg border border-amber-300 dark:border-amber-500/30">
-                     <p>AI should be used as a powerful tool to <strong className="text-amber-800 dark:text-amber-300">aid revision</strong>, not replace critical thinking. Use it to clarify concepts, generate ideas, and test your knowledge, but always develop your own understanding and analysis.</p>
-                 </div>
             </div>
         </div>
     );

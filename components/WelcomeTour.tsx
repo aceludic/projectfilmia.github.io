@@ -1,3 +1,4 @@
+
 import React, { useState, useLayoutEffect, useRef } from 'react';
 
 interface TourStep {
@@ -17,7 +18,7 @@ interface WelcomeTourProps {
 
 const WelcomeTour: React.FC<WelcomeTourProps> = ({ steps, onTourEnd, setCustomizing }) => {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
-    const [highlightStyle, setHighlightStyle] = useState<React.CSSProperties>({ opacity: 0, pointerEvents: 'none' });
+    const [highlightStyle, setHighlightStyle] = useState<React.CSSProperties>({ position: 'absolute', opacity: 0, pointerEvents: 'none' });
     const [tooltipState, setTooltipState] = useState<{
         style: React.CSSProperties;
         arrowStyle: React.CSSProperties;
@@ -37,7 +38,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({ steps, onTourEnd, setCustomiz
             const tooltipElement = tooltipRef.current;
 
             if (!targetElement || !tooltipElement) {
-                setHighlightStyle({ opacity: 0, pointerEvents: 'none' });
+                setHighlightStyle({ position: 'absolute', opacity: 0, pointerEvents: 'none' });
                 setTooltipState(prev => ({ ...prev, style: { ...prev.style, opacity: 0, pointerEvents: 'none' } }));
                 return;
             }
@@ -48,6 +49,7 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({ steps, onTourEnd, setCustomiz
 
             // 1. Set the spotlight highlight style
             setHighlightStyle({
+                position: 'absolute',
                 top: `${targetRect.top - HIGHLIGHT_PADDING}px`,
                 left: `${targetRect.left - HIGHLIGHT_PADDING}px`,
                 width: `${targetRect.width + HIGHLIGHT_PADDING * 2}px`,
