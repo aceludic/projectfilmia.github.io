@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 
 interface ReleaseScheduleModalProps {
@@ -29,11 +30,11 @@ const ReleaseScheduleModal: React.FC<ReleaseScheduleModalProps> = ({ onClose }) 
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
-        <div className="bg-beige-50 dark:bg-stone-800 rounded-lg shadow-2xl max-w-md w-full p-6 animate-fade-in-up border border-beige-200 dark:border-stone-700" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
+        <div className="bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-lg shadow-2xl max-w-md w-full p-6 animate-scale-in border border-glass-border dark:border-glass-border-dark" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
                  <h2 className="text-2xl font-bold text-stone-800 dark:text-beige-100">Things to Come</h2>
-                 <button onClick={onClose} className="text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-beige-100">
+                 <button onClick={onClose} className="text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-beige-100 btn-ripple rounded-full p-1">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>

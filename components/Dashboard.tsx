@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import DashboardSection from './DashboardSection';
 import SocialIntegrations from './SocialIntegrations';
@@ -11,7 +12,9 @@ import CalendarWidget from './CalendarWidget';
 import AppLinksWidget from './AppLinksWidget';
 import NewsLinkWidget from './NewsLinkWidget';
 import InitialWelcomeModal from './InitialWelcomeModal';
-import { SocialAccount, Post, LayoutItem, PinnedItem, TimetableEntry, AppLink } from '../types';
+import TimerWidget from './TimerWidget';
+import PandaWidget from './PandaWidget';
+import { SocialAccount, Post, LayoutItem, PinnedItem, TimetableEntry, AppLink, PandaState } from '../types';
 import { LoggedInView, Theme } from '../App';
 
 interface DashboardProps {
@@ -27,21 +30,34 @@ interface DashboardProps {
     setView: (view: LoggedInView) => void;
     theme: Theme;
     setTheme: (theme: Theme) => void;
+    onSetupTimer: () => void;
+    studiedSubjects: string[];
+    pandaState: PandaState;
+    onFeedPanda: () => void;
 }
 
 const GRID_COLS = 12;
 const CELL_HEIGHT = 50;
 
+// Reorganized layout for a more structured, cube-like grid with more vertical space
 const defaultLayout: LayoutItem[] = [
-    { i: 'time', x: 0, y: 0, w: 2, h: 4 },
-    { i: 'apps', x: 2, y: 0, w: 2, h: 4 },
-    { i: 'pins', x: 0, y: 4, w: 4, h: 10 },
-    { i: 'timetable', x: 4, y: 0, w: 8, h: 8 },
-    { i: 'calendar', x: 4, y: 8, w: 8, h: 6 },
-    { i: 'social', x: 0, y: 14, w: 4, h: 8 },
-    { i: 'feed', x: 4, y: 14, w: 8, h: 8 },
-    { i: 'news', x: 0, y: 22, w: 12, h: 3 },
+    // Row 1
+    { i: 'panda', x: 0, y: 0, w: 4, h: 6 },     // Panda Companion
+    { i: 'time', x: 4, y: 0, w: 4, h: 6 },      // Clock (taller for symmetry)
+    { i: 'apps', x: 8, y: 0, w: 4, h: 6 },      // My Links (taller)
+    // Row 2
+    { i: 'timetable', x: 0, y: 6, w: 6, h: 12 }, // Timetable (much taller)
+    { i: 'timer', x: 6, y: 6, w: 6, h: 12 },     // Study Timer (much taller)
+    // Row 3
+    { i: 'pins', x: 0, y: 18, w: 6, h: 12 },     // Pinned Items (much taller)
+    { i: 'calendar', x: 6, y: 18, w: 6, h: 12 }, // Calendar (much taller)
+    // Row 4
+    { i: 'social', x: 0, y: 30, w: 4, h: 12 },   // Social Hub (much taller)
+    { i: 'feed', x: 4, y: 30, w: 8, h: 12 },     // Live Feed (much taller)
+    // Row 5
+    { i: 'news', x: 0, y: 42, w: 12, h: 4 },    // News (slightly taller)
 ];
+
 
 const useWindowSize = () => {
     const [size, setSize] = useState([window.innerWidth, window.innerHeight]);
@@ -53,6 +69,13 @@ const useWindowSize = () => {
     return size;
 };
 
+const DashboardLights: React.FC = () => (
+    <div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute w-[50vmax] h-[50vmax] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-400/20 blur-3xl animate-glow-pulse" style={{ top: '20%', left: '20%' }}></div>
+        <div className="absolute w-[40vmax] h-[40vmax] -translate-x-1/2 -translate-y-1/2 rounded-full bg-teal-400/20 blur-3xl animate-glow-pulse" style={{ top: '70%', left: '80%', animationDelay: '5s' }}></div>
+    </div>
+);
+
 
 const Dashboard: React.FC<DashboardProps> = (props) => {
     const { 
@@ -62,6 +85,9 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         setView,
         theme,
         setTheme,
+        onSetupTimer,
+        studiedSubjects,
+        pandaState, onFeedPanda,
     } = props;
     
     const [windowWidth] = useWindowSize();
@@ -80,6 +106,25 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
             return defaultLayout;
         }
     });
+
+    const subtitle = useMemo(() => {
+        if (!studiedSubjects || studiedSubjects.length === 0) {
+            return 'Your personalized media and film studies hub.'; // Fallback
+        }
+    
+        const hasMedia = studiedSubjects.includes('media');
+        const hasFilm = studiedSubjects.includes('film');
+    
+        if (hasMedia && hasFilm) {
+            return 'Your personalized hub for Media and Film Studies.';
+        } else if (hasMedia) {
+            return 'Your personalized hub for Media Studies.';
+        } else if (hasFilm) {
+            return 'Your personalized hub for Film Studies.';
+        }
+    
+        return 'Your personalized media and film studies hub.'; // Final fallback
+    }, [studiedSubjects]);
 
     useEffect(() => {
         const hasSeenWelcome = localStorage.getItem('hasSeenDashboardWelcome');
@@ -160,14 +205,16 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     };
 
     const sections: { [key: string]: { title: string; description?: string; component: React.ReactNode } } = {
+        timer: { title: 'Study Timer', component: <TimerWidget onSetup={onSetupTimer} /> },
         social: { title: 'Social Hub', component: <SocialIntegrations accounts={accounts} onAddAccount={handleAddAccount} onRemoveAccount={handleRemoveAccount} /> },
         feed: { title: 'Live Feed', component: <RecentPosts /> },
         pins: { title: 'Pinned Items', component: <PinnedItemsWidget items={pinnedItems} onUnpin={onTogglePin} setView={setView} /> },
         time: { title: 'Clock', component: <TimeWidget /> },
         timetable: { title: 'Revision Timetable', component: <RevisionTimetableWidget entries={timetableEntries} onAdd={onAddTimetableEntry} onRemove={onRemoveTimetableEntry} onAddMultiple={onAddMultipleTimetableEntries} /> },
-        calendar: { title: 'Calendar', component: <CalendarWidget /> },
+        calendar: { title: 'Calendar', component: <CalendarWidget entries={timetableEntries} /> },
         apps: { title: 'My Links', component: <AppLinksWidget links={appLinks} onAdd={onAddAppLink} onRemove={onRemoveAppLink} /> },
         news: { title: 'News', component: <NewsLinkWidget setView={setView} /> },
+        panda: { title: 'Panda Companion', component: <PandaWidget state={pandaState} onFeed={onFeedPanda} /> },
     };
 
     const currentWidgetIds = layout.map(item => item.i);
@@ -183,18 +230,19 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
 
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8 animate-fade-in-up">
+            <DashboardLights />
             {showInitialWelcome && <InitialWelcomeModal onClose={handleCloseWelcome} theme={theme} setTheme={setTheme} />}
-            <div className="flex justify-between items-center mb-12">
+            <div className="flex justify-between items-center mb-4">
                 <div className="text-center flex-grow">
                     <h1 id="dashboard-title" className="text-4xl font-black uppercase">Dashboard</h1>
-                    <p className="mt-2 text-lg text-stone-500 dark:text-stone-400">Your personalized media and film studies hub.</p>
+                    <p className="mt-2 text-lg text-stone-500 dark:text-stone-400">{subtitle}</p>
                 </div>
                 <div className="hidden md:flex items-center space-x-2">
                     {isCustomizing && (
                         <button 
                         onClick={handleResetLayout}
-                        className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-bold hover:bg-red-700 transition-colors transform hover:-translate-y-1 animate-fade-in"
+                        className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-bold hover:bg-red-700 transition-colors transform hover:-translate-y-1 animate-fade-in btn-ripple"
                         >
                         Reset Layout
                         </button>
@@ -202,13 +250,17 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                     <button
                         id="customize-button"
                         onClick={() => setIsCustomizing(!isCustomizing)}
-                        className={`px-4 py-2 rounded-md font-bold transition-all duration-300 transform hover:-translate-y-1 text-sm ${
-                            isCustomizing ? 'bg-green-600 text-white shadow-md' : 'bg-brand-brown-700 text-white'
+                        className={`px-4 py-2 rounded-md font-bold transition-all duration-300 transform hover:-translate-y-1 text-sm btn-ripple ${
+                            isCustomizing ? 'bg-green-600 text-white shadow-md animate-glow' : 'bg-brand-brown-700 text-white'
                         }`}
                     >
                         {isCustomizing ? 'Done' : 'Customize'}
                     </button>
                 </div>
+            </div>
+
+            <div className="text-center p-3 mb-4 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-600/50 rounded-lg text-sm text-yellow-800 dark:text-yellow-300 animate-fade-in" role="alert">
+                <p><strong>Please note:</strong> We're experiencing some slowness which may affect loading times. We're working on a fix and thank you for your patience!</p>
             </div>
 
             <div 

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="https://i.postimg.cc/x8N8KXSk/favicon.png" />
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Project Filmia</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,11 +26,19 @@
               inconsolata: ['Inconsolata', 'monospace'],
             },
             colors: {
+              // Glassmorphism colors
+              glass: {
+                100: 'rgba(255, 255, 255, 0.25)',
+                200: 'rgba(255, 255, 255, 0.15)',
+                300: 'rgba(255, 255, 255, 0.1)',
+                border: 'rgba(255, 255, 255, 0.15)',
+                'border-dark': 'rgba(255, 255, 255, 0.08)',
+              },
               beige: {
-                50: '#fdfbf6',
-                100: '#f7f2ea',
-                200: '#e9e1d5',
-                300: '#d7ccbc',
+                50: '#faf6f1',
+                100: '#f5ede3',
+                200: '#eed9c4',
+                300: '#e7c5a6',
               },
               stone: {
                 500: '#78716c',
@@ -44,21 +52,30 @@
                 800: '#5C4033', // Dark Coffee
               },
             },
+            blur: {
+              '4xl': 'blur(80px)',
+            },
             animation: {
-              'fade-in-up': 'fadeInUp 1s ease-in-out forwards',
+              'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards',
               'fade-in': 'fadeIn 0.5s ease-in-out forwards',
               'subtle-bob': 'subtleBob 4s ease-in-out infinite',
               'spin-fast': 'spin 0.5s linear 1',
-              'slide-down': 'slideDown 0.5s ease-out forwards',
-              'slide-and-fade-in': 'slideAndFadeIn 0.7s ease-out forwards',
+              'slide-down': 'slideDown 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+              'slide-and-fade-in': 'slideAndFadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards',
               'loading-bar': 'loadingBar 0.25s ease-in-out forwards',
-              'pulse-blur': 'pulseBlur 5s ease-in-out infinite',
-              'ripple': 'ripple 3s cubic-bezier(0, 0.2, 0.8, 1) infinite',
+              'pulse-blur': 'pulseBlur 3s ease-in-out infinite',
+              'ripple': 'ripple 2s cubic-bezier(0, 0.2, 0.8, 1) infinite',
+              'scale-in': 'scaleIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+              'glow': 'glow 2s ease-in-out infinite',
+              'breathe-1': 'breathe 15s ease-in-out infinite',
+              'breathe-2': 'breathe 18s ease-in-out infinite',
+              'breathe-3': 'breathe 21s ease-in-out infinite',
+              'glow-pulse': 'glowPulse 10s ease-in-out infinite alternate',
             },
             keyframes: {
               fadeInUp: {
-                '0%': { opacity: '0', transform: 'translateY(25px)' },
-                '100%': { opacity: '1', transform: 'translateY(0)' },
+                '0%': { opacity: '0', transform: 'translateY(30px) scale(0.98)' },
+                '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
               },
               fadeIn: {
                 '0%': { opacity: '0' },
@@ -69,7 +86,7 @@
                 '50%': { transform: 'translateY(-12px)' },
               },
               slideDown: {
-                '0%': { opacity: '0', transform: 'translateY(-10px)' },
+                '0%': { opacity: '0', transform: 'translateY(-20px)' },
                 '100%': { opacity: '1', transform: 'translateY(0)' },
               },
               slideAndFadeIn: {
@@ -85,9 +102,31 @@
                 '50%': { filter: 'blur(8px) brightness(1)', transform: 'scale(1.05)' },
               },
               ripple: {
-                '0%': { transform: 'scale(0)', opacity: '0.75' },
+                '0%': { transform: 'scale(.1)', opacity: '0' },
+                '50%': { opacity: '0.2' },
                 '100%': { transform: 'scale(4)', opacity: '0' },
               },
+              scaleIn: {
+                  '0%': { opacity: '0', transform: 'scale(0.95)' },
+                  '100%': { opacity: '1', transform: 'scale(1)' },
+              },
+              glow: {
+                '0%, 100%': { boxShadow: '0 0 10px -5px rgba(111, 78, 55, 0.3)' },
+                '50%': { boxShadow: '0 0 20px 0px rgba(111, 78, 55, 0.5)' },
+              },
+              breathe: {
+                '0%': { transform: 'scale(1) rotate(0deg)', opacity: '0.6', backgroundColor: '#fb7185' }, // rose
+                '20%': { transform: 'scale(1.5) rotate(72deg)', opacity: '0.7', backgroundColor: '#fdba74' }, // orange
+                '40%': { transform: 'scale(1.2) rotate(144deg)', opacity: '0.8', backgroundColor: '#67e8f9' }, // cyan
+                '60%': { transform: 'scale(1.8) rotate(216deg)', opacity: '0.7', backgroundColor: '#c4b5fd' }, // violet
+                '80%': { transform: 'scale(1.4) rotate(288deg)', opacity: '0.9', backgroundColor: '#86efac' }, // green
+                '100%': { transform: 'scale(1) rotate(360deg)', opacity: '0.6', backgroundColor: '#fb7185' }, // rose
+              },
+              glowPulse: {
+                '0%': { transform: 'scale(1)', opacity: '0.2' },
+                '50%': { transform: 'scale(1.2)', opacity: '0.3' },
+                '100%': { transform: 'scale(1)', opacity: '0.2' },
+              }
             }
           }
         }
@@ -103,6 +142,46 @@
         z-index: 9999; /* High z-index to cover everything */
         pointer-events: none; /* Allows clicks to pass through */
       }
+      /* Button Ripple Effect */
+      .btn-ripple {
+        position: relative;
+        overflow: hidden;
+        -webkit-tap-highlight-color: transparent; /* Disable blue tap highlight on mobile */
+      }
+      .btn-ripple::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        background-image: radial-gradient(circle, currentColor 10%, transparent 10.01%);
+        background-repeat: no-repeat;
+        background-position: 50%;
+        transform: scale(10, 10);
+        opacity: 0;
+        transition: transform .5s, opacity 1s;
+      }
+      .btn-ripple:active::after {
+        transform: scale(0, 0);
+        opacity: .2;
+        transition: 0s;
+      }
+      /* Cursor Follower */
+      .cursor-follower {
+        position: fixed;
+        top: -12px;
+        left: -12px;
+        width: 24px;
+        height: 24px;
+        background: rgba(111, 78, 55, 0.3);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transition: transform 0.05s linear;
+        backdrop-filter: blur(2px);
+      }
     </style>
   <script type="importmap">
 {
@@ -115,7 +194,7 @@
 }
 </script>
 </head>
-  <body class="bg-beige-100 text-stone-800 dark:bg-stone-900 dark:text-beige-200 transition-colors duration-300">
+  <body class="bg-transparent text-stone-800 dark:bg-transparent dark:text-beige-200 transition-colors duration-300">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

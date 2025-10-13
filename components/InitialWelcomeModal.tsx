@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Theme } from '../App';
 
@@ -22,8 +23,8 @@ const FeatureSection: React.FC<{ title: string; children: string; icon: React.Re
 
 
 const InitialWelcomeModal: React.FC<InitialWelcomeModalProps> = ({ onClose, theme, setTheme }) => (
-    <div className="fixed inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-        <div className="bg-beige-50 dark:bg-stone-800 rounded-lg shadow-2xl max-w-lg w-full p-8 animate-fade-in-up border border-beige-200 dark:border-stone-700">
+    <div className="fixed inset-0 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in">
+        <div className="bg-glass-100 dark:bg-black/50 backdrop-blur-4xl rounded-lg shadow-2xl max-w-lg w-full p-8 animate-scale-in border border-glass-border dark:border-glass-border-dark">
             <h2 className="text-2xl font-bold text-stone-800 dark:text-beige-100 mb-2 text-center">Welcome to Project Filmia!</h2>
             <p className="text-base text-stone-600 dark:text-stone-300 mb-8 text-center">
                 Here's a quick guide to what you can do:
@@ -47,12 +48,12 @@ const InitialWelcomeModal: React.FC<InitialWelcomeModalProps> = ({ onClose, them
                 </FeatureSection>
             </div>
             
-             <div className="bg-beige-100 dark:bg-stone-700/50 p-4 rounded-lg mb-8">
+             <div className="bg-beige-100/50 dark:bg-stone-700/50 p-4 rounded-lg mb-8">
                 <p className="text-sm font-bold text-center text-stone-700 dark:text-beige-100 mb-3">Choose your preferred theme:</p>
                 <div className="flex justify-center space-x-2 sm:space-x-4">
                     <button
                         onClick={() => setTheme('light')}
-                        className={`px-4 sm:px-6 py-2 rounded-md font-semibold text-sm transition-all ${
+                        className={`btn-ripple px-4 sm:px-6 py-2 rounded-md font-semibold text-sm transition-all ${
                             theme === 'light' 
                                 ? 'bg-brand-brown-700 text-white ring-2 ring-offset-2 ring-brand-brown-700 ring-offset-beige-50 dark:ring-offset-stone-800' 
                                 : 'bg-white text-stone-800 shadow-sm hover:bg-gray-100'
@@ -62,7 +63,7 @@ const InitialWelcomeModal: React.FC<InitialWelcomeModalProps> = ({ onClose, them
                     </button>
                     <button
                         onClick={() => setTheme('dark')}
-                        className={`px-4 sm:px-6 py-2 rounded-md font-semibold text-sm transition-all ${
+                        className={`btn-ripple px-4 sm:px-6 py-2 rounded-md font-semibold text-sm transition-all ${
                             (theme === 'dark' || theme === 'night')
                                 ? 'bg-brand-brown-700 text-white ring-2 ring-offset-2 ring-brand-brown-700 ring-offset-beige-50 dark:ring-offset-stone-800' 
                                 : 'bg-stone-700 text-white shadow-sm hover:bg-stone-600'
@@ -76,7 +77,7 @@ const InitialWelcomeModal: React.FC<InitialWelcomeModalProps> = ({ onClose, them
             <div className="text-center">
                  <button
                     onClick={onClose}
-                    className="bg-brand-brown-700 text-white px-8 py-3 rounded-md text-base font-bold hover:bg-brand-brown-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-brown-700"
+                    className="bg-brand-brown-700 text-white px-8 py-3 rounded-md text-base font-bold hover:bg-brand-brown-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-brown-700 btn-ripple"
                 >
                     Get Started
                 </button>

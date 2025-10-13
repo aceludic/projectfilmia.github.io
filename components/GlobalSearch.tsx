@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { TheoristCategory, CSPCategory, JournalEntry, NoteTab, SearchResult } from '../types';
 
@@ -41,12 +42,12 @@ const ResultItem: React.FC<{ result: SearchResult; onClick: () => void }> = ({ r
     return (
         <button 
             onClick={onClick}
-            className="w-full text-left p-3 flex items-center space-x-3 rounded-md hover:bg-beige-200 dark:hover:bg-stone-700 transition-colors"
+            className="w-full text-left p-3 flex items-center space-x-3 rounded-md hover:bg-glass-100 dark:hover:bg-glass-100 transition-colors btn-ripple"
         >
             <div className="text-xl">{icon}</div>
             <div>
                 <p className="font-bold text-stone-800 dark:text-beige-100">{title}</p>
-                <p className="text-xs text-stone-500 dark:text-stone-400">{subtitle}</p>
+                <p className="text-xs text-stone-600 dark:text-stone-400">{subtitle}</p>
             </div>
         </button>
     );
@@ -124,13 +125,13 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose, theorists,
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm z-50 flex justify-center p-4 pt-[15vh] animate-fade-in" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex justify-center p-4 pt-[15vh] animate-fade-in" onClick={onClose}>
             <div 
-                className="w-full max-w-2xl h-auto max-h-[70vh] bg-beige-50 dark:bg-stone-800 rounded-lg shadow-2xl flex flex-col animate-fade-in-up border border-beige-200 dark:border-stone-700"
+                className="w-full max-w-2xl h-auto max-h-[70vh] bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-2xl flex flex-col animate-scale-in border border-glass-border dark:border-glass-border-dark"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="flex-shrink-0 p-4 border-b border-beige-200 dark:border-stone-700 flex items-center space-x-3">
-                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex-shrink-0 p-4 border-b border-glass-border dark:border-glass-border-dark flex items-center space-x-3">
+                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-stone-600 dark:text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <input
@@ -139,7 +140,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose, theorists,
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         autoFocus
-                        className="w-full bg-transparent focus:outline-none text-lg text-stone-800 dark:text-beige-100 placeholder-stone-400"
+                        className="w-full bg-transparent focus:outline-none text-lg text-stone-800 dark:text-beige-100 placeholder-stone-500 dark:placeholder-stone-400"
                     />
                 </div>
                 <div className="flex-grow overflow-y-auto p-2">

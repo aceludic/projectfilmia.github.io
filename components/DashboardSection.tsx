@@ -117,10 +117,10 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
   const y = `${layoutItem.y * cellHeight}px`;
 
   const sectionStyle = isMobile ? { minHeight: '350px' } : { left: x, top: y, width, height };
-  const sectionClasses = `bg-beige-50/50 backdrop-blur-sm rounded-lg shadow-sm border border-beige-200/50 dark:bg-stone-800/50 dark:border-stone-700/50 transition-all duration-200 ease-in-out ${
+  const sectionClasses = `bg-glass-100 dark:bg-black/50 backdrop-blur-4xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark transition-all duration-300 ease-in-out hover:shadow-xl hover:border-white/30 dark:hover:border-white/20 ${
     isMobile ? 'relative w-full' : 'absolute'
   } ${
-    isCustomizing && !isMobile ? 'ring-2 ring-brand-brown-700 ring-offset-2 ring-offset-beige-100 dark:ring-offset-stone-900' : ''
+    isCustomizing && !isMobile ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-stone-900/50 animate-pulse' : ''
   }`;
 
   return (
@@ -133,15 +133,15 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
         <div className="flex flex-col h-full">
             <div 
                 onMouseDown={handleDragStart}
-                className={`relative p-4 border-b border-beige-200/50 dark:border-stone-700/50 flex-shrink-0 ${isCustomizing && !isMobile ? 'cursor-move' : ''}`}
+                className={`relative p-4 border-b border-glass-border dark:border-glass-border-dark flex-shrink-0 ${isCustomizing && !isMobile ? 'cursor-move' : ''}`}
             >
-                <h2 className="text-xl font-bold text-stone-700 dark:text-beige-100 pr-8">{title}</h2>
-                {description && <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">{description}</p>}
+                <h2 className="text-xl font-bold text-stone-800 dark:text-beige-100 pr-8">{title}</h2>
+                {description && <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">{description}</p>}
                 {isCustomizing && !isMobile && (
                     <button
                         onMouseDown={(e) => e.stopPropagation()}
                         onClick={() => onRemoveWidget(layoutItem.i)}
-                        className="absolute top-3 right-3 p-1.5 rounded-full text-stone-500 hover:bg-red-200 hover:text-red-700 dark:hover:bg-red-900/50 transition-colors"
+                        className="absolute top-3 right-3 p-1.5 rounded-full text-stone-700 dark:text-stone-300 hover:bg-red-400/50 hover:text-white dark:hover:bg-red-500/50 transition-colors btn-ripple"
                         aria-label={`Remove ${title} widget`}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -157,9 +157,9 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
         {isCustomizing && !isMobile && (
             <div
                 onMouseDown={handleResizeStart}
-                className="absolute bottom-0 right-0 w-6 h-6 bg-brand-brown-700 rounded-tl-lg cursor-se-resize flex items-end justify-end p-1"
+                className="absolute bottom-0 right-0 w-6 h-6 bg-amber-400 rounded-tl-lg cursor-se-resize flex items-end justify-end p-1"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M4 8V4h4m12 0h-4v4m0 8v4h4M4 16h4v4" />
                 </svg>
             </div>

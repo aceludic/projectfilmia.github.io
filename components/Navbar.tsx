@@ -1,15 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import { LoggedInView } from '../App';
 import ReleaseScheduleModal from './ReleaseScheduleModal';
+import { VisibleTabs } from '../types';
 
 interface NavbarProps {
   view: LoggedInView;
   setView: (view: LoggedInView) => void;
   onOpenSearch: () => void;
+  visibleTabs: VisibleTabs;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch }) => {
+const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch, visibleTabs }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isReleaseModalOpen, setIsReleaseModalOpen] = useState(false);
 
@@ -23,16 +24,16 @@ const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch }) => {
         setView(targetView);
         setIsMenuOpen(false);
       }}
-      className={`transition-all duration-300 transform hover:-translate-y-1 ${
+      className={`btn-ripple transition-all duration-300 transform hover:-translate-y-1 ${
         isMobile
           ? 'w-full text-center py-3 text-lg'
           : 'px-4 py-2 rounded-lg text-sm font-bold'
       } ${
         view === targetView
           ? isMobile
-            ? 'bg-brand-brown-700/20 text-brand-brown-700 dark:text-amber-400'
-            : 'bg-brand-brown-700 text-white shadow-md'
-          : 'text-stone-500 dark:text-stone-400 hover:bg-beige-200 hover:text-stone-800 dark:hover:bg-stone-700 dark:hover:text-beige-100'
+            ? 'bg-glass-100 text-stone-900 dark:text-white'
+            : 'bg-glass-100 text-stone-900 dark:text-white shadow-md'
+          : 'text-stone-700 dark:text-stone-300 hover:bg-glass-300 hover:text-stone-800 dark:hover:text-white'
       }`}
     >
       {children}
@@ -83,28 +84,26 @@ const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch }) => {
     <>
     <header 
       id="navbar"
-      className="fixed top-0 left-0 right-0 z-20 bg-beige-50/80 backdrop-blur-md border-b border-beige-200 dark:bg-stone-900/80 dark:border-stone-800/80 animate-fade-in"
+      className="fixed top-0 left-0 right-0 z-20 bg-glass-100 backdrop-blur-4xl border-b border-glass-border dark:border-glass-border-dark animate-fade-in"
     >
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center space-x-4 md:space-x-12">
             <button onClick={() => setView('dashboard')} className="flex items-center space-x-3 cursor-pointer group">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-brown-700 group-hover:animate-spin-fast" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M8.433 7.418c.158-.103.352-.103.51 0l.93 1.253a1 1 0 001.64 0l.93-1.253c.158-.103.352-.103.51 0L15 9.582a1 1 0 000 1.64l-2.07 1.753c-.158.103-.352.103-.51 0L10 11.333l-2.43 1.642c-.158.103-.352.103-.51 0L5 9.582a1 1 0 000-1.64l2.07-1.753.93-1.253z" />
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0 2a10 10 0 100-20 10 10 0 000 20z" clipRule="evenodd" />
-                </svg>
-              <div className="flex items-center space-x-3">
-                <div className="font-lora text-xl font-black tracking-wider uppercase leading-tight dark:text-beige-100">
-                  <div>PROJECT</div>
-                  <div>FILMIA</div>
+                <img src="https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png" alt="Project Filmia Logo" className="h-8 w-8 group-hover:animate-spin-fast" />
+                <div className="flex flex-col items-start leading-tight">
+                    <div className="font-playfair-display text-xl font-bold text-stone-800 dark:text-beige-100">
+                        Project Filmia
+                    </div>
+                    <span className="hidden lg:block text-xs text-stone-600 dark:text-stone-400 tracking-tight normal-case">
+                        your creative hub
+                    </span>
                 </div>
-                <span className="hidden lg:block text-xs text-stone-500 dark:text-stone-400 tracking-tight normal-case pt-1">all you need for media & film studies</span>
-              </div>
             </button>
               <nav className="hidden md:flex items-center space-x-8">
                 <NavLink targetView="dashboard">Dashboard</NavLink>
-                <NavLink targetView="media-studies">Media Studies</NavLink>
-                <NavLink targetView="film-studies">Film Studies</NavLink>
+                {visibleTabs['media-studies'] && <NavLink targetView="media-studies">Media Studies</NavLink>}
+                {visibleTabs['film-studies'] && <NavLink targetView="film-studies">Film Studies</NavLink>}
                 <NavLink targetView="news">News</NavLink>
                 <NavLink targetView="journal">Journal</NavLink>
                 <NavLink targetView="ai-tutor">AI Tutor</NavLink>
@@ -113,7 +112,7 @@ const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch }) => {
           <div className="flex items-center space-x-4 md:space-x-6">
             <button
                 onClick={() => setIsReleaseModalOpen(true)}
-                className="hidden sm:flex items-center space-x-2 text-xs font-semibold text-beige-200 bg-brand-brown-800/80 px-3 py-1.5 rounded-lg transition-transform transform hover:-translate-y-0.5"
+                className="hidden sm:flex items-center space-x-2 text-xs font-semibold text-black dark:text-beige-200 bg-black/20 px-3 py-1.5 rounded-lg transition-transform transform hover:-translate-y-0.5 btn-ripple"
             >
                 <span className="font-bold">Full Release:</span>
                 <div className="flex space-x-1.5">
@@ -125,18 +124,18 @@ const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch }) => {
             </button>
             <button 
                 onClick={onOpenSearch}
-                className="flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-semibold text-stone-600 dark:text-stone-300 bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 dark:hover:bg-stone-700 transition-colors"
+                className="flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-semibold text-stone-800 dark:text-stone-200 bg-glass-300 hover:bg-glass-100 transition-colors btn-ripple"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <span className="hidden lg:block">Search...</span>
-                <kbd className="hidden lg:inline-flex items-center px-2 py-1 rounded border border-stone-300 dark:border-stone-600 text-xs font-sans">⌘K</kbd>
+                <kbd className="hidden lg:inline-flex items-center px-2 py-1 rounded border border-stone-400 dark:border-stone-600 text-xs font-sans">⌘K</kbd>
             </button>
              <div className="md:hidden">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2 rounded-md text-stone-500 dark:text-stone-400 hover:bg-beige-200 dark:hover:bg-stone-700"
+                className="p-2 rounded-md text-stone-700 dark:text-stone-300 hover:bg-glass-300 btn-ripple"
                 aria-label="Open menu"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -148,11 +147,11 @@ const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch }) => {
         </div>
       </div>
       {isMenuOpen && (
-        <div className="md:hidden absolute top-20 left-0 right-0 bg-beige-50/95 dark:bg-stone-900/95 backdrop-blur-md shadow-lg animate-slide-down">
+        <div className="md:hidden absolute top-20 left-0 right-0 bg-glass-100 backdrop-blur-3xl shadow-lg animate-slide-down">
             <nav className="flex flex-col">
                 <NavLink targetView="dashboard" isMobile>Dashboard</NavLink>
-                <NavLink targetView="media-studies" isMobile>Media Studies</NavLink>
-                <NavLink targetView="film-studies" isMobile>Film Studies</NavLink>
+                {visibleTabs['media-studies'] && <NavLink targetView="media-studies" isMobile>Media Studies</NavLink>}
+                {visibleTabs['film-studies'] && <NavLink targetView="film-studies" isMobile>Film Studies</NavLink>}
                 <NavLink targetView="news" isMobile>News</NavLink>
                 <NavLink targetView="journal" isMobile>Journal</NavLink>
                 <NavLink targetView="ai-tutor" isMobile>AI Tutor</NavLink>

@@ -10,7 +10,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'Score Hair Cream',
                 year: 1967,
                 category: 'Print Advertisement',
-                imageUrl: 'https://picsum.photos/seed/score1967/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'A vintage print advertisement for Score hair cream, reflecting 1960s social values and representations of masculinity.',
                 keyFacts: { 
                     media: 'Print Magazine Advertisement', 
@@ -26,7 +26,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'Sephora: Black Beauty is Beauty',
                 year: 2020,
                 category: 'Advertisement',
-                imageUrl: 'https://picsum.photos/seed/sephora2020/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'An advertising campaign by Sephora celebrating Black beauty and culture, promoting inclusivity within the beauty industry.',
                 keyFacts: { 
                     media: 'Online Video Ad', 
@@ -42,7 +42,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'Ghost Town',
                 year: 1981,
                 category: 'Music Video',
-                imageUrl: 'https://picsum.photos/seed/ghosttown1981/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'A music video by The Specials that serves as a social commentary on urban decay, unemployment, and racial tensions in early 1980s Britain.',
                 keyFacts: { 
                     media: 'Music Video', 
@@ -57,7 +57,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'Old Town Road',
                 year: 2019,
                 category: 'Music Video',
-                imageUrl: 'https://picsum.photos/seed/lilnasx2019/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'The viral music video for the genre-blending hit "Old Town Road," which challenges conventions of country and hip-hop music.',
                 keyFacts: { 
                     media: 'Music Video / Social Media', 
@@ -72,7 +72,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'The Daily Mail',
                 year: 1896,
                 category: 'Newspaper',
-                imageUrl: 'https://picsum.photos/seed/dailymail/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'A popular British daily middle-market tabloid newspaper owned by the Daily Mail and General Trust.',
                 keyFacts: { 
                     media: 'Newspaper (Print & Online)', 
@@ -88,7 +88,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'The Guardian',
                 year: 1821,
                 category: 'Newspaper',
-                imageUrl: 'https://picsum.photos/seed/guardian/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'A British daily broadsheet newspaper known for its left-wing, liberal editorial stance.',
                 keyFacts: {
                     media: 'Newspaper (Print & Online)',
@@ -104,7 +104,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'War of the Worlds',
                 year: 1938,
                 category: 'Radio Drama',
-                imageUrl: 'https://picsum.photos/seed/radio1938/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'Orson Welles\' famous radio adaptation of the H.G. Wells novel, which was presented as a series of news bulletins and caused widespread panic among some listeners.',
                 keyFacts: { 
                     media: 'Radio', 
@@ -120,7 +120,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'BBC Newsbeat',
                 year: 1973,
                 category: 'News Service',
-                imageUrl: 'https://picsum.photos/seed/newsbeat1973/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'The BBC\'s youth-oriented news service, broadcast on Radio 1 and 1Xtra and published online, focusing on stories relevant to a younger audience.',
                 keyFacts: { 
                     media: 'Radio / Online', 
@@ -136,7 +136,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'Blinded by the Light',
                 year: 2019,
                 category: 'Film',
-                imageUrl: 'https://picsum.photos/seed/blinded2019/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'A British comedy-drama film about a British-Pakistani teenager whose life is changed after he discovers the music of Bruce Springsteen.',
                 keyFacts: { 
                     media: 'Film', 
@@ -158,7 +158,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'The Sims FreePlay',
                 year: 2011,
                 category: 'Mobile Game',
-                imageUrl: 'https://picsum.photos/seed/sims2011/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'A freemium mobile version of the popular life simulation game, where players create and control virtual characters ("Sims").',
                 keyFacts: { 
                     media: 'Video Game', 
@@ -174,7 +174,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'Tomb Raider: Anniversary',
                 year: 2007,
                 category: 'Video Game',
-                imageUrl: 'https://picsum.photos/seed/tombraider2007/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'A remake of the original 1996 Tomb Raider, this action-adventure game follows archaeologist-adventurer Lara Croft.',
                 keyFacts: {
                     media: 'Video Game',
@@ -189,7 +189,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'Oh Comely',
                 year: 2010,
                 category: 'Magazine',
-                imageUrl: 'https://picsum.photos/seed/ohcomely2010/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'An independent British magazine focusing on creativity, feminism, and personal stories, known for its distinct aesthetic.',
                 keyFacts: {
                     media: 'Magazine (Print)',
@@ -204,7 +204,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'Teen Vogue',
                 year: 2003,
                 category: 'Magazine',
-                imageUrl: 'https://picsum.photos/seed/teenvogue2003/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'An American online publication that shifted from fashion to include in-depth coverage of politics and social justice for a youth audience.',
                 keyFacts: { 
                     media: 'Online Magazine', 
@@ -220,7 +220,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'Men\'s Health',
                 year: 1987,
                 category: 'Magazine',
-                imageUrl: 'https://picsum.photos/seed/menshealth1987/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'A men\'s magazine brand focusing on fitness, nutrition, and lifestyle, promoting a specific ideal of modern masculinity.',
                 keyFacts: { 
                     media: 'Magazine (Print & Online)', 
@@ -236,7 +236,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'Deutschland 83',
                 year: 2015,
                 category: 'TV Drama',
-                imageUrl: 'https://picsum.photos/seed/d83-2015/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'A German-language spy thriller series set in 1983, following a young East German soldier who goes undercover in West Germany.',
                 keyFacts: { 
                     media: 'TV / Streaming', 
@@ -252,7 +252,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'Horizon Forbidden West',
                 year: 2022,
                 category: 'Video Game',
-                imageUrl: 'https://picsum.photos/seed/horizon2022/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'An action role-playing game set in a post-apocalyptic world, following huntress Aloy as she braves a majestic but dangerous frontier.',
                 keyFacts: {
                     media: 'Video Game',
@@ -268,7 +268,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'GQ Magazine',
                 year: 1931,
                 category: 'Magazine',
-                imageUrl: 'https://picsum.photos/seed/gq1931/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'An international monthly men\'s magazine based in New York City, focusing on fashion, style, and culture for men.',
                 keyFacts: { 
                     media: 'Magazine (Print & Online)', 
@@ -284,7 +284,7 @@ export const cspsData: CSPCategory[] = [
                 title: "Taylor Swift's Social Media",
                 year: 2024,
                 category: 'Online Media Case Study',
-                imageUrl: 'https://picsum.photos/seed/swift2024/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: "An analysis of Taylor Swift's powerful use of social media to cultivate a dedicated fanbase, manage her public image, and engage directly with her audience.",
                 keyFacts: {
                     media: 'Social Media / Music Industry',
@@ -299,7 +299,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'The Killing (Forbrydelsen)',
                 year: 2007,
                 category: 'TV Drama',
-                imageUrl: 'https://picsum.photos/seed/killing2007/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'A Danish police procedural drama that follows detective Sarah Lund as she investigates complex murder cases, with each series covering a single case over many days.',
                 keyFacts: { 
                     media: 'TV / Streaming', 
@@ -314,7 +314,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'Lupin',
                 year: 2021,
                 category: 'TV Drama',
-                imageUrl: 'https://picsum.photos/seed/lupin2021/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'A French mystery thriller series about Assane Diop, a man inspired by the adventures of master thief Arsène Lupin.',
                 keyFacts: {
                     media: 'TV / Streaming (Netflix)',
@@ -329,7 +329,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'The Gentlewoman',
                 year: 2010,
                 category: 'Magazine',
-                imageUrl: 'https://picsum.photos/seed/gentlewoman2010/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'A biannual British magazine celebrating intelligent and stylish women, focusing on in-depth interviews and high-quality photography.',
                 keyFacts: {
                     media: 'Magazine (Print)',
@@ -344,7 +344,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'The Voice',
                 year: 1982,
                 category: 'Newspaper',
-                imageUrl: 'https://picsum.photos/seed/voice1982/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'A British national Afro-Caribbean newspaper, founded to cater to the interests of the Black British community.',
                 keyFacts: { 
                     media: 'Newspaper (Print & Online)', 
@@ -360,7 +360,7 @@ export const cspsData: CSPCategory[] = [
                 title: 'The Responder',
                 year: 2022,
                 category: 'TV Drama',
-                imageUrl: 'https://picsum.photos/seed/responder2022/600/400',
+                imageUrl: 'https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png',
                 synopsis: 'A British police drama series following a crisis-stricken, morally compromised first-responder tackling a series of night shifts on the streets of Liverpool.',
                 keyFacts: {
                     media: 'TV / Streaming (BBC)',

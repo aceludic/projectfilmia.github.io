@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 
 interface FloatingToolsProps {
@@ -14,7 +15,7 @@ const FloatingTools: React.FC<FloatingToolsProps> = ({ onOpenSettings, onToggleN
     >
       <button
         onClick={onOpenSettings}
-        className="bg-stone-600 text-white rounded-full p-4 shadow-lg hover:bg-stone-700 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2 focus:ring-offset-beige-100 dark:focus:ring-offset-stone-900 transition-transform transform hover:scale-110"
+        className="bg-glass-200 backdrop-blur-lg text-stone-800 dark:text-white rounded-full p-4 shadow-lg hover:bg-glass-100 focus:outline-none focus:ring-2 focus:ring-white/50 border border-glass-border dark:border-glass-border-dark transition-all transform hover:scale-110"
         aria-label="Open Settings Panel"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -25,7 +26,7 @@ const FloatingTools: React.FC<FloatingToolsProps> = ({ onOpenSettings, onToggleN
 
       <button
         onClick={onToggleNotes}
-        className="bg-brand-brown-700 text-white rounded-full p-4 shadow-lg hover:bg-brand-brown-800 focus:outline-none focus:ring-2 focus:ring-brand-brown-700 focus:ring-offset-2 focus:ring-offset-beige-100 dark:focus:ring-offset-stone-900 transition-transform transform hover:scale-110"
+        className="bg-glass-200 backdrop-blur-lg text-stone-800 dark:text-white rounded-full p-4 shadow-lg hover:bg-glass-100 focus:outline-none focus:ring-2 focus:ring-white/50 border border-glass-border dark:border-glass-border-dark transition-all transform hover:scale-110"
         aria-label="Toggle Notes Panel"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

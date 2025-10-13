@@ -7,13 +7,13 @@ interface ProjectMediaProps {
 
 const CategoryPill: React.FC<{ category: ProjectMediaItem['category'] }> = ({ category }) => {
     const categoryColors = {
-        Music: 'bg-pink-200 text-pink-800 dark:bg-pink-900/50 dark:text-pink-300',
-        Gaming: 'bg-purple-200 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300',
-        Politics: 'bg-blue-200 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
-        Film: 'bg-amber-200 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300',
+        Music: 'bg-pink-500/20 text-pink-800 dark:text-pink-300',
+        Gaming: 'bg-purple-500/20 text-purple-800 dark:text-purple-300',
+        Politics: 'bg-blue-500/20 text-blue-800 dark:text-blue-300',
+        Film: 'bg-amber-500/20 text-amber-800 dark:text-amber-300',
     };
     return (
-        <span className={`absolute top-3 right-3 text-xs font-bold uppercase tracking-wider px-2 py-1 rounded-full ${categoryColors[category]}`}>
+        <span className={`absolute top-3 right-3 text-xs font-bold uppercase tracking-wider px-2 py-1 rounded-full backdrop-blur-sm ${categoryColors[category]}`}>
             {category}
         </span>
     );
@@ -28,15 +28,15 @@ const ProjectMedia: React.FC<ProjectMediaProps> = ({ stories }) => {
               href={story.sourceUrl} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="group transition-transform duration-300 transform hover:scale-105 animate-fade-in-up"
+              className="group transition-all duration-300 transform hover:-translate-y-1.5 hover:scale-[1.03] animate-fade-in-up"
               style={{ animationDelay: `${index * 50}ms` }}
           >
-              <div className="bg-beige-50 dark:bg-stone-800/80 p-3 pb-4 rounded-lg shadow-lg h-full border border-beige-200 dark:border-stone-700/80">
+              <div className="bg-glass-300 dark:bg-black/20 backdrop-blur-2xl p-3 pb-4 rounded-2xl shadow-lg h-full border border-glass-border dark:border-glass-border-dark">
                   <div className="relative">
                       <img 
                           src={story.imageUrl} 
                           alt={story.title} 
-                          className="w-full h-48 object-cover rounded-md"
+                          className="w-full h-48 object-cover rounded-xl"
                       />
                       <CategoryPill category={story.category} />
                   </div>

@@ -18,7 +18,7 @@ const SocialIntegrations: React.FC<SocialIntegrationsProps> = ({ accounts, onAdd
   };
 
   return (
-    <div className="space-y-4 h-96 flex flex-col">
+    <div className="space-y-4 h-full flex flex-col">
         <p className="text-sm text-stone-500 dark:text-stone-400">Add your favorite creators, artists, or websites to your feed.</p>
         <div className="flex space-x-2">
             <input 

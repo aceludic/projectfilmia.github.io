@@ -130,3 +130,28 @@ export type SearchResult =
   | { type: 'csp'; item: CSP; category: string }
   | { type: 'journal'; item: JournalEntry }
   | { type: 'note'; item: NoteTab };
+
+// Timer Types
+export type TimerStatus = 'inactive' | 'running' | 'paused';
+export type TimerView = 'fullscreen' | 'minimized' | 'hidden';
+
+export interface TimerState {
+    status: TimerStatus;
+    duration: number; // in seconds
+    remaining: number; // in seconds
+    view: TimerView;
+    position: { x: number; y: number };
+}
+
+// Navigation/Tab visibility
+export interface VisibleTabs {
+    'media-studies': boolean;
+    'film-studies': boolean;
+}
+
+// Panda Streak
+export interface PandaState {
+    streak: number;
+    lastFed: string | null; // YYYY-MM-DD
+    isHappy: boolean;
+}

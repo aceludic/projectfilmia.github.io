@@ -1,5 +1,9 @@
+
 import React, { useState, useEffect, useRef, FormEvent } from 'react';
 import { GoogleGenAI, Chat } from "@google/genai";
+
+// FIX: Initialize GoogleGenAI client once at the module level for efficiency and to align with best practices.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 // Define the structure for a chat message
 interface Message {
@@ -18,8 +22,6 @@ const AiTutorChat: React.FC = () => {
     // Initialize the AI chat session
     useEffect(() => {
         try {
-            // FIX: Use process.env.API_KEY as per the guidelines.
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             const chatSession = ai.chats.create({
                 model: 'gemini-2.5-flash',
                 config: {

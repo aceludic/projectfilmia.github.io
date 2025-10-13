@@ -1,4 +1,5 @@
 
+
 import React, { useRef, useCallback, useState, ChangeEvent, useEffect } from 'react';
 import { NotesPanelState, NoteTab } from '../types';
 
@@ -153,8 +154,8 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
         height: `${state.size.height}px`,
       };
   
-  const panelClasses = `bg-beige-50 dark:bg-stone-800 shadow-2xl flex flex-col border border-beige-200 dark:border-stone-700 animate-fade-in-up z-40 ${
-    isMobile ? 'fixed bottom-0 left-0 w-full h-[70vh] rounded-t-lg' : 'fixed rounded-lg'
+  const panelClasses = `bg-glass-200 dark:bg-black/20 backdrop-blur-2xl shadow-2xl flex flex-col border border-glass-border dark:border-glass-border-dark animate-fade-in-up z-40 ${
+    isMobile ? 'fixed bottom-0 left-0 w-full h-[70vh] rounded-t-2xl' : 'fixed rounded-2xl'
   }`;
 
   return (
@@ -162,7 +163,7 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
         <div 
           ref={dragHandleRef}
           onMouseDown={handleDragStart}
-          className={`flex-shrink-0 flex items-center justify-between pl-2 pr-1 border-b border-beige-200 dark:border-stone-700 h-12 ${!isMobile ? 'cursor-move' : ''}`}
+          className={`flex-shrink-0 flex items-center justify-between pl-2 pr-1 border-b border-glass-border dark:border-glass-border-dark h-12 ${!isMobile ? 'cursor-move' : ''}`}
         >
             <div className="flex-grow flex items-end h-full overflow-x-auto">
                {state.tabs.map(tab => (
@@ -171,10 +172,10 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
                         role="tab"
                         onClick={() => handleTabClick(tab.id)}
                         onDoubleClick={() => !isMobile && setRenamingTabId(tab.id)}
-                        className={`flex-shrink-0 flex items-center h-full max-w-[150px] px-3 text-sm font-medium rounded-t-md cursor-pointer border-b-2 transition-colors ${
+                        className={`flex-shrink-0 flex items-center h-full max-w-[150px] px-3 text-sm font-medium rounded-t-lg cursor-pointer border-b-2 transition-colors ${
                             state.activeTabId === tab.id
-                                ? 'border-brand-brown-700 text-brand-brown-700 dark:text-amber-400 bg-beige-100 dark:bg-stone-800'
-                                : 'border-transparent text-stone-500 dark:text-stone-400 hover:bg-beige-200 dark:hover:bg-stone-700'
+                                ? 'border-brand-brown-700 text-brand-brown-700 dark:text-amber-400 bg-glass-100'
+                                : 'border-transparent text-stone-600 dark:text-stone-300 hover:bg-glass-300'
                         }`}
                         title={tab.title}
                     >
@@ -203,11 +204,11 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
                 ))}
                 <button
                     onClick={handleAddTab}
-                    className="ml-1 mb-px px-2 py-1 text-stone-500 hover:bg-beige-200 dark:hover:bg-stone-700 rounded-md text-lg leading-none"
+                    className="ml-1 mb-px px-2 py-1 text-stone-600 dark:text-stone-300 hover:bg-glass-300 rounded-md text-lg leading-none"
                     aria-label="Add new note"
                 >+</button>
             </div>
-            <button onClick={() => setState(prev => ({...prev, isOpen: false}))} className="ml-2 text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-beige-100 flex-shrink-0 p-2 rounded-full hover:bg-beige-200 dark:hover:bg-stone-700">
+            <button onClick={() => setState(prev => ({...prev, isOpen: false}))} className="ml-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white flex-shrink-0 p-2 rounded-full hover:bg-glass-300">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -220,11 +221,11 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
                 value={activeNote?.content || ''}
                 onChange={handleNoteChange}
                 placeholder="Jot down your thoughts here..."
-                className="flex-grow w-full p-4 bg-transparent resize-none focus:outline-none text-stone-800 dark:text-beige-200 placeholder-stone-400 dark:placeholder-stone-500"
+                className="flex-grow w-full p-4 bg-transparent resize-none focus:outline-none text-stone-800 dark:text-beige-200 placeholder-stone-500 dark:placeholder-stone-400"
                 aria-label="Notes content"
             />
-            <div className="flex-shrink-0 px-4 py-2 border-t border-beige-200 dark:border-stone-700">
-                <div className="flex items-start space-x-2 text-xs text-stone-500 dark:text-stone-400">
+            <div className="flex-shrink-0 px-4 py-2 border-t border-glass-border dark:border-glass-border-dark">
+                <div className="flex items-start space-x-2 text-xs text-stone-600 dark:text-stone-400">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                     </svg>
@@ -239,7 +240,7 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
                 className="absolute bottom-0 right-0 w-5 h-5 cursor-se-resize flex items-end justify-end p-px"
                 title="Resize"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full text-stone-400 dark:text-stone-500 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full text-stone-500 dark:text-stone-400 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 20L20 12M16 20h4v-4" />
                 </svg>
             </div>

@@ -8,18 +8,18 @@ interface CspDetailCardProps {
 }
 
 const gradients = [
-    'from-brand-brown-700 to-stone-800',
-    'from-stone-800 to-stone-900',
-    'from-brand-brown-800 to-brand-brown-600',
-    'from-stone-700 to-brand-brown-800',
-    'from-indigo-800 to-stone-900',
-    'from-slate-800 to-brand-brown-800',
-    'from-teal-800 to-stone-800',
-    'from-rose-900 to-stone-900',
-    'from-amber-700 to-brand-brown-900',
-    'from-cyan-800 to-slate-900',
-    'from-purple-800 to-stone-900',
-    'from-emerald-900 to-brand-brown-800',
+    'from-brand-brown-700/80 to-stone-800/80',
+    'from-stone-800/80 to-stone-900/80',
+    'from-brand-brown-800/80 to-brand-brown-600/80',
+    'from-stone-700/80 to-brand-brown-800/80',
+    'from-indigo-800/80 to-stone-900/80',
+    'from-slate-800/80 to-brand-brown-800/80',
+    'from-teal-800/80 to-stone-800/80',
+    'from-rose-900/80 to-stone-900/80',
+    'from-amber-700/80 to-brand-brown-900/80',
+    'from-cyan-800/80 to-slate-900/80',
+    'from-purple-800/80 to-stone-900/80',
+    'from-emerald-900/80 to-brand-brown-800/80',
 ];
 
 const getGradientForCsp = (title: string) => {
@@ -47,7 +47,7 @@ const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onToggl
     };
 
     return (
-        <div className="bg-beige-50 dark:bg-stone-800 rounded-lg shadow-lg border border-beige-200 dark:border-stone-700 flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
+        <div className="bg-glass-300 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:scale-[1.03]">
             <div className={`relative h-48 w-full flex items-center justify-center p-4 text-white bg-gradient-to-br ${gradientClass}`}>
                 <div className="relative z-10 text-center">
                     <h3 className="text-3xl font-sans font-black uppercase leading-tight tracking-wider shadow-black [text-shadow:1px_1px_3px_var(--tw-shadow-color)]">{csp.title}</h3>
@@ -55,7 +55,7 @@ const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onToggl
                 </div>
                  <button 
                     onClick={handlePinClick}
-                    className="absolute top-2 right-2 p-2 rounded-full bg-black/20 hover:bg-black/40 transition-colors z-20"
+                    className="absolute top-2 right-2 p-2 rounded-full bg-black/20 hover:bg-black/40 transition-colors z-20 btn-ripple"
                     aria-label={isPinned ? 'Unpin from dashboard' : 'Pin to dashboard'}
                     title={isPinned ? 'Unpin from dashboard' : 'Pin to dashboard'}
                 >
@@ -69,10 +69,10 @@ const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onToggl
                 <p className="text-sm text-stone-700 dark:text-stone-300">{csp.synopsis}</p>
             </div>
 
-            <div className="p-4 border-t border-beige-200 dark:border-stone-700">
+            <div className="p-4 border-t border-glass-border dark:border-glass-border-dark">
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="w-full text-left text-sm font-bold text-stone-700 dark:text-beige-200 flex justify-between items-center"
+                    className="w-full text-left text-sm font-bold text-stone-800 dark:text-beige-200 flex justify-between items-center btn-ripple"
                     aria-expanded={isOpen}
                 >
                     <span>{isOpen ? 'Hide Details' : 'Show Details'}</span>
@@ -106,7 +106,7 @@ const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onToggl
                             <h4 className="font-bold uppercase text-stone-500 dark:text-stone-400 tracking-wider text-xs mb-2">Applicable Theories</h4>
                             <div className="flex flex-wrap gap-2">
                                 {csp.applicableTheorists.map(theorist => (
-                                    <span key={theorist} className="text-xs bg-stone-200 text-stone-800 px-2 py-1 rounded-full dark:bg-stone-600 dark:text-beige-100">
+                                    <span key={theorist} className="text-xs bg-stone-500/20 text-stone-800 dark:text-beige-100 px-2 py-1 rounded-full">
                                         {theorist}
                                     </span>
                                 ))}
@@ -124,7 +124,7 @@ const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onToggl
                     )}
 
                     {csp.youtubeVideoIds && csp.youtubeVideoIds.length > 0 && (
-                        <div className="pt-4 mt-4 border-t border-beige-200 dark:border-stone-700">
+                        <div className="pt-4 mt-4 border-t border-glass-border dark:border-glass-border-dark">
                             <h5 className="font-bold uppercase text-stone-500 dark:text-stone-400 tracking-wider text-xs mb-2 text-center">Watch The Video Guides</h5>
                             <div className="space-y-4">
                                 {csp.youtubeVideoIds.map((videoId, index) => (

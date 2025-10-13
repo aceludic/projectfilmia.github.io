@@ -18,7 +18,7 @@ interface MediaStudiesPageProps {
 
 const DisclaimerModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
     <div className="fixed inset-0 backdrop-blur-md z-50 flex items-start justify-center pt-28 p-4 animate-fade-in">
-        <div className="bg-beige-50 dark:bg-stone-800 rounded-lg shadow-2xl max-w-lg w-full p-8 text-center animate-fade-in-up border border-beige-200 dark:border-stone-700">
+        <div className="bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-lg shadow-2xl max-w-lg w-full p-8 text-center animate-fade-in-up border border-glass-border dark:border-glass-border-dark">
             <h2 className="text-2xl font-bold text-stone-800 dark:text-beige-100 mb-4">AQA A-Level Focus</h2>
             <p className="text-base text-stone-600 dark:text-stone-300 mb-8">
                 Please note: The content in this section is specifically tailored for the AQA A-Level Media Studies specification and may not be suitable for other exam boards.

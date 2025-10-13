@@ -5,13 +5,15 @@ interface HomePageProps {
 }
 
 const Feature: React.FC<{ icon: React.ReactNode; title: string; children: string }> = ({ icon, title, children }) => (
-    <div className="flex items-start space-x-3">
-        <div className="flex-shrink-0 h-8 w-8 flex items-center justify-center rounded-full bg-brand-brown-700/10 text-brand-brown-700">
-            {icon}
-        </div>
-        <div>
-            <h3 className="text-md font-bold text-stone-800 dark:text-beige-100">{title}</h3>
-            <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">{children}</p>
+    <div className="bg-glass-200 backdrop-blur-2xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark p-6 transition-all duration-300 hover:border-white/20 hover:shadow-xl">
+        <div className="flex items-start space-x-4">
+            <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-brand-brown-700/20 text-brand-brown-700">
+                {icon}
+            </div>
+            <div>
+                <h3 className="text-lg font-bold text-stone-800 dark:text-beige-100">{title}</h3>
+                <p className="text-sm text-stone-600 dark:text-stone-400 mt-1">{children}</p>
+            </div>
         </div>
     </div>
 );
@@ -42,7 +44,7 @@ const HomePage: React.FC<HomePageProps> = ({ onEnter }) => {
           Your essential toolkit for media and film studies. No sign-up required.
         </p>
 
-        <div className="max-w-2xl mx-auto my-8 p-4 bg-red-100/50 dark:bg-red-900/20 border-l-4 border-red-500 text-red-800 dark:text-red-300 rounded-r-lg" role="alert">
+        <div className="max-w-2xl mx-auto my-8 p-4 bg-red-500/10 dark:bg-red-900/20 backdrop-blur-xl border-l-4 border-red-500 text-red-800 dark:text-red-300 rounded-r-lg" role="alert">
             <p className="font-bold">Early Access Warning</p>
             <p className="text-sm mt-1">
                 This website is in active development. You may encounter issues, glitches, and incorrect information. The full release is coming soon. <strong>See the "Full Release" schedule in the top bar to find out more.</strong>
@@ -50,12 +52,18 @@ const HomePage: React.FC<HomePageProps> = ({ onEnter }) => {
             </p>
         </div>
         
-        <div className="max-w-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 text-left mb-12">
+        <div className="max-w-2xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 text-left mb-12">
             <Feature icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>} title="Privacy-Focused">
                 Enjoy complete peace of mind. All your data is stored locally on your device, not on our servers.
             </Feature>
             <Feature icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>} title="Instant Access">
                 No accounts, no passwords. Jump straight into the content and start exploring without any barriers.
+            </Feature>
+             <Feature icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3.5a.75.75 0 01.75.75v2.5h2.5a.75.75 0 010 1.5h-2.5v2.5a.75.75 0 01-1.5 0v-2.5h-2.5a.75.75 0 010-1.5h2.5v-2.5a.75.75 0 01.75-.75z" /><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM2 10a8 8 0 1116 0 8 8 0 01-16 0z" clipRule="evenodd" /></svg>} title="AI-Powered">
+                Utilize an integrated AI Tutor, Essay Planner, and other smart tools to supercharge your revision.
+            </Feature>
+            <Feature icon={<svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" /></svg>} title="Panda Companion">
+                Meet your study buddy! Feed your panda daily to build up your revision streak and keep it happy.
             </Feature>
         </div>
 

@@ -22,7 +22,7 @@ const FilmStudiesPage: React.FC<FilmStudiesPageProps> = ({ setView }) => {
   }, [countdown, setView]);
 
   return (
-    <div className="relative h-[calc(100vh-5rem)] w-full flex items-center justify-center overflow-hidden bg-beige-200 dark:bg-stone-800">
+    <div className="relative h-[calc(100vh-5rem)] w-full flex items-center justify-center overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full">
         <div className="absolute top-1/2 left-1/2 w-1 h-1">
             <div className="absolute w-[50vmax] h-[50vmax] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-beige-300 dark:border-stone-700 animate-ripple" style={{ animationDelay: '0s' }}></div>
