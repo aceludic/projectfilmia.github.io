@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Theme } from '../App';
-import { FontFamily, VisibleTabs } from '../types';
+import { FontFamily, VisibleTabs, NavbarLayout } from '../types';
 
 interface SettingsPanelProps {
   isOpen: boolean;
@@ -11,6 +11,9 @@ interface SettingsPanelProps {
   setFontFamily: (font: FontFamily) => void;
   visibleTabs: VisibleTabs;
   setVisibleTabs: (tabs: VisibleTabs) => void;
+  navbarLayout: NavbarLayout;
+  setNavbarLayout: (layout: NavbarLayout) => void;
+  onStartTour: () => void;
 }
 
 const SettingsSection: React.FC<{ title: string; description?: string; children: React.ReactNode; isDanger?: boolean }> = ({ title, description, children, isDanger = false }) => (
@@ -35,7 +38,7 @@ const ToggleSwitch: React.FC<{ checked: boolean; onChange: (checked: boolean) =>
 );
 
 
-const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, setTheme, fontFamily, setFontFamily, visibleTabs, setVisibleTabs }) => {
+const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, setTheme, fontFamily, setFontFamily, visibleTabs, setVisibleTabs, navbarLayout, setNavbarLayout, onStartTour }) => {
     const [feedback, setFeedback] = useState<Record<string, string | null>>({});
 
     const fontOptions: { value: FontFamily; label: string }[] = [
@@ -52,6 +55,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
         try {
             sessionStorage.removeItem('hasSeenMediaStudiesDisclaimer');
             localStorage.removeItem('hasSeenDashboardWelcome');
+            localStorage.removeItem('hasCompletedTour');
             localStorage.removeItem('setupCompleted');
             setFeedback({...feedback, modals: 'Welcome pop-ups & setup will now show again.' });
         } catch (error) {
@@ -99,7 +103,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
     return (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 animate-fade-in flex items-center justify-center p-4" onClick={onClose}>
             <div 
-                className="w-full max-w-md h-auto max-h-[85vh] bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-2xl flex flex-col animate-scale-in border border-glass-border dark:border-glass-border-dark glass-reflective"
+                className="w-full max-w-md h-auto max-h-[85vh] bg-glass-200 dark:bg-stone-900/60 backdrop-blur-2xl rounded-2xl shadow-2xl flex flex-col animate-scale-in border border-glass-border dark:border-glass-border-dark glass-reflective"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex items-center justify-between p-4 border-b border-glass-border dark:border-glass-border-dark">
@@ -113,7 +117,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
 
                 <div className="overflow-y-auto">
                     <SettingsSection title="Appearance" description="Customize the look and feel of the app.">
-                        <div className="bg-glass-300 dark:bg-black/10 p-3 rounded-md space-y-4">
+                        <div className="bg-glass-300 dark:bg-white/5 p-3 rounded-md space-y-4">
                             <div>
                                 <label className="text-sm font-medium text-stone-800 dark:text-beige-200 block mb-3">
                                     Theme
@@ -143,7 +147,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
                     </SettingsSection>
 
                     <SettingsSection title="Navigation" description="Show or hide main navigation tabs.">
-                        <div className="bg-glass-300 dark:bg-black/10 p-3 rounded-md space-y-3">
+                        <div className="bg-glass-300 dark:bg-white/5 p-3 rounded-md space-y-3">
                            <ToggleSwitch 
                                 label="Show Media Studies Tab"
                                 checked={visibleTabs['media-studies']}
@@ -157,18 +161,30 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
                         </div>
                     </SettingsSection>
                     
-                    <SettingsSection title="Support & Feedback">
-                        <a
-                            href="https://docs.google.com/forms/d/e/1FAIpQLSctftbiSZdIgzk3YXlsMaEOh1Q1sI70nQ5DiKbK2I3Qd19uHw/viewform?usp=header"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-between w-full px-4 py-3 bg-glass-300 dark:bg-black/10 rounded-md hover:bg-glass-100 transition-colors btn-ripple"
-                        >
-                            <span className="font-bold text-sm text-stone-800 dark:text-beige-100">Report an Issue</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-stone-600 dark:text-stone-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                            </svg>
-                        </a>
+                    <SettingsSection title="Accessibility" description="Improve your viewing experience.">
+                        <div className="bg-glass-300 dark:bg-white/5 p-3 rounded-md space-y-3">
+                           <ToggleSwitch 
+                                label="Vertical Navigation Bar"
+                                checked={navbarLayout === 'vertical'}
+                                onChange={(checked) => setNavbarLayout(checked ? 'vertical' : 'horizontal')}
+                           />
+                        </div>
+                    </SettingsSection>
+
+                    <SettingsSection title="Help & Support">
+                        <div className="flex flex-col items-start space-y-3">
+                            <button onClick={() => { onStartTour(); onClose(); }} className="text-sm text-brand-brown-700 dark:text-amber-500 hover:underline">
+                                Start Welcome Tour
+                            </button>
+                            <a
+                                href="https://docs.google.com/forms/d/e/1FAIpQLSctftbiSZdIgzk3YXlsMaEOh1Q1sI70nQ5DiKbK2I3Qd19uHw/viewform?usp=header"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-brand-brown-700 dark:text-amber-500 hover:underline"
+                            >
+                                Report an Issue
+                            </a>
+                        </div>
                     </SettingsSection>
 
                     <SettingsSection title="Data Management" description="Manage data stored in your browser.">

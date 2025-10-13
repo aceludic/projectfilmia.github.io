@@ -55,6 +55,7 @@ export interface ProjectMediaItem {
     category: 'Music' | 'Gaming' | 'Politics' | 'Film';
     sourceUrl: string;
     imageUrl: string;
+    date: string;
 }
 
 export interface Post {
@@ -124,6 +125,8 @@ export interface JournalEntry {
 }
 
 export type FontFamily = 'lora' | 'merriweather' | 'playfair-display' | 'inter' | 'lato' | 'lexend' | 'inconsolata';
+
+export type NavbarLayout = 'horizontal' | 'vertical';
 
 export type SearchResult =
   | { type: 'theorist'; item: Theorist; category: string }

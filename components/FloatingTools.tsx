@@ -11,7 +11,7 @@ const FloatingTools: React.FC<FloatingToolsProps> = ({ onOpenSettings, onToggleN
   return (
     <div 
       id="floating-tools"
-      className="fixed bottom-8 right-8 z-30 flex flex-col items-center space-y-4"
+      className="fixed bottom-8 right-8 z-40 flex flex-col items-center space-y-4"
     >
       <button
         onClick={onOpenSettings}

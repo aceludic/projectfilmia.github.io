@@ -7,33 +7,8 @@ interface CspDetailCardProps {
     onTogglePin: (item: PinnedItem) => void;
 }
 
-const gradients = [
-    'from-brand-brown-700/80 to-stone-800/80',
-    'from-stone-800/80 to-stone-900/80',
-    'from-brand-brown-800/80 to-brand-brown-600/80',
-    'from-stone-700/80 to-brand-brown-800/80',
-    'from-indigo-800/80 to-stone-900/80',
-    'from-slate-800/80 to-brand-brown-800/80',
-    'from-teal-800/80 to-stone-800/80',
-    'from-rose-900/80 to-stone-900/80',
-    'from-amber-700/80 to-brand-brown-900/80',
-    'from-cyan-800/80 to-slate-900/80',
-    'from-purple-800/80 to-stone-900/80',
-    'from-emerald-900/80 to-brand-brown-800/80',
-];
-
-const getGradientForCsp = (title: string) => {
-    let hash = 0;
-    for (let i = 0; i < title.length; i++) {
-        hash = title.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const index = Math.abs(hash % gradients.length);
-    return gradients[index];
-};
-
 const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onTogglePin }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const gradientClass = getGradientForCsp(csp.title);
     
     const isPinned = pinnedItems.some(p => p.id === csp.id);
 
@@ -47,10 +22,12 @@ const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onToggl
     };
 
     return (
-        <div className="bg-glass-300 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:scale-[1.03] glass-reflective">
-            <div className={`relative h-48 w-full flex items-center justify-center p-4 text-white bg-gradient-to-br ${gradientClass}`}>
+        <div className="group bg-glass-300 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:scale-[1.03] glass-reflective hover-ripple-effect">
+            <div className={`relative h-48 w-full flex items-center justify-center p-4 text-white overflow-hidden`}>
+                <div className="absolute inset-0 csp-animated-bg"></div>
+                <div className="absolute inset-0 bg-black/40"></div>
                 <div className="relative z-10 text-center">
-                    <h3 className="text-3xl font-sans font-black uppercase leading-tight tracking-wider shadow-black [text-shadow:1px_1px_3px_var(--tw-shadow-color)]">{csp.title}</h3>
+                    <h3 className="text-3xl font-sans font-black uppercase leading-tight tracking-wider shadow-black [text-shadow:1px_1px_3px_var(--tw-shadow-color)] transition-all duration-300 group-hover:tracking-widest">{csp.title}</h3>
                     <p className="text-sm text-beige-200 font-sans font-bold tracking-wider mt-1">({csp.year})</p>
                 </div>
                  <button 

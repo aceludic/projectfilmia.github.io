@@ -154,7 +154,7 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
         height: `${state.size.height}px`,
       };
   
-  const panelClasses = `bg-glass-200 dark:bg-black/20 backdrop-blur-2xl shadow-2xl flex flex-col border border-glass-border dark:border-glass-border-dark animate-fade-in-up z-40 ${
+  const panelClasses = `bg-glass-200 dark:bg-black/20 backdrop-blur-2xl shadow-2xl flex flex-col border border-glass-border dark:border-glass-border-dark animate-fade-in-up z-45 ${
     isMobile ? 'fixed bottom-0 left-0 w-full h-[70vh] rounded-t-2xl' : 'fixed rounded-2xl'
   }`;
 

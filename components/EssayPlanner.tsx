@@ -1,4 +1,5 @@
 
+
 import React, { useState, FormEvent } from 'react';
 import { GoogleGenAI } from "@google/genai";
 
@@ -107,7 +108,7 @@ const EssayPlanner: React.FC = () => {
         <div className="max-w-6xl mx-auto animate-fade-in">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Input Section */}
-                <div className="bg-beige-50 dark:bg-stone-800/80 rounded-lg shadow-xl border border-beige-200 dark:border-stone-700 p-6">
+                <div className="bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-2xl p-6 border border-glass-border dark:border-glass-border-dark glass-reflective">
                     <h3 className="text-2xl font-bold text-stone-800 dark:text-beige-100 mb-4">Create Your Essay Plan</h3>
                     <form onSubmit={handleGeneratePlan} className="space-y-4">
                         <div>
@@ -118,7 +119,7 @@ const EssayPlanner: React.FC = () => {
                                 onChange={(e) => setQuestion(e.target.value)}
                                 placeholder="e.g., To what extent is genre theory useful when analysing music videos?"
                                 rows={3}
-                                className="w-full p-2 border border-beige-300 rounded-md bg-white dark:bg-stone-700 text-stone-800 dark:text-beige-100 dark:border-stone-600 focus:ring-2 focus:ring-brand-brown-700 focus:border-transparent"
+                                className="w-full p-2 border border-glass-border dark:border-glass-border-dark rounded-md bg-glass-300 text-stone-800 dark:text-beige-100 placeholder-stone-500 dark:placeholder-stone-400 focus:ring-2 focus:ring-brand-brown-700 focus:border-transparent"
                             />
                         </div>
                         <div>
@@ -129,13 +130,13 @@ const EssayPlanner: React.FC = () => {
                                 onChange={(e) => setPoints(e.target.value)}
                                 placeholder="e.g., Steve Neale's theory of repetition and difference, sub-genres, conventions of pop music videos..."
                                 rows={4}
-                                className="w-full p-2 border border-beige-300 rounded-md bg-white dark:bg-stone-700 text-stone-800 dark:text-beige-100 dark:border-stone-600 focus:ring-2 focus:ring-brand-brown-700 focus:border-transparent"
+                                className="w-full p-2 border border-glass-border dark:border-glass-border-dark rounded-md bg-glass-300 text-stone-800 dark:text-beige-100 placeholder-stone-500 dark:placeholder-stone-400 focus:ring-2 focus:ring-brand-brown-700 focus:border-transparent"
                             />
                         </div>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-brand-brown-700 text-white px-6 py-3 rounded-md text-base font-bold hover:bg-brand-brown-800 transition-colors transform hover:-translate-y-1 disabled:bg-stone-400 disabled:cursor-not-allowed flex items-center justify-center"
+                            className="w-full bg-brand-brown-700 text-white px-6 py-3 rounded-md text-base font-bold hover:bg-brand-brown-800 transition-colors transform hover:-translate-y-1 disabled:bg-stone-400 disabled:cursor-not-allowed flex items-center justify-center btn-ripple"
                         >
                             {loading ? (
                                 <>
@@ -151,7 +152,7 @@ const EssayPlanner: React.FC = () => {
                 </div>
 
                 {/* Output Section */}
-                <div className="bg-white dark:bg-stone-800 rounded-lg shadow-xl border border-beige-200 dark:border-stone-700 p-6 relative min-h-[300px] lg:min-h-0">
+                <div className="bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-2xl p-6 relative min-h-[300px] lg:min-h-0 border border-glass-border dark:border-glass-border-dark glass-reflective">
                     {loading && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-stone-500 dark:text-stone-400">
                              <div className="w-3 h-3 bg-brand-brown-700 rounded-full animate-pulse [animation-delay:-0.3s]"></div>
@@ -174,7 +175,7 @@ const EssayPlanner: React.FC = () => {
                          <>
                             <button
                                 onClick={handleCopy}
-                                className="absolute top-4 right-4 bg-beige-200 hover:bg-beige-300 dark:bg-stone-700 dark:hover:bg-stone-600 text-stone-600 dark:text-beige-100 text-xs font-bold py-1 px-2 rounded-md transition-all"
+                                className="absolute top-4 right-4 bg-glass-300 hover:bg-glass-100 dark:bg-stone-900/50 dark:hover:bg-stone-900/80 text-stone-600 dark:text-beige-100 text-xs font-bold py-1 px-2 rounded-md transition-all btn-ripple"
                             >
                                 {copied ? 'Copied!' : 'Copy Plan'}
                             </button>

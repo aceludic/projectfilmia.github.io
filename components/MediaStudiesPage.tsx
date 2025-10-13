@@ -149,7 +149,7 @@ const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogg
     <button
       onClick={() => setActiveView(view)}
       className={`px-4 py-2 rounded-md font-bold transition-all duration-300 transform hover:-translate-y-1 ${
-        activeView === view ? 'bg-brand-brown-700 text-white shadow-md' : 'bg-beige-200 text-stone-700 hover:bg-beige-300 dark:bg-stone-700 dark:text-beige-200 dark:hover:bg-stone-600'
+        activeView === view ? 'bg-brand-brown-700 text-white shadow-md' : 'bg-transparent text-stone-700 hover:bg-glass-300 dark:text-beige-200 dark:hover:bg-glass-300'
       }`}
     >
       {children}
@@ -165,7 +165,7 @@ const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogg
                 <p className="mt-2 text-lg text-stone-500 dark:text-stone-400">Explore key theories, case studies, and resources.</p>
             </div>
 
-            <div className="sticky top-20 bg-beige-100/80 dark:bg-stone-900/80 backdrop-blur-md z-30 py-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-beige-200 dark:border-stone-700">
+            <div className="sticky top-20 bg-glass-200 dark:bg-black/20 backdrop-blur-2xl z-30 p-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 border border-glass-border dark:border-glass-border-dark rounded-xl">
                 <div className="flex items-center space-x-2">
                     <NavButton view="theorists">Theorists</NavButton>
                     <NavButton view="csps">CSPs</NavButton>
@@ -179,7 +179,7 @@ const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogg
                         placeholder="Search..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full md:w-64 pl-10 pr-4 py-2 border border-beige-300 rounded-md focus:ring-brand-brown-700 focus:border-brand-brown-700 bg-beige-50 dark:bg-stone-800 dark:border-stone-600 dark:text-beige-100 dark:placeholder-stone-400"
+                        className="w-full md:w-64 pl-10 pr-4 py-2 border border-glass-border dark:border-glass-border-dark rounded-md focus:ring-brand-brown-700 focus:border-brand-brown-700 bg-glass-300 text-stone-800 dark:text-beige-100 placeholder-stone-500 dark:placeholder-stone-400"
                     />
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

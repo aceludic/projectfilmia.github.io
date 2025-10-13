@@ -7,7 +7,7 @@ interface NewsLinkWidgetProps {
 
 const NewsLinkWidget: React.FC<NewsLinkWidgetProps> = ({ setView }) => {
     return (
-        <div className="h-full flex items-center justify-between p-4 bg-beige-100 dark:bg-stone-700/50 rounded-md">
+        <div className="h-full flex items-center justify-between p-4 bg-glass-100/50 dark:bg-black/10 rounded-xl">
             <div className="flex items-center space-x-4">
                 <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-full bg-brand-brown-700 text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -21,7 +21,7 @@ const NewsLinkWidget: React.FC<NewsLinkWidgetProps> = ({ setView }) => {
             </div>
             <button 
                 onClick={() => setView('news')}
-                className="flex-shrink-0 ml-4 bg-brand-brown-700 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-brand-brown-800 transition-colors transform hover:-translate-y-0.5"
+                className="flex-shrink-0 ml-4 bg-brand-brown-700 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-brand-brown-800 transition-colors transform hover:-translate-y-0.5 btn-ripple"
             >
                 View All
             </button>

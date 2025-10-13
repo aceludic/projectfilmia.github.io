@@ -115,13 +115,18 @@ const JournalPage: React.FC<JournalPageProps> = ({ entries, onAdd, onUpdate, onR
 
             {entries.length === 0 ? (
                 <div className="text-center py-20 animate-fade-in">
-                    <p className="text-stone-500 dark:text-stone-400">Your journal is empty.</p>
-                    <p className="text-stone-500 dark:text-stone-400">Click "New Entry" to add your first review!</p>
+                    <div className="max-w-lg mx-auto bg-glass-300 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark p-12 glass-reflective">
+                         <div className="text-6xl mb-4">🖋️</div>
+                         <h2 className="text-2xl font-bold text-stone-800 dark:text-beige-100">Your Journal Awaits</h2>
+                         <p className="text-stone-600 dark:text-stone-300 mt-2">
+                             Log your thoughts on the latest film you've watched, show you've binged, or game you've played. Click 'New Entry' to begin your story.
+                         </p>
+                    </div>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {entries.map((entry, index) => (
-                        <div key={entry.id} className="bg-glass-300 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark p-5 flex flex-col animate-fade-in-up transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:scale-[1.03]" style={{ animationDelay: `${index * 50}ms` }}>
+                        <div key={entry.id} className="bg-glass-300 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark p-5 flex flex-col animate-fade-in-up transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:scale-[1.03] hover-ripple-effect" style={{ animationDelay: `${index * 50}ms` }}>
                             <div className="flex justify-between items-start">
                                 <div className="flex-1">
                                     <span className="text-xs font-bold uppercase tracking-wider bg-stone-500/10 text-stone-700 dark:text-stone-300 px-2 py-1 rounded">{entry.type}</span>

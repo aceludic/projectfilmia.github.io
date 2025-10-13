@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef, FormEvent } from 'react';
 import { GoogleGenAI, Chat } from "@google/genai";
 
@@ -86,7 +87,7 @@ const AiTutorChat: React.FC = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto bg-beige-100 dark:bg-stone-800/50 rounded-lg shadow-xl border border-beige-200 dark:border-stone-700 flex flex-col h-[70vh] animate-fade-in">
+        <div className="max-w-3xl mx-auto bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-2xl border border-glass-border dark:border-glass-border-dark flex flex-col h-[70vh] animate-fade-in glass-reflective">
             {/* Chat History */}
             <div className="flex-grow p-4 overflow-y-auto">
                 <div className="flex flex-col space-y-4">
@@ -112,7 +113,7 @@ const AiTutorChat: React.FC = () => {
             </div>
 
             {/* Input Form */}
-            <div className="p-4 border-t border-beige-200 dark:border-stone-700">
+            <div className="p-4 border-t border-glass-border dark:border-glass-border-dark">
                 <form onSubmit={handleSendMessage} className="flex items-center space-x-3">
                     <input
                         type="text"

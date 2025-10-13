@@ -12,17 +12,62 @@ import JournalPage from './components/JournalPage';
 import GlobalSearch from './components/GlobalSearch';
 import SettingsPanel from './components/SettingsPanel';
 import SetupPage from './components/SetupPage';
+import WelcomeTour from './components/WelcomeTour';
 // FIX: Use named import for TimerSetupModal to resolve module loading error.
 import { TimerSetupModal } from './components/TimerSetupModal';
 import FullscreenTimer from './components/FullscreenTimer';
 import MinimizedTimer from './components/MinimizedTimer';
-import { NotesPanelState, PinnedItem, TimetableEntry, AppLink, JournalEntry, FontFamily, SearchResult, TimerState, VisibleTabs, PandaState } from './types';
+import { NotesPanelState, PinnedItem, TimetableEntry, AppLink, JournalEntry, FontFamily, SearchResult, TimerState, VisibleTabs, PandaState, NavbarLayout } from './types';
 import { theoristData } from './data/theoristsData';
 import { cspsData } from './data/cspsData';
 
 
 export type LoggedInView = 'dashboard' | 'media-studies' | 'film-studies' | 'ai-tutor' | 'news' | 'journal';
 export type Theme = 'light' | 'dark' | 'night';
+
+const tourSteps = [
+    {
+        targetId: 'dashboard-title',
+        title: 'Welcome to Your Dashboard!',
+        content: 'This is your central hub. Everything you need is organized into these widgets.',
+        placement: 'bottom',
+    },
+    {
+        targetId: 'customize-button',
+        title: 'Make It Your Own',
+        content: 'Click here to enter customization mode. You can then move, resize, and remove widgets to fit your workflow.',
+        placement: 'left',
+        before: (setCustomizing: (val: boolean) => void) => setCustomizing(false),
+        after: (setCustomizing: (val: boolean) => void) => setCustomizing(false),
+    },
+    {
+        targetId: 'customize-button',
+        title: 'Editing Widgets',
+        content: 'Once in customize mode, widgets will have a pulsing border. You can drag them from the title bar or resize them from the bottom-right corner.',
+        placement: 'left',
+        before: (setCustomizing: (val: boolean) => void) => setCustomizing(true),
+    },
+    {
+        targetId: 'add-widget-button',
+        title: 'Add & Remove Widgets',
+        content: 'Use the toolbar at the bottom to add widgets you\'ve removed. You can remove a widget by clicking the \'X\' that appears in customize mode.',
+        placement: 'top',
+        before: (setCustomizing: (val: boolean) => void) => setCustomizing(true),
+        after: (setCustomizing: (val: boolean) => void) => setCustomizing(false),
+    },
+    {
+        targetId: 'widget-pins',
+        title: 'Quick Access Pins',
+        content: 'When you\'re browsing Media or Film Studies, you can pin important theorists or CSPs. They\'ll show up here for easy access.',
+        placement: 'right',
+    },
+    {
+        targetId: 'floating-tools',
+        title: 'Handy Tools',
+        content: 'Quickly open your notes or access the settings panel from anywhere in the app using these floating buttons.',
+        placement: 'left',
+    },
+];
 
 // Helper for loading from localStorage
 const loadFromLocalStorage = <T,>(key: string, defaultValue: T): T => {
@@ -54,6 +99,38 @@ const loadFromLocalStorage = <T,>(key: string, defaultValue: T): T => {
   return defaultValue;
 };
 
+// Robust loader for NotesPanel state to prevent issues with corrupted data
+const loadNotesPanelState = (): NotesPanelState => {
+    const defaultState: NotesPanelState = {
+        isOpen: false,
+        position: { x: window.innerWidth - 520, y: 100 },
+        size: { width: 500, height: 400 },
+        tabs: [{ id: '1', title: 'General Notes', content: '' }],
+        activeTabId: '1',
+    };
+
+    try {
+        const saved = localStorage.getItem('notesPanelState');
+        if (!saved) return defaultState;
+        
+        const parsed = JSON.parse(saved);
+        const validatedState = { ...defaultState, ...parsed };
+
+        if (!Array.isArray(validatedState.tabs) || validatedState.tabs.length === 0) {
+            validatedState.tabs = defaultState.tabs;
+        }
+
+        if (!validatedState.tabs.some(tab => tab.id === validatedState.activeTabId)) {
+            validatedState.activeTabId = validatedState.tabs[0]?.id || null;
+        }
+
+        return validatedState;
+    } catch (error) {
+        console.error("Failed to load or validate notesPanelState from localStorage", error);
+        return defaultState;
+    }
+};
+
 
 // A simple debounce hook
 function useDebounce<T>(value: T, delay: number): T {
@@ -69,21 +146,35 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
+const TourPromptModal: React.FC<{ onStart: () => void; onDecline: () => void }> = ({ onStart, onDecline }) => (
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={onDecline}>
+        <div className="bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center animate-scale-in border border-glass-border dark:border-glass-border-dark" onClick={e => e.stopPropagation()}>
+            <div className="text-5xl mb-4">👋</div>
+            <h2 className="text-2xl font-bold text-stone-800 dark:text-beige-100 mb-2">Welcome!</h2>
+            <p className="text-stone-600 dark:text-stone-300 mb-6">
+                Would you like a quick, interactive tour of the dashboard features? You can also start it later from the settings menu.
+            </p>
+            <div className="flex justify-center space-x-4">
+                <button onClick={onDecline} className="px-6 py-2 bg-glass-300 text-stone-800 dark:text-white rounded-md font-bold btn-ripple">No, thanks</button>
+                <button onClick={onStart} className="px-6 py-2 bg-brand-brown-700 text-white rounded-md font-bold btn-ripple">Start Tour</button>
+            </div>
+        </div>
+    </div>
+);
+
 const App: React.FC = () => {
   const [appState, setAppState] = useState<'landing' | 'setup' | 'main'>('landing');
   const [view, setView] = useState<LoggedInView>('dashboard');
   const [theme, setTheme] = useState<Theme>(() => loadFromLocalStorage('theme', 'light'));
   const [fontFamily, setFontFamily] = useState<FontFamily>(() => loadFromLocalStorage('fontFamily', 'lexend'));
+  const [navbarLayout, setNavbarLayout] = useState<NavbarLayout>(() => loadFromLocalStorage('navbarLayout', 'horizontal'));
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSettingsPanelOpen, setIsSettingsPanelOpen] = useState(false);
+  const [isTourActive, setIsTourActive] = useState(false);
+  const [isTourPromptVisible, setIsTourPromptVisible] = useState(false);
+  const [isCustomizing, setIsCustomizing] = useState(false);
   
-  const [notesPanelState, setNotesPanelState] = useState<NotesPanelState>(() => loadFromLocalStorage('notesPanelState', {
-      isOpen: false,
-      position: { x: window.innerWidth - 520, y: 100 },
-      size: { width: 500, height: 400 },
-      tabs: [{ id: '1', title: 'General Notes', content: '' }],
-      activeTabId: '1',
-  }));
+  const [notesPanelState, setNotesPanelState] = useState<NotesPanelState>(loadNotesPanelState);
 
   const [pinnedItems, setPinnedItems] = useState<PinnedItem[]>(() => loadFromLocalStorage('pinnedItems', []));
   const [timetableEntries, setTimetableEntries] = useState<TimetableEntry[]>(() => loadFromLocalStorage('timetableEntries', []));
@@ -119,6 +210,7 @@ const App: React.FC = () => {
   const debouncedVisibleTabs = useDebounce(visibleTabs, 500);
   const debouncedStudiedSubjects = useDebounce(studiedSubjects, 500);
   const debouncedPandaState = useDebounce(pandaState, 500);
+  const debouncedNavbarLayout = useDebounce(navbarLayout, 500);
 
 
   useEffect(() => {
@@ -181,6 +273,7 @@ const App: React.FC = () => {
         localStorage.setItem('visibleTabs', JSON.stringify(debouncedVisibleTabs));
         localStorage.setItem('studiedSubjects', JSON.stringify(debouncedStudiedSubjects));
         localStorage.setItem('pandaState', JSON.stringify(debouncedPandaState));
+        localStorage.setItem('navbarLayout', JSON.stringify(debouncedNavbarLayout));
         if (debouncedTimerState.status !== 'inactive') {
             localStorage.setItem('timerState', JSON.stringify(debouncedTimerState));
         } else {
@@ -189,7 +282,7 @@ const App: React.FC = () => {
     } catch (error) {
       console.error("Failed to save state to localStorage", error);
     }
-  }, [debouncedNotesPanelState, debouncedPinnedItems, debouncedTimetableEntries, debouncedAppLinks, debouncedJournalEntries, debouncedTimerState, debouncedVisibleTabs, debouncedStudiedSubjects, debouncedPandaState]);
+  }, [debouncedNotesPanelState, debouncedPinnedItems, debouncedTimetableEntries, debouncedAppLinks, debouncedJournalEntries, debouncedTimerState, debouncedVisibleTabs, debouncedStudiedSubjects, debouncedPandaState, debouncedNavbarLayout]);
 
     // Re-added cursor follower effect with performance optimization
     useEffect(() => {
@@ -216,108 +309,100 @@ const App: React.FC = () => {
         };
     }, []);
 
-    // New performant canvas background effect
+    // Glowing blob canvas background effect
     useEffect(() => {
-      const canvas = document.getElementById('background-canvas') as HTMLCanvasElement;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+        const canvas = document.getElementById('background-canvas') as HTMLCanvasElement;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
 
-      let width = canvas.width = window.innerWidth;
-      let height = canvas.height = window.innerHeight;
-      let animationFrameId: number;
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+        let animationFrameId: number;
 
-      const handleResize = () => {
-          width = canvas.width = window.innerWidth;
-          height = canvas.height = window.innerHeight;
-      };
-      window.addEventListener('resize', handleResize);
+        const handleResize = () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        };
+        window.addEventListener('resize', handleResize);
+        
+        const random = (min: number, max: number) => Math.random() * (max - min) + min;
 
-      const random = (min: number, max: number) => Math.random() * (max - min) + min;
+        class Circle {
+            x: number;
+            y: number;
+            radius: number;
+            dx: number;
+            dy: number;
+            hue: number;
+            opacity: number;
+            
+            constructor(x: number, y: number, radius: number, dx: number, dy: number, hue: number, opacity: number) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.dx = dx;
+                this.dy = dy;
+                this.hue = hue;
+                this.opacity = opacity;
+            }
 
-      class Blob {
-          x: number;
-          y: number;
-          vx: number;
-          vy: number;
-          radius: number;
-          hue: number;
-          targetHue: number;
-          saturation: number;
-          lightness: number;
-          lastHueChangeTime: number;
+            draw() {
+                if (!ctx) return;
+                ctx.beginPath();
+                const gradient = ctx.createRadialGradient(this.x, this.y, this.radius * 0.01, this.x, this.y, this.radius);
+                const color = `hsla(${this.hue}, 80%, 70%, ${this.opacity})`;
+                const transparentColor = `hsla(${this.hue}, 80%, 70%, 0)`;
+                gradient.addColorStop(0, color);
+                gradient.addColorStop(1, transparentColor);
+                ctx.fillStyle = gradient;
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+                ctx.fill();
+            }
 
-          constructor() {
-              this.radius = random(width / 4, width / 2);
-              this.x = random(this.radius, width - this.radius);
-              this.y = random(this.radius, height - this.radius);
-              this.vx = random(-0.5, 0.5);
-              this.vy = random(-0.5, 0.5);
-              this.hue = random(0, 360);
-              this.targetHue = random(0, 360);
-              this.saturation = 0; // Will be set in draw
-              this.lightness = 0; // Will be set in draw
-              this.lastHueChangeTime = Date.now();
-          }
+            update() {
+                if (this.x + this.radius > width || this.x - this.radius < 0) {
+                    this.dx = -this.dx;
+                }
+                if (this.y + this.radius > height || this.y - this.radius < 0) {
+                    this.dy = -this.dy;
+                }
+                this.x += this.dx;
+                this.y += this.dy;
+                this.hue = (this.hue + 1.0) % 360; // Animate hue faster
+                this.draw();
+            }
+        }
 
-          update() {
-              this.x += this.vx;
-              this.y += this.vy;
+        let circles: Circle[] = [];
+        const init = () => {
+            circles = [];
+            const baseHues = [random(10, 50), random(180, 220), random(280, 320)]; // Warm, Cool, Purple/Pink
+            
+            for (let i = 0; i < 3; i++) {
+                const radius = random(width / 3, width / 1.5);
+                const x = random(radius, width - radius);
+                const y = random(radius, height - radius);
+                const dx = random(-0.8, 0.8); // Faster movement
+                const dy = random(-0.8, 0.8); // Faster movement
+                circles.push(new Circle(x, y, radius, dx, dy, baseHues[i], 0.9)); // Increased opacity
+            }
+        };
 
-              if (this.x - this.radius <= 0 || this.x + this.radius >= width) this.vx *= -1;
-              if (this.y - this.radius <= 0 || this.y + this.radius >= height) this.vy *= -1;
-
-              // Change target hue every 3-4.5 seconds
-              const now = Date.now();
-              if (now - this.lastHueChangeTime > random(3000, 4500)) {
-                  this.targetHue = random(0, 360);
-                  this.lastHueChangeTime = now;
-              }
-
-              // Smoothly interpolate towards the target hue
-              let diff = this.targetHue - this.hue;
-              // Handle wraparound (e.g., transitioning from 350deg to 10deg)
-              if (Math.abs(diff) > 180) {
-                  diff = diff > 0 ? diff - 360 : diff + 360;
-              }
-              this.hue = (this.hue + diff * 0.01 + 360) % 360;
-          }
-
-          draw() {
+        const animate = () => {
             if (!ctx) return;
-              const isDark = document.documentElement.classList.contains('dark');
-              this.lightness = isDark ? 25 : 60; // Vibrant but not harsh
-              this.saturation = isDark ? 70 : 90; // High saturation
-              const alpha = isDark ? 0.4 : 0.6; // Stronger alpha for more color
+            ctx.clearRect(0, 0, width, height);
+            circles.forEach(circle => circle.update());
+            animationFrameId = requestAnimationFrame(animate);
+        };
 
-              const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
-              gradient.addColorStop(0, `hsla(${this.hue}, ${this.saturation}%, ${this.lightness}%, ${alpha})`);
-              gradient.addColorStop(1, `hsla(${this.hue}, ${this.saturation}%, ${this.lightness}%, 0)`);
+        init();
+        animate();
 
-              ctx.fillStyle = gradient;
-              ctx.beginPath();
-              ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-              ctx.fill();
-          }
-      }
-
-      const blobs = Array.from({ length: 4 }, () => new Blob());
-
-      const animate = () => {
-          ctx.clearRect(0, 0, width, height);
-          blobs.forEach(blob => {
-              blob.update();
-              blob.draw();
-          });
-          animationFrameId = requestAnimationFrame(animate);
-      };
-
-      animate();
-
-      return () => {
-          cancelAnimationFrame(animationFrameId);
-          window.removeEventListener('resize', handleResize);
-      };
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+            window.removeEventListener('resize', handleResize);
+        };
     }, []);
 
 
@@ -437,16 +522,41 @@ const App: React.FC = () => {
     setStudiedSubjects(settings.subjects);
     localStorage.setItem('setupCompleted', 'true');
     setAppState('main');
+
+    const hasCompletedTour = localStorage.getItem('hasCompletedTour');
+    if (!hasCompletedTour) {
+      setIsTourPromptVisible(true);
+    }
   };
 
   const handleEnter = () => {
-    if (localStorage.getItem('setupCompleted')) {
-        setAppState('main');
+    const setupCompleted = localStorage.getItem('setupCompleted');
+    if (setupCompleted) {
+      setAppState('main');
     } else {
-        setAppState('setup');
+      setAppState('setup');
     }
   };
   
+  const handleStartTour = () => {
+    setIsTourActive(true);
+  };
+  
+  const handleTourEnd = () => {
+    setIsTourActive(false);
+    localStorage.setItem('hasCompletedTour', 'true');
+  };
+  
+  const handleStartTourFromPrompt = () => {
+      setIsTourPromptVisible(false);
+      handleStartTour();
+  };
+
+  const handleDeclineTour = () => {
+      setIsTourPromptVisible(false);
+      localStorage.setItem('hasCompletedTour', 'true');
+  };
+
   // Timer handlers
   const handleStartTimer = (durationInSeconds: number) => {
     setTimerState({
@@ -486,8 +596,22 @@ const App: React.FC = () => {
         case 'main':
             return (
                 <>
-                    <Navbar view={view} setView={setView} onOpenSearch={() => setIsSearchOpen(true)} visibleTabs={visibleTabs} />
-                    <main className="pt-20">
+                    {isTourPromptVisible && <TourPromptModal onStart={handleStartTourFromPrompt} onDecline={handleDeclineTour} />}
+                    {isTourActive && (
+                        <WelcomeTour
+                            steps={tourSteps}
+                            onTourEnd={handleTourEnd}
+                            setCustomizing={setIsCustomizing}
+                        />
+                    )}
+                    <Navbar 
+                        view={view} 
+                        setView={setView} 
+                        onOpenSearch={() => setIsSearchOpen(true)} 
+                        visibleTabs={visibleTabs}
+                        layout={navbarLayout}
+                    />
+                    <main className={`transition-all duration-300 ${navbarLayout === 'vertical' ? 'pt-4 md:pl-28' : 'pt-20'}`}>
                         <div key={view} className="animate-merge-in">
                             {view === 'dashboard' && (
                             <Dashboard
@@ -507,6 +631,8 @@ const App: React.FC = () => {
                                 onSetupTimer={() => setIsTimerSetupOpen(true)}
                                 pandaState={pandaState}
                                 onFeedPanda={handleFeedPanda}
+                                isCustomizing={isCustomizing}
+                                setIsCustomizing={setIsCustomizing}
                             />
                             )}
                             {view === 'media-studies' && (
@@ -545,6 +671,9 @@ const App: React.FC = () => {
                         setFontFamily={setFontFamily}
                         visibleTabs={visibleTabs}
                         setVisibleTabs={setVisibleTabs}
+                        navbarLayout={navbarLayout}
+                        setNavbarLayout={setNavbarLayout}
+                        onStartTour={handleStartTour}
                     />
                     <GlobalSearch 
                         isOpen={isSearchOpen}
@@ -585,13 +714,22 @@ const App: React.FC = () => {
   };
   
   return (
-    <div className="relative z-[1] min-h-screen">
-        <canvas id="background-canvas"></canvas>
+    <div className="relative min-h-screen">
+        {/* Background Layers */}
+        <div className="fixed inset-0 bg-beige-100 dark:bg-stone-900 -z-20 transition-colors duration-300" />
+        <canvas id="background-canvas" className="blur-4xl transform scale-110" />
         <div className="vignette-overlay" />
-        <div ref={cursorFollowerRef} className="cursor-follower hidden md:block" />
-        <div className="animate-fade-in">
-          {renderContent()}
+
+        {/* Content is in the normal flow (z-index auto), on top of background */}
+        <div className="relative z-[1]">
+            <div ref={cursorFollowerRef} className="cursor-follower hidden md:block" />
+            <div className="animate-fade-in">
+                {renderContent()}
+            </div>
         </div>
+
+        {/* Foreground Overlay */}
+        <div className="film-grain-overlay" />
     </div>
   );
 };

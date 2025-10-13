@@ -32,6 +32,8 @@ interface DashboardProps {
     studiedSubjects: string[];
     pandaState: PandaState;
     onFeedPanda: () => void;
+    isCustomizing: boolean;
+    setIsCustomizing: (isCustomizing: boolean) => void;
 }
 
 const GRID_COLS = 12;
@@ -95,13 +97,13 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         onSetupTimer,
         studiedSubjects,
         pandaState, onFeedPanda,
+        isCustomizing, setIsCustomizing
     } = props;
     
     const [windowWidth] = useWindowSize();
     const isMobile = windowWidth < 768;
 
     const [accounts, setAccounts] = useState<SocialAccount[]>([]);
-    const [isCustomizing, setIsCustomizing] = useState(false);
     const [showInitialWelcome, setShowInitialWelcome] = useState(false);
     
     const [layout, setLayout] = useState<LayoutItem[]>(() => {

@@ -30,7 +30,7 @@ const AiResources: React.FC = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {resources.map((resource, index) => (
-                    <div key={index} className="bg-beige-50 dark:bg-stone-800 rounded-lg shadow-lg border border-beige-200 dark:border-stone-700 p-6 flex flex-col text-center transition-transform transform hover:-translate-y-2">
+                    <div key={index} className="bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark p-6 flex flex-col text-center transition-transform transform hover:-translate-y-2 glass-reflective">
                         <div className="text-4xl mb-4">{resource.icon}</div>
                         <h3 className="text-lg font-bold text-stone-800 dark:text-beige-100">{resource.name}</h3>
                         <p className="text-sm text-stone-600 dark:text-stone-400 mt-2 flex-grow">
@@ -40,7 +40,7 @@ const AiResources: React.FC = () => {
                             href={resource.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-6 w-full bg-brand-brown-700/20 text-brand-brown-800 dark:bg-amber-500/20 dark:text-amber-300 p-2 rounded-md text-sm font-bold hover:bg-brand-brown-700/30 dark:hover:bg-amber-500/30 transition-colors"
+                            className="mt-6 w-full bg-brand-brown-700/20 text-brand-brown-800 dark:bg-amber-500/20 dark:text-amber-300 p-2 rounded-md text-sm font-bold hover:bg-brand-brown-700/30 dark:hover:bg-amber-500/30 transition-colors btn-ripple"
                         >
                             Visit Site
                         </a>

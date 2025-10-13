@@ -11,10 +11,10 @@ const AiTutorPage: React.FC = () => {
     const ModeButton: React.FC<{ targetMode: AiTutorMode, children: React.ReactNode }> = ({ targetMode, children }) => (
         <button
             onClick={() => setMode(targetMode)}
-            className={`px-6 py-3 rounded-md font-bold transition-all duration-300 transform hover:-translate-y-1 text-base ${
+            className={`px-6 py-3 rounded-md font-bold transition-all duration-300 transform hover:-translate-y-1 text-base btn-ripple ${
                 mode === targetMode 
                 ? 'bg-brand-brown-700 text-white shadow-lg' 
-                : 'bg-beige-200 dark:bg-stone-700 text-stone-700 dark:text-beige-200 hover:bg-beige-300 dark:hover:bg-stone-600'
+                : 'bg-glass-300 text-stone-700 hover:bg-glass-100 dark:text-beige-200'
             }`}
         >
             {children}

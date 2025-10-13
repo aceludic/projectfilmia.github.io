@@ -37,15 +37,22 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({ steps, onTourEnd, setCustomiz
             const targetElement = document.getElementById(currentStep.targetId);
             const tooltipElement = tooltipRef.current;
 
-            if (!targetElement || !tooltipElement) {
-                setHighlightStyle({ position: 'absolute', opacity: 0, pointerEvents: 'none' });
-                setTooltipState(prev => ({ ...prev, style: { ...prev.style, opacity: 0, pointerEvents: 'none' } }));
+            // FIX: Ensure elements are rendered and have dimensions before calculating position.
+            // This prevents incorrect positioning if the tour step triggers a re-render.
+            if (!targetElement || !tooltipElement || !tooltipElement.offsetWidth || !tooltipElement.offsetHeight) {
+                setHighlightStyle(prev => ({ ...prev, opacity: 0 }));
+                setTooltipState(prev => ({ ...prev, style: { ...prev.style, opacity: 0 } }));
                 return;
             }
 
             const targetRect = targetElement.getBoundingClientRect();
             const tooltipRect = tooltipElement.getBoundingClientRect();
             const HIGHLIGHT_PADDING = 4;
+            const OFFSET = 12;
+            const ARROW_SIZE = 8;
+            const VIEWPORT_MARGIN = 16;
+            const viewportWidth = document.documentElement.clientWidth;
+            const viewportHeight = document.documentElement.clientHeight;
 
             // 1. Set the spotlight highlight style
             setHighlightStyle({
@@ -60,80 +67,64 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({ steps, onTourEnd, setCustomiz
                 pointerEvents: 'auto'
             });
 
-            // 2. Calculate tooltip position with auto-flipping
+            // 2. Determine best placement with auto-flipping
             let placement = currentStep.placement || 'bottom';
-            const OFFSET = 12;
-            const VIEWPORT_MARGIN = 16;
-            const viewportWidth = document.documentElement.clientWidth;
-            const viewportHeight = document.documentElement.clientHeight;
-            
-            let idealTop = 0, idealLeft = 0;
-            const getCenteredLeft = () => targetRect.left + targetRect.width / 2 - tooltipRect.width / 2;
-            const getCenteredTop = () => targetRect.top + targetRect.height / 2 - tooltipRect.height / 2;
+            if (placement === 'bottom' && targetRect.bottom + tooltipRect.height > viewportHeight - VIEWPORT_MARGIN) placement = 'top';
+            if (placement === 'top' && targetRect.top - tooltipRect.height < VIEWPORT_MARGIN) placement = 'bottom';
+            if (placement === 'right' && targetRect.right + tooltipRect.width > viewportWidth - VIEWPORT_MARGIN) placement = 'left';
+            if (placement === 'left' && targetRect.left - tooltipRect.width < VIEWPORT_MARGIN) placement = 'right';
 
-            const positionForPlacement = (p: typeof placement) => {
-                switch (p) {
-                    case 'top': return { top: targetRect.top - tooltipRect.height - OFFSET, left: getCenteredLeft() };
-                    case 'bottom': return { top: targetRect.bottom + OFFSET, left: getCenteredLeft() };
-                    case 'left': return { top: getCenteredTop(), left: targetRect.left - tooltipRect.width - OFFSET };
-                    case 'right': return { top: getCenteredTop(), left: targetRect.right + OFFSET };
-                }
-            }
-            
-            const initialPos = positionForPlacement(placement);
-            idealTop = initialPos.top;
-            idealLeft = initialPos.left;
-
-            // Auto-flipping logic
-            if (placement === 'top' && idealTop < VIEWPORT_MARGIN) {
-                placement = 'bottom';
-            } else if (placement === 'bottom' && (idealTop + tooltipRect.height) > (viewportHeight - VIEWPORT_MARGIN)) {
-                placement = 'top';
-            } else if (placement === 'left' && idealLeft < VIEWPORT_MARGIN) {
-                placement = 'right';
-            } else if (placement === 'right' && (idealLeft + tooltipRect.width) > (viewportWidth - VIEWPORT_MARGIN)) {
-                placement = 'left';
-            }
-            
-            // Recalculate position if placement was flipped
-            const flippedPos = positionForPlacement(placement);
-            idealTop = flippedPos.top;
-            idealLeft = flippedPos.left;
-
-            // Final clamping for edge cases
-            const finalLeft = Math.max(VIEWPORT_MARGIN, Math.min(idealLeft, viewportWidth - tooltipRect.width - VIEWPORT_MARGIN));
-            const finalTop = Math.max(VIEWPORT_MARGIN, Math.min(idealTop, viewportHeight - tooltipRect.height - VIEWPORT_MARGIN));
-
-            // 3. Calculate arrow position based on the final, potentially flipped, placement
+            // 3. Calculate ideal position based on final placement
             const targetCenterX = targetRect.left + targetRect.width / 2;
             const targetCenterY = targetRect.top + targetRect.height / 2;
-            let arrowTop = targetCenterY - finalTop;
-            let arrowLeft = targetCenterX - finalLeft;
-            let arrowClasses = '';
+            let idealTop = 0, idealLeft = 0;
 
-            const ARROW_SIZE = 8;
-            const ARROW_MARGIN = 16;
+            switch (placement) {
+                case 'top':
+                    idealTop = targetRect.top - tooltipRect.height - OFFSET;
+                    idealLeft = targetCenterX - tooltipRect.width / 2;
+                    break;
+                case 'bottom':
+                    idealTop = targetRect.bottom + OFFSET;
+                    idealLeft = targetCenterX - tooltipRect.width / 2;
+                    break;
+                case 'left':
+                    idealLeft = targetRect.left - tooltipRect.width - OFFSET;
+                    idealTop = targetCenterY - tooltipRect.height / 2;
+                    break;
+                case 'right':
+                    idealLeft = targetRect.right + OFFSET;
+                    idealTop = targetCenterY - tooltipRect.height / 2;
+                    break;
+            }
+
+            // 4. Clamp position to stay within the viewport (the critical part)
+            const finalLeft = Math.max(VIEWPORT_MARGIN, Math.min(idealLeft, viewportWidth - tooltipRect.width - VIEWPORT_MARGIN));
+            const finalTop = Math.max(VIEWPORT_MARGIN, Math.min(idealTop, viewportHeight - tooltipRect.height - VIEWPORT_MARGIN));
+            
+            // 5. Calculate arrow position based on the final, clamped position
+            let arrowTop = 0, arrowLeft = 0, arrowClasses = '';
 
             switch (placement) {
                 case 'top':
                     arrowClasses = 'border-t-beige-50 dark:border-t-stone-800';
-                    arrowTop = tooltipRect.height - ARROW_SIZE;
-                    arrowLeft = Math.max(ARROW_MARGIN, Math.min(arrowLeft, tooltipRect.width - ARROW_MARGIN));
+                    arrowTop = tooltipRect.height - ARROW_SIZE / 2;
+                    arrowLeft = targetCenterX - finalLeft;
                     break;
                 case 'bottom':
                     arrowClasses = 'border-b-beige-50 dark:border-b-stone-800';
-                    arrowTop = -ARROW_SIZE;
-                    arrowLeft = Math.max(ARROW_MARGIN, Math.min(arrowLeft, tooltipRect.width - ARROW_MARGIN));
+                    arrowTop = -ARROW_SIZE / 2;
+                    arrowLeft = targetCenterX - finalLeft;
                     break;
                 case 'left':
                     arrowClasses = 'border-l-beige-50 dark:border-l-stone-800';
-                    arrowLeft = tooltipRect.width - ARROW_SIZE;
-                    arrowTop = Math.max(ARROW_MARGIN, Math.min(arrowTop, tooltipRect.height - ARROW_MARGIN));
+                    arrowLeft = tooltipRect.width - ARROW_SIZE / 2;
+                    arrowTop = targetCenterY - finalTop;
                     break;
                 case 'right':
                     arrowClasses = 'border-r-beige-50 dark:border-r-stone-800';
-                    arrowLeft = -ARROW_SIZE;
-                    arrowTop = Math.max(ARROW_MARGIN, Math.min(arrowTop, tooltipRect.height - ARROW_MARGIN));
+                    arrowLeft = -ARROW_SIZE / 2;
+                    arrowTop = targetCenterY - finalTop;
                     break;
             }
 
@@ -146,13 +137,13 @@ const WelcomeTour: React.FC<WelcomeTourProps> = ({ steps, onTourEnd, setCustomiz
         
         if (currentStep.before) currentStep.before(setCustomizing);
         
-        const timer = setTimeout(calculatePositions, 50);
+        // Use a microtask delay to ensure layout is stable
+        Promise.resolve().then(calculatePositions);
         window.addEventListener('resize', calculatePositions);
         
         return () => {
             if (currentStep.after) currentStep.after(setCustomizing);
             window.removeEventListener('resize', calculatePositions);
-            clearTimeout(timer);
         };
     }, [currentStepIndex, steps, setCustomizing, currentStep]);
     
