@@ -76,6 +76,22 @@ const DashboardLights: React.FC = () => (
     </div>
 );
 
+const ThemeButton: React.FC<{ value: Theme; currentTheme: Theme; onClick: (theme: Theme) => void; children: React.ReactNode; }> = ({ value, currentTheme, onClick, children }) => {
+    const isActive = value === currentTheme;
+    return (
+        <button
+            onClick={() => onClick(value)}
+            className={`px-4 py-1.5 text-xs font-bold rounded-full transition-all duration-200 transform hover:-translate-y-0.5 btn-ripple ${
+                isActive
+                    ? 'bg-brand-brown-700 text-white shadow-md'
+                    : 'bg-glass-300 text-stone-700 dark:text-stone-300 hover:bg-glass-100'
+            }`}
+        >
+            {children}
+        </button>
+    );
+};
+
 
 const Dashboard: React.FC<DashboardProps> = (props) => {
     const { 
@@ -232,13 +248,17 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8 animate-fade-in-up">
             <DashboardLights />
-            {showInitialWelcome && <InitialWelcomeModal onClose={handleCloseWelcome} theme={theme} setTheme={setTheme} />}
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-start mb-6">
                 <div className="text-center flex-grow">
                     <h1 id="dashboard-title" className="text-4xl font-black uppercase">Dashboard</h1>
                     <p className="mt-2 text-lg text-stone-500 dark:text-stone-400">{subtitle}</p>
+                    <div className="mt-4 flex justify-center items-center space-x-2">
+                        <ThemeButton value="light" currentTheme={theme} onClick={setTheme}>Light</ThemeButton>
+                        <ThemeButton value="dark" currentTheme={theme} onClick={setTheme}>Dark</ThemeButton>
+                        <ThemeButton value="night" currentTheme={theme} onClick={setTheme}>Night</ThemeButton>
+                    </div>
                 </div>
-                <div className="hidden md:flex items-center space-x-2">
+                <div className="hidden md:flex items-center space-x-2 flex-shrink-0">
                     {isCustomizing && (
                         <button 
                         onClick={handleResetLayout}
@@ -258,10 +278,13 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                     </button>
                 </div>
             </div>
-
+            
             <div className="text-center p-3 mb-4 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-600/50 rounded-lg text-sm text-yellow-800 dark:text-yellow-300 animate-fade-in" role="alert">
-                <p><strong>Please note:</strong> We're experiencing some slowness which may affect loading times. We're working on a fix and thank you for your patience!</p>
+                <p><strong>Please note:</strong> We're aware of an issue with page visibility and are working on a fix. We're also addressing some slowness that may affect loading times. Thank you for your patience!</p>
             </div>
+
+            {showInitialWelcome && <InitialWelcomeModal onClose={handleCloseWelcome} />}
+
 
             <div 
                 className={`transition-all duration-300 ${isMobile ? 'space-y-4' : 'relative'}`}
