@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
 import HomePage from './components/HomePage';
@@ -71,15 +69,6 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-const AnimatedBackground: React.FC = () => (
-    <div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden bg-beige-100 dark:bg-stone-900">
-        <div className="absolute w-[50vmax] h-[50vmax] rounded-full blur-3xl animate-breathe-1" style={{ top: '5vh', left: '10vw' }}></div>
-        <div className="absolute w-[45vmax] h-[45vmax] rounded-full blur-3xl animate-breathe-2" style={{ top: '30vh', left: '70vw' }}></div>
-        <div className="absolute w-[60vmax] h-[60vmax] rounded-full blur-3xl animate-breathe-3" style={{ top: '55vh', left: '25vw' }}></div>
-    </div>
-);
-
-
 const App: React.FC = () => {
   const [appState, setAppState] = useState<'landing' | 'setup' | 'main'>('landing');
   const [view, setView] = useState<LoggedInView>('dashboard');
@@ -87,7 +76,6 @@ const App: React.FC = () => {
   const [fontFamily, setFontFamily] = useState<FontFamily>(() => loadFromLocalStorage('fontFamily', 'lexend'));
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSettingsPanelOpen, setIsSettingsPanelOpen] = useState(false);
-  const followerRef = useRef<HTMLDivElement>(null);
   
   const [notesPanelState, setNotesPanelState] = useState<NotesPanelState>(() => loadFromLocalStorage('notesPanelState', {
       isOpen: false,
@@ -120,6 +108,7 @@ const App: React.FC = () => {
       isHappy: true,
   }));
 
+  const cursorFollowerRef = useRef<HTMLDivElement>(null);
 
   const debouncedNotesPanelState = useDebounce(notesPanelState, 500);
   const debouncedPinnedItems = useDebounce(pinnedItems, 500);
@@ -146,17 +135,6 @@ const App: React.FC = () => {
       console.error("Failed to save theme to localStorage", error);
     }
   }, [theme]);
-
-  // Mouse follower effect
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-        if (followerRef.current) {
-            followerRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-        }
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
   
   // Panda streak logic
   useEffect(() => {
@@ -212,6 +190,136 @@ const App: React.FC = () => {
       console.error("Failed to save state to localStorage", error);
     }
   }, [debouncedNotesPanelState, debouncedPinnedItems, debouncedTimetableEntries, debouncedAppLinks, debouncedJournalEntries, debouncedTimerState, debouncedVisibleTabs, debouncedStudiedSubjects, debouncedPandaState]);
+
+    // Re-added cursor follower effect with performance optimization
+    useEffect(() => {
+        if (!cursorFollowerRef.current) return;
+
+        const follower = cursorFollowerRef.current;
+        let animationFrameId: number;
+
+        const onMouseMove = (e: MouseEvent) => {
+            const { clientX, clientY } = e;
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = requestAnimationFrame(() => {
+                // Set top/left to move the element's origin, and let CSS transform handle centering
+                follower.style.left = `${clientX}px`;
+                follower.style.top = `${clientY}px`;
+            });
+        };
+
+        window.addEventListener('mousemove', onMouseMove);
+
+        return () => {
+            window.removeEventListener('mousemove', onMouseMove);
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, []);
+
+    // New performant canvas background effect
+    useEffect(() => {
+      const canvas = document.getElementById('background-canvas') as HTMLCanvasElement;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      let width = canvas.width = window.innerWidth;
+      let height = canvas.height = window.innerHeight;
+      let animationFrameId: number;
+
+      const handleResize = () => {
+          width = canvas.width = window.innerWidth;
+          height = canvas.height = window.innerHeight;
+      };
+      window.addEventListener('resize', handleResize);
+
+      const random = (min: number, max: number) => Math.random() * (max - min) + min;
+
+      class Blob {
+          x: number;
+          y: number;
+          vx: number;
+          vy: number;
+          radius: number;
+          hue: number;
+          targetHue: number;
+          saturation: number;
+          lightness: number;
+          lastHueChangeTime: number;
+
+          constructor() {
+              this.radius = random(width / 4, width / 2);
+              this.x = random(this.radius, width - this.radius);
+              this.y = random(this.radius, height - this.radius);
+              this.vx = random(-0.5, 0.5);
+              this.vy = random(-0.5, 0.5);
+              this.hue = random(0, 360);
+              this.targetHue = random(0, 360);
+              this.saturation = 0; // Will be set in draw
+              this.lightness = 0; // Will be set in draw
+              this.lastHueChangeTime = Date.now();
+          }
+
+          update() {
+              this.x += this.vx;
+              this.y += this.vy;
+
+              if (this.x - this.radius <= 0 || this.x + this.radius >= width) this.vx *= -1;
+              if (this.y - this.radius <= 0 || this.y + this.radius >= height) this.vy *= -1;
+
+              // Change target hue every 3-4.5 seconds
+              const now = Date.now();
+              if (now - this.lastHueChangeTime > random(3000, 4500)) {
+                  this.targetHue = random(0, 360);
+                  this.lastHueChangeTime = now;
+              }
+
+              // Smoothly interpolate towards the target hue
+              let diff = this.targetHue - this.hue;
+              // Handle wraparound (e.g., transitioning from 350deg to 10deg)
+              if (Math.abs(diff) > 180) {
+                  diff = diff > 0 ? diff - 360 : diff + 360;
+              }
+              this.hue = (this.hue + diff * 0.01 + 360) % 360;
+          }
+
+          draw() {
+            if (!ctx) return;
+              const isDark = document.documentElement.classList.contains('dark');
+              this.lightness = isDark ? 25 : 60; // Vibrant but not harsh
+              this.saturation = isDark ? 70 : 90; // High saturation
+              const alpha = isDark ? 0.4 : 0.6; // Stronger alpha for more color
+
+              const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+              gradient.addColorStop(0, `hsla(${this.hue}, ${this.saturation}%, ${this.lightness}%, ${alpha})`);
+              gradient.addColorStop(1, `hsla(${this.hue}, ${this.saturation}%, ${this.lightness}%, 0)`);
+
+              ctx.fillStyle = gradient;
+              ctx.beginPath();
+              ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+              ctx.fill();
+          }
+      }
+
+      const blobs = Array.from({ length: 4 }, () => new Blob());
+
+      const animate = () => {
+          ctx.clearRect(0, 0, width, height);
+          blobs.forEach(blob => {
+              blob.update();
+              blob.draw();
+          });
+          animationFrameId = requestAnimationFrame(animate);
+      };
+
+      animate();
+
+      return () => {
+          cancelAnimationFrame(animationFrameId);
+          window.removeEventListener('resize', handleResize);
+      };
+    }, []);
+
 
   // Keyboard shortcut for global search
   useEffect(() => {
@@ -380,7 +488,7 @@ const App: React.FC = () => {
                 <>
                     <Navbar view={view} setView={setView} onOpenSearch={() => setIsSearchOpen(true)} visibleTabs={visibleTabs} />
                     <main className="pt-20">
-                        <div key={view}>
+                        <div key={view} className="animate-merge-in">
                             {view === 'dashboard' && (
                             <Dashboard
                                 pinnedItems={pinnedItems}
@@ -477,10 +585,13 @@ const App: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen bg-transparent animate-fade-in">
-      <div ref={followerRef} className="cursor-follower"></div>
-      <AnimatedBackground />
-      {renderContent()}
+    <div className="relative z-[1] min-h-screen">
+        <canvas id="background-canvas"></canvas>
+        <div className="vignette-overlay" />
+        <div ref={cursorFollowerRef} className="cursor-follower hidden md:block" />
+        <div className="animate-fade-in">
+          {renderContent()}
+        </div>
     </div>
   );
 };

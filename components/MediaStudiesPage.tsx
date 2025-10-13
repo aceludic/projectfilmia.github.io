@@ -1,5 +1,3 @@
-
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { theoristData } from '../data/theoristsData';
 import { cspsData } from '../data/cspsData';
@@ -162,8 +160,8 @@ const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogg
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {showDisclaimer && <DisclaimerModal onClose={handleDisclaimerClose} />}
         <div className={`transition-opacity duration-500 ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="text-center mb-12 animate-fade-in-up">
-                <h1 className="text-4xl font-black uppercase">Media & Film Studies Hub</h1>
+            <div className="text-center mb-12">
+                <h1 className="text-4xl font-black uppercase text-glow">Media & Film Studies Hub</h1>
                 <p className="mt-2 text-lg text-stone-500 dark:text-stone-400">Explore key theories, case studies, and resources.</p>
             </div>
 

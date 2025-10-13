@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AiTutorChat from './AiTutorChat';
 import EssayPlanner from './EssayPlanner';
@@ -23,9 +22,9 @@ const AiTutorPage: React.FC = () => {
     );
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in-up">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="text-center mb-12">
-                <h1 className="text-4xl font-black uppercase">AI Tutor Hub</h1>
+                <h1 className="text-4xl font-black uppercase text-glow">AI Tutor Hub</h1>
                 <p className="mt-2 text-lg text-stone-500 dark:text-stone-400 max-w-2xl mx-auto">Your personal assistant for Media & Film Studies.</p>
             </div>
 

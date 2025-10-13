@@ -47,7 +47,7 @@ const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onToggl
     };
 
     return (
-        <div className="bg-glass-300 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:scale-[1.03]">
+        <div className="bg-glass-300 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:scale-[1.03] glass-reflective">
             <div className={`relative h-48 w-full flex items-center justify-center p-4 text-white bg-gradient-to-br ${gradientClass}`}>
                 <div className="relative z-10 text-center">
                     <h3 className="text-3xl font-sans font-black uppercase leading-tight tracking-wider shadow-black [text-shadow:1px_1px_3px_var(--tw-shadow-color)]">{csp.title}</h3>

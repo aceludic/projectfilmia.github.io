@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 import DashboardSection from './DashboardSection';
 import SocialIntegrations from './SocialIntegrations';
@@ -68,13 +66,6 @@ const useWindowSize = () => {
     }, []);
     return size;
 };
-
-const DashboardLights: React.FC = () => (
-    <div className="fixed top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute w-[50vmax] h-[50vmax] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-400/20 blur-3xl animate-glow-pulse" style={{ top: '20%', left: '20%' }}></div>
-        <div className="absolute w-[40vmax] h-[40vmax] -translate-x-1/2 -translate-y-1/2 rounded-full bg-teal-400/20 blur-3xl animate-glow-pulse" style={{ top: '70%', left: '80%', animationDelay: '5s' }}></div>
-    </div>
-);
 
 const ThemeButton: React.FC<{ value: Theme; currentTheme: Theme; onClick: (theme: Theme) => void; children: React.ReactNode; }> = ({ value, currentTheme, onClick, children }) => {
     const isActive = value === currentTheme;
@@ -246,11 +237,10 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
 
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8 animate-fade-in-up">
-            <DashboardLights />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8 animate-glow rounded-3xl">
             <div className="flex justify-between items-start mb-6">
                 <div className="text-center flex-grow">
-                    <h1 id="dashboard-title" className="text-4xl font-black uppercase">Dashboard</h1>
+                    <h1 id="dashboard-title" className="text-4xl font-black uppercase text-glow">Dashboard</h1>
                     <p className="mt-2 text-lg text-stone-500 dark:text-stone-400">{subtitle}</p>
                     <div className="mt-4 flex justify-center items-center space-x-2">
                         <ThemeButton value="light" currentTheme={theme} onClick={setTheme}>Light</ThemeButton>

@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useEffect, useState } from 'react';
+import React, { useRef, useCallback, useEffect, useState, memo } from 'react';
 import { LayoutItem } from '../types';
 
 interface DashboardSectionProps {
@@ -117,7 +117,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
   const y = `${layoutItem.y * cellHeight}px`;
 
   const sectionStyle = isMobile ? { minHeight: '350px' } : { left: x, top: y, width, height };
-  const sectionClasses = `bg-glass-100 dark:bg-black/50 backdrop-blur-4xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark transition-all duration-300 ease-in-out hover:shadow-xl hover:border-white/30 dark:hover:border-white/20 ${
+  const sectionClasses = `glass-reflective bg-glass-100 dark:bg-black/50 backdrop-blur-4xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark transition-all duration-300 ease-in-out hover:shadow-xl hover:border-white/30 dark:hover:border-white/20 ${
     isMobile ? 'relative w-full' : 'absolute'
   } ${
     isCustomizing && !isMobile ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-stone-900/50 animate-pulse' : ''
@@ -168,4 +168,4 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
   );
 };
 
-export default DashboardSection;
+export default memo(DashboardSection);

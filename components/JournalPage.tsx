@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { JournalEntry } from '../types';
 
@@ -105,9 +103,9 @@ const JournalPage: React.FC<JournalPageProps> = ({ entries, onAdd, onUpdate, onR
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {isModalOpen && <JournalModal entry={editingEntry} onSave={handleSave} onClose={() => { setIsModalOpen(false); setEditingEntry(null); }} />}
-            <div className="flex justify-between items-center mb-12 animate-fade-in-up">
+            <div className="flex justify-between items-center mb-12">
                 <div className="text-center flex-grow">
-                    <h1 className="text-4xl font-black uppercase text-stone-800 dark:text-white">Media Journal</h1>
+                    <h1 className="text-4xl font-black uppercase text-stone-800 dark:text-white text-glow">Media Journal</h1>
                     <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">Your personal log of films, shows, and games.</p>
                 </div>
                 <button onClick={() => setIsModalOpen(true)} className="px-4 py-2 bg-brand-brown-700 text-white rounded-md font-bold transition-all duration-300 transform hover:-translate-y-1 text-sm btn-ripple">

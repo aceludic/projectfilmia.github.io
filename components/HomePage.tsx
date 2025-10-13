@@ -37,7 +37,7 @@ const HomePage: React.FC<HomePageProps> = ({ onEnter }) => {
       </div>
 
       <div className="relative z-20 text-center px-4 animate-fade-in-up">
-        <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-r from-brand-brown-800 to-brand-brown-600 uppercase">
+        <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-4 bg-clip-text text-transparent bg-gradient-to-r from-brand-brown-800 to-brand-brown-600 uppercase text-glow">
           Discover Your Media Story
         </h1>
         <p className="max-w-2xl mx-auto text-lg md:text-xl text-stone-700 dark:text-stone-300 mb-8">

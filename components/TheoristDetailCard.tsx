@@ -34,7 +34,7 @@ const TheoristDetailCard: React.FC<TheoristDetailCardProps> = ({ theorist, categ
     };
 
     return (
-        <div className="bg-glass-300 dark:bg-black/20 backdrop-blur-2xl rounded-2xl border border-glass-border dark:border-glass-border-dark transition-all duration-300 overflow-hidden">
+        <div className="bg-glass-300 dark:bg-black/20 backdrop-blur-2xl rounded-2xl border border-glass-border dark:border-glass-border-dark transition-all duration-300 overflow-hidden glass-reflective">
             <div
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full flex items-center justify-between p-4 text-left hover:bg-glass-100 transition-colors duration-200 cursor-pointer"

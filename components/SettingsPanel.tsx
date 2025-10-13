@@ -99,7 +99,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
     return (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 animate-fade-in flex items-center justify-center p-4" onClick={onClose}>
             <div 
-                className="w-full max-w-md h-auto max-h-[85vh] bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-2xl flex flex-col animate-scale-in border border-glass-border dark:border-glass-border-dark"
+                className="w-full max-w-md h-auto max-h-[85vh] bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-2xl flex flex-col animate-scale-in border border-glass-border dark:border-glass-border-dark glass-reflective"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex items-center justify-between p-4 border-b border-glass-border dark:border-glass-border-dark">
