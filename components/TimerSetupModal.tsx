@@ -13,11 +13,14 @@ const PRESETS = [
     { label: 'Full Paper (2h)', minutes: 120 },
 ];
 
-// FIX: Changed to a named export to resolve module loading error in App.tsx.
-export const TimerSetupModal: React.FC<TimerSetupModalProps> = ({ isOpen, onClose, onStart }) => {
+// REFACTORED: Converted to a standard function declaration to resolve a persistent build error related to JSX parsing.
+// The component maintains its named export status.
+export function TimerSetupModal({ isOpen, onClose, onStart }: TimerSetupModalProps) {
   const [minutes, setMinutes] = useState<string>('25');
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   const handleStart = () => {
     const duration = parseInt(minutes, 10);
@@ -64,5 +67,6 @@ export const TimerSetupModal: React.FC<TimerSetupModalProps> = ({ isOpen, onClos
                 </div>
             </div>
         </div>
-    );
-};
+    </div>
+  );
+}
