@@ -95,9 +95,14 @@ const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch, visibleTab
                     <div className="font-playfair-display text-xl font-bold text-stone-800 dark:text-beige-100">
                         Project Filmia
                     </div>
-                    <span className="hidden lg:block text-xs text-stone-600 dark:text-stone-400 tracking-tight normal-case">
-                        your creative hub
-                    </span>
+                    <div className="hidden lg:block">
+                        <span className="text-xs text-stone-600 dark:text-stone-400 tracking-tight normal-case block leading-tight">
+                            your creative hub
+                        </span>
+                        <span className="text-[10px] text-stone-500 dark:text-stone-500 tracking-tight normal-case block leading-tight">
+                            (made by ethan)
+                        </span>
+                    </div>
                 </div>
             </button>
               <nav className="hidden md:flex items-center space-x-8">
