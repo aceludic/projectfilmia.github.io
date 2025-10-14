@@ -165,7 +165,8 @@ const TourPromptModal: React.FC<{ onStart: () => void; onDecline: () => void }> 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<'landing' | 'setup' | 'main'>('landing');
   const [view, setView] = useState<LoggedInView>('dashboard');
-  const [theme, setTheme] = useState<Theme>(() => loadFromLocalStorage('theme', 'light'));
+  const [userName, setUserName] = useState<string | null>(() => loadFromLocalStorage('userName', null));
+  const [theme, setTheme] = useState<Theme>(() => loadFromLocalStorage('theme', 'dark'));
   const [fontFamily, setFontFamily] = useState<FontFamily>(() => loadFromLocalStorage('fontFamily', 'lexend'));
   const [navbarLayout, setNavbarLayout] = useState<NavbarLayout>(() => loadFromLocalStorage('navbarLayout', 'horizontal'));
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -199,7 +200,11 @@ const App: React.FC = () => {
       isHappy: true,
   }));
 
-  const cursorFollowerRef = useRef<HTMLDivElement>(null);
+  const [isCursorIdle, setIsCursorIdle] = useState(false);
+  const idleTimerRef = useRef<number | null>(null);
+  const dotRef = useRef<HTMLDivElement>(null);
+  const followerRef = useRef<HTMLDivElement>(null);
+  const cursorContainerRef = useRef<HTMLDivElement>(null);
 
   const debouncedNotesPanelState = useDebounce(notesPanelState, 500);
   const debouncedPinnedItems = useDebounce(pinnedItems, 500);
@@ -284,32 +289,82 @@ const App: React.FC = () => {
     }
   }, [debouncedNotesPanelState, debouncedPinnedItems, debouncedTimetableEntries, debouncedAppLinks, debouncedJournalEntries, debouncedTimerState, debouncedVisibleTabs, debouncedStudiedSubjects, debouncedPandaState, debouncedNavbarLayout]);
 
-    // Re-added cursor follower effect with performance optimization
-    useEffect(() => {
-        if (!cursorFollowerRef.current) return;
+  // New aesthetic cursor effect with idle fade
+  useEffect(() => {
+    const dot = dotRef.current;
+    const follower = followerRef.current;
+    if (!dot || !follower) return;
 
-        const follower = cursorFollowerRef.current;
-        let animationFrameId: number;
+    let animationFrameId: number;
+    const mousePos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const followerPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const speed = 0.15;
 
-        const onMouseMove = (e: MouseEvent) => {
-            const { clientX, clientY } = e;
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = requestAnimationFrame(() => {
-                // Set top/left to move the element's origin, and let CSS transform handle centering
-                follower.style.left = `${clientX}px`;
-                follower.style.top = `${clientY}px`;
-            });
-        };
+    const lerp = (start: number, end: number, amount: number) => {
+      return (1 - amount) * start + amount * end;
+    };
 
-        window.addEventListener('mousemove', onMouseMove);
+    const handleMouseMove = (e: MouseEvent) => {
+      mousePos.x = e.clientX;
+      mousePos.y = e.clientY;
+      
+      // Reset idle timer on move
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      setIsCursorIdle(false);
+      idleTimerRef.current = window.setTimeout(() => setIsCursorIdle(true), 5000);
+    };
+    
+    // Set initial timer
+    idleTimerRef.current = window.setTimeout(() => setIsCursorIdle(true), 5000);
 
-        return () => {
-            window.removeEventListener('mousemove', onMouseMove);
-            cancelAnimationFrame(animationFrameId);
-        };
-    }, []);
+    const handleClick = () => {
+      follower.classList.add('cursor-click');
+      follower.addEventListener('animationend', () => {
+        follower.classList.remove('cursor-click');
+      }, { once: true });
+    };
+    
+    const handleMouseOver = (e: MouseEvent) => {
+        if (e.target instanceof HTMLElement && e.target.closest('a, button, [role="button"], input, textarea, select, .cursor-pointer')) {
+            follower.classList.add('cursor-hover');
+        }
+    };
+    
+    const handleMouseOut = (e: MouseEvent) => {
+        if (e.target instanceof HTMLElement && e.target.closest('a, button, [role="button"], input, textarea, select, .cursor-pointer')) {
+            follower.classList.remove('cursor-hover');
+        }
+    };
 
-    // Glowing blob canvas background effect
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousedown', handleClick);
+    window.addEventListener('mouseover', handleMouseOver);
+    window.addEventListener('mouseout', handleMouseOut);
+
+    const animate = () => {
+      followerPos.x = lerp(followerPos.x, mousePos.x, speed);
+      followerPos.y = lerp(followerPos.y, mousePos.y, speed);
+
+      dot.style.transform = `translate(${mousePos.x - 4}px, ${mousePos.y - 4}px)`;
+      follower.style.transform = `translate(${followerPos.x - 16}px, ${followerPos.y - 16}px)`;
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousedown', handleClick);
+      window.removeEventListener('mouseover', handleMouseOver);
+      window.removeEventListener('mouseout', handleMouseOut);
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+
+    // New Central Pulsating Orb Background Effect
     useEffect(() => {
         const canvas = document.getElementById('background-canvas') as HTMLCanvasElement;
         if (!canvas) return;
@@ -319,80 +374,141 @@ const App: React.FC = () => {
         let width = canvas.width = window.innerWidth;
         let height = canvas.height = window.innerHeight;
         let animationFrameId: number;
+        let frame = 0;
+        let currentHue = Math.random() * 360;
+        let targetHue = currentHue;
 
         const handleResize = () => {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
         };
         window.addEventListener('resize', handleResize);
+
+        const hueInterval = setInterval(() => {
+            targetHue = (targetHue + 60 + Math.random() * 60) % 360;
+        }, 4500);
+
+        const drawWaves = (ctx: CanvasRenderingContext2D, hue: number) => {
+            const wave1 = { amp: height * 0.1, freq: 0.005, speed: 0.005 };
+            const wave2 = { amp: height * 0.15, freq: 0.003, speed: -0.008 };
         
-        const random = (min: number, max: number) => Math.random() * (max - min) + min;
-
-        class Circle {
-            x: number;
-            y: number;
-            radius: number;
-            dx: number;
-            dy: number;
-            hue: number;
-            opacity: number;
-            
-            constructor(x: number, y: number, radius: number, dx: number, dy: number, hue: number, opacity: number) {
-                this.x = x;
-                this.y = y;
-                this.radius = radius;
-                this.dx = dx;
-                this.dy = dy;
-                this.hue = hue;
-                this.opacity = opacity;
-            }
-
-            draw() {
-                if (!ctx) return;
+            ctx.save();
+            ctx.globalCompositeOperation = 'source-over';
+        
+            const drawWave = (wave: typeof wave1, colorAlpha: number) => {
+                ctx.fillStyle = `hsla(${hue}, 80%, 50%, ${colorAlpha})`;
                 ctx.beginPath();
-                const gradient = ctx.createRadialGradient(this.x, this.y, this.radius * 0.01, this.x, this.y, this.radius);
-                const color = `hsla(${this.hue}, 80%, 70%, ${this.opacity})`;
-                const transparentColor = `hsla(${this.hue}, 80%, 70%, 0)`;
-                gradient.addColorStop(0, color);
-                gradient.addColorStop(1, transparentColor);
-                ctx.fillStyle = gradient;
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+                ctx.moveTo(0, height);
+                for (let x = 0; x <= width; x++) {
+                    const y = Math.sin(x * wave.freq + frame * wave.speed) * wave.amp + height * 0.7;
+                    ctx.lineTo(x, y);
+                }
+                ctx.lineTo(width, height);
+                ctx.closePath();
                 ctx.fill();
+            };
+        
+            drawWave(wave1, 0.03);
+            drawWave(wave2, 0.04);
+        
+            ctx.restore();
+        };
+
+
+        class Orb {
+            isCentral: boolean;
+            baseRadius: number;
+            radius: number;
+            orbitRadius: number;
+            speed: number;
+            color: { s: number; l: number; };
+            angle: number;
+            pulseAngle: number;
+            pulseSpeed: number;
+            pulseAmount: number;
+
+            constructor(isCentral: boolean, baseRadius: number, orbitRadius: number, speed: number) {
+                this.isCentral = isCentral;
+                this.baseRadius = baseRadius;
+                this.radius = baseRadius;
+                this.orbitRadius = orbitRadius;
+                this.speed = speed;
+                this.color = { s: 90, l: 55 };
+                this.angle = Math.random() * Math.PI * 2;
+                this.pulseAngle = Math.random() * Math.PI * 2;
+                this.pulseSpeed = 0.005 + Math.random() * 0.01;
+                this.pulseAmount = this.baseRadius * 0.12;
             }
 
             update() {
-                if (this.x + this.radius > width || this.x - this.radius < 0) {
-                    this.dx = -this.dx;
+                this.pulseAngle += this.pulseSpeed;
+                this.radius = this.baseRadius + Math.sin(this.pulseAngle) * this.pulseAmount;
+                if (!this.isCentral) {
+                    this.angle += this.speed;
                 }
-                if (this.y + this.radius > height || this.y - this.radius < 0) {
-                    this.dy = -this.dy;
+            }
+
+            draw(ctx: CanvasRenderingContext2D, centerX: number, centerY: number, hue: number) {
+                let x = centerX;
+                let y = centerY;
+                if (!this.isCentral) {
+                    x = centerX + Math.cos(this.angle) * this.orbitRadius;
+                    y = centerY + Math.sin(this.angle) * this.orbitRadius;
                 }
-                this.x += this.dx;
-                this.y += this.dy;
-                this.hue = (this.hue + 1.0) % 360; // Animate hue faster
-                this.draw();
+
+                const gradient = ctx.createRadialGradient(x, y, 0, x, y, this.radius);
+                const colorString = `hsla(${hue}, ${this.color.s}%, ${this.color.l}%, 0.6)`;
+                const transparentColor = `hsla(${hue}, ${this.color.s}%, ${this.color.l}%, 0)`;
+                gradient.addColorStop(0, colorString);
+                gradient.addColorStop(1, transparentColor);
+
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(x, y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
             }
         }
 
-        let circles: Circle[] = [];
+        let orbs: Orb[] = [];
         const init = () => {
-            circles = [];
-            const baseHues = [random(10, 50), random(180, 220), random(280, 320)]; // Warm, Cool, Purple/Pink
-            
-            for (let i = 0; i < 3; i++) {
-                const radius = random(width / 3, width / 1.5);
-                const x = random(radius, width - radius);
-                const y = random(radius, height - radius);
-                const dx = random(-0.8, 0.8); // Faster movement
-                const dy = random(-0.8, 0.8); // Faster movement
-                circles.push(new Circle(x, y, radius, dx, dy, baseHues[i], 0.9)); // Increased opacity
+            orbs = [];
+            const centralRadius = Math.max(width, height) * 0.85;
+            // Central Orb
+            orbs.push(new Orb(true, centralRadius, 0, 0));
+            // Orbiting Orbs
+            orbs.push(new Orb(false, centralRadius / 20, centralRadius * 0.7, 0.002));
+            orbs.push(new Orb(false, centralRadius / 25, centralRadius * 0.8, -0.0025));
+            orbs.push(new Orb(false, centralRadius / 28, centralRadius * 0.85, 0.0015));
+            orbs.push(new Orb(false, centralRadius / 30, centralRadius * 0.9, -0.001));
+        };
+        
+        const lerpAngle = (a: number, b: number, t: number) => {
+            const diff = b - a;
+            let delta = diff;
+            if (Math.abs(diff) > 180) {
+                delta = diff > 0 ? diff - 360 : diff + 360;
             }
+            return (a + delta * t + 360) % 360;
         };
 
         const animate = () => {
             if (!ctx) return;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            frame++;
+            
+            currentHue = lerpAngle(currentHue, targetHue, 0.01);
+            const hue = currentHue;
+            
             ctx.clearRect(0, 0, width, height);
-            circles.forEach(circle => circle.update());
+
+            drawWaves(ctx, hue);
+            
+            orbs.forEach(orb => {
+                orb.update();
+                orb.draw(ctx, centerX, centerY, hue);
+            });
+            
             animationFrameId = requestAnimationFrame(animate);
         };
 
@@ -401,6 +517,7 @@ const App: React.FC = () => {
 
         return () => {
             cancelAnimationFrame(animationFrameId);
+            clearInterval(hueInterval);
             window.removeEventListener('resize', handleResize);
         };
     }, []);
@@ -517,9 +634,13 @@ const App: React.FC = () => {
     setNotesPanelState(prev => ({ ...prev, isOpen: !prev.isOpen }));
   };
   
-  const handleSetupComplete = (settings: { visibleTabs: VisibleTabs; subjects: string[] }) => {
+  const handleSetupComplete = (settings: { name: string; visibleTabs: VisibleTabs; subjects: string[] }) => {
+    setUserName(settings.name);
+    localStorage.setItem('userName', JSON.stringify(settings.name));
+    
     setVisibleTabs(settings.visibleTabs);
     setStudiedSubjects(settings.subjects);
+    
     localStorage.setItem('setupCompleted', 'true');
     setAppState('main');
 
@@ -529,9 +650,9 @@ const App: React.FC = () => {
     }
   };
 
-  const handleEnter = () => {
+  const handleEnter = (skipSetup = false) => {
     const setupCompleted = localStorage.getItem('setupCompleted');
-    if (setupCompleted) {
+    if (setupCompleted || skipSetup) {
       setAppState('main');
     } else {
       setAppState('setup');
@@ -615,6 +736,7 @@ const App: React.FC = () => {
                         <div key={view} className="animate-merge-in">
                             {view === 'dashboard' && (
                             <Dashboard
+                                userName={userName}
                                 pinnedItems={pinnedItems}
                                 onTogglePin={handleTogglePin}
                                 timetableEntries={timetableEntries}
@@ -715,14 +837,17 @@ const App: React.FC = () => {
   
   return (
     <div className="relative min-h-screen">
-        {/* Background Layers */}
-        <div className="fixed inset-0 bg-beige-100 dark:bg-stone-900 -z-20 transition-colors duration-300" />
+        {/* Background Layers - These must come first to be in the background */}
+        <div className="fixed inset-0 bg-beige-100 dark:bg-stone-900 z-[-3]" />
         <canvas id="background-canvas" className="blur-4xl transform scale-110" />
         <div className="vignette-overlay" />
 
-        {/* Content is in the normal flow (z-index auto), on top of background */}
+        {/* Content is in the normal flow, on top of background */}
         <div className="relative z-[1]">
-            <div ref={cursorFollowerRef} className="cursor-follower hidden md:block" />
+            <div ref={cursorContainerRef} className={`cursor hidden md:block ${isCursorIdle ? 'cursor-idle' : ''}`}>
+                <div ref={dotRef} className="cursor-dot"></div>
+                <div ref={followerRef} className="cursor-follower"></div>
+            </div>
             <div className="animate-fade-in">
                 {renderContent()}
             </div>

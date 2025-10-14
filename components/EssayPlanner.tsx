@@ -1,10 +1,7 @@
 
 
 import React, { useState, FormEvent } from 'react';
-import { GoogleGenAI } from "@google/genai";
-
-// FIX: Initialize GoogleGenAI client once at the module level for efficiency and to align with best practices.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+import { ai } from '../utils/gemini';
 
 // A component to format the AI's plan text, converting simple markdown to HTML.
 const FormattedPlan: React.FC<{ text: string }> = ({ text }) => {

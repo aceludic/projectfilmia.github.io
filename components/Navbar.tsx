@@ -94,7 +94,7 @@ const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch, visibleTab
         <>
             {/* Top Section (Logo) */}
             <button onClick={() => setView('dashboard')} className="flex flex-col items-center text-center space-y-2 cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-brand-brown-700 rounded-lg">
-                <img src="https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png" alt="Project Filmia Logo" className="h-12 w-12" />
+                <img src="https://i.postimg.cc/c43zLgFy/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png" alt="Project Filmia Logo" className="h-12 w-12" />
                 <span className="font-lexend text-base font-bold tracking-tight text-stone-800 dark:text-beige-100">
                     Project Filmia
                 </span>
@@ -107,7 +107,7 @@ const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch, visibleTab
                 {visibleTabs['film-studies'] && <NavLink targetView="film-studies">Film</NavLink>}
                 <NavLink targetView="news">News</NavLink>
                 <NavLink targetView="journal">Journal</NavLink>
-                <NavLink targetView="ai-tutor">AI Tutor</NavLink>
+                <NavLink targetView="ai-tutor">Phoebe (Tutor)</NavLink>
             </nav>
 
             {/* Bottom Section (Tools) */}
@@ -129,7 +129,7 @@ const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch, visibleTab
             <div className="flex items-center justify-between h-20">
               <div className="flex items-center space-x-4 md:space-x-12">
                 <button onClick={() => setView('dashboard')} className="flex items-center space-x-3 cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-brand-brown-700 rounded-lg">
-                    <img src="https://i.postimg.cc/TY3MzSP9/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png" alt="Project Filmia Logo" className="h-12 w-12" />
+                    <img src="https://i.postimg.cc/c43zLgFy/Gemini-Generated-Image-vcf7cgvcf7cgvcf7-Photoroom.png" alt="Project Filmia Logo" className="h-12 w-12" />
                     <span className="font-lexend text-2xl font-bold tracking-tight text-stone-800 dark:text-beige-100">
                         Project Filmia
                     </span>
@@ -140,7 +140,7 @@ const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch, visibleTab
                     {visibleTabs['film-studies'] && <NavLink targetView="film-studies">Film Studies</NavLink>}
                     <NavLink targetView="news">News</NavLink>
                     <NavLink targetView="journal">Journal</NavLink>
-                    <NavLink targetView="ai-tutor">AI Tutor</NavLink>
+                    <NavLink targetView="ai-tutor">Phoebe (Tutor)</NavLink>
                   </nav>
               </div>
               <div className="flex items-center space-x-4 md:space-x-6">
@@ -189,7 +189,7 @@ const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch, visibleTab
                 {visibleTabs['film-studies'] && <NavLink targetView="film-studies" isMobile>Film Studies</NavLink>}
                 <NavLink targetView="news" isMobile>News</NavLink>
                 <NavLink targetView="journal" isMobile>Journal</NavLink>
-                <NavLink targetView="ai-tutor" isMobile>AI Tutor</NavLink>
+                <NavLink targetView="ai-tutor" isMobile>Phoebe (Tutor)</NavLink>
             </nav>
         </div>
       )}

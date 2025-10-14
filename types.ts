@@ -42,6 +42,46 @@ export interface CSPCategory {
     csps: CSP[];
 }
 
+// --- NEW FILM STUDIES TYPES ---
+export interface FilmConcept {
+    id: string;
+    title: string;
+    overview: string;
+    notes: string[];
+    youtubeVideoId?: string;
+}
+
+export interface FilmConceptCategory {
+    id: string;
+    title: string;
+    concepts: FilmConcept[];
+}
+
+export interface Film {
+    id: string;
+    title: string;
+    director: string;
+    year: number;
+    imageUrl: string;
+    synopsis: string;
+    keyFacts: { [key: string]: string };
+    applicableConcepts?: string[];
+    revisionNotes?: string[];
+}
+
+export interface FilmCategory {
+    id: string;
+    title: string; // e.g., 'AUTEUR (focus, comparison)'
+    films: Film[];
+}
+
+export interface FilmPaper {
+    id: string; // 'paper-1' or 'paper-2'
+    title: string; // 'Paper 1'
+    categories: FilmCategory[];
+}
+// --- END NEW FILM STUDIES TYPES ---
+
 export interface ResourceItem {
     id: string;
     title: string;

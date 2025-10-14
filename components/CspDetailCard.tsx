@@ -20,6 +20,31 @@ const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onToggl
             category: csp.category,
         });
     };
+    
+    // Helper component to format each line of the revision notes
+    const FormattedNote: React.FC<{ note: string }> = ({ note }) => {
+        // Check for list item syntax (e.g., "   - Item")
+        const isListItem = /^\s*-/.test(note);
+        // Remove the list marker and trim whitespace
+        let content = note.replace(/^\s*-\s*/, '').trim();
+
+        // Split the content by the bold syntax (**...**) to isolate bold parts
+        const parts = content.split(/(\*\*.*?\*\*)/g).filter(part => part);
+
+        return (
+            <li className={`flex text-sm text-stone-600 dark:text-stone-300 ${isListItem ? 'ml-4' : 'mt-3 list-none'}`}>
+                {isListItem && <span className="mr-2 text-brand-brown-700 dark:text-amber-400">•</span>}
+                <div>
+                    {parts.map((part, i) => 
+                        part.startsWith('**') && part.endsWith('**') 
+                            ? <strong key={i} className="text-stone-800 dark:text-beige-100">{part.slice(2, -2)}</strong> 
+                            : part
+                    )}
+                </div>
+            </li>
+        );
+    };
+
 
     return (
         <div className="group bg-glass-300 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:scale-[1.03] glass-reflective hover-ripple-effect">
@@ -94,8 +119,8 @@ const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onToggl
                     {csp.revisionNotes && csp.revisionNotes.length > 0 && (
                          <div>
                             <h4 className="font-bold uppercase text-stone-500 dark:text-stone-400 tracking-wider text-xs mb-2">Revision Notes</h4>
-                            <ul className="text-sm space-y-2 text-stone-600 dark:text-stone-300 list-disc list-inside">
-                                {csp.revisionNotes.map((note, index) => <li key={index}>{note}</li>)}
+                            <ul className="space-y-1">
+                                {csp.revisionNotes.map((note, index) => <FormattedNote key={index} note={note} />)}
                             </ul>
                         </div>
                     )}

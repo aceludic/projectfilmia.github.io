@@ -1,102 +1,294 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import { VisibleTabs } from '../types';
+import { Modality } from "@google/genai";
+import { ai } from '../utils/gemini';
 
 interface SetupPageProps {
-  onComplete: (settings: { visibleTabs: VisibleTabs; subjects: string[] }) => void;
+  onComplete: (settings: { name: string; visibleTabs: VisibleTabs; subjects: string[] }) => void;
 }
 
-const VIDEO_URL = "https://videos.pexels.com/video-files/853825/853825-hd.mp4";
+const outputAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+
+// Audio Decoding Functions
+function decode(base64: string) {
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+}
+
+async function decodeAudioData(
+  data: Uint8Array,
+  ctx: AudioContext,
+  sampleRate: number,
+  numChannels: number,
+): Promise<AudioBuffer> {
+  // FIX: Corrected typo from Int116Array to Int16Array.
+  const dataInt16 = new Int16Array(data.buffer);
+  const frameCount = dataInt16.length / numChannels;
+  const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
+
+  for (let channel = 0; channel < numChannels; channel++) {
+    const channelData = buffer.getChannelData(channel);
+    for (let i = 0; i < frameCount; i++) {
+      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
+    }
+  }
+  return buffer;
+}
+
+const HighlightedText: React.FC<{ text: string, isSpeaking: boolean }> = ({ text, isSpeaking }) => {
+    const parts = text.split(/(\*\*.*?\*\*)/g).filter(part => part);
+    return (
+      <div className="relative">
+        <p className="text-2xl md:text-3xl font-medium text-center text-stone-700 dark:text-beige-200 leading-relaxed">
+            {parts.map((part, i) =>
+                part.startsWith('**') && part.endsWith('**')
+                    ? <span key={i} className="font-bold text-brand-brown-700 dark:text-amber-400 text-glow">{part.slice(2, -2)}</span>
+                    : part
+            )}
+        </p>
+        {isSpeaking && (
+           <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex items-center space-x-1 text-xs text-stone-500 dark:text-stone-400">
+                <span className="italic">Phoebe is speaking</span>
+                <div className="w-1 h-1 bg-current rounded-full animate-pulse [animation-delay:-0.3s]"></div>
+                <div className="w-1 h-1 bg-current rounded-full animate-pulse [animation-delay:-0.15s]"></div>
+                <div className="w-1 h-1 bg-current rounded-full animate-pulse"></div>
+           </div>
+        )}
+      </div>
+    );
+};
+
+const LoadingStep: React.FC = () => (
+    <div className="flex flex-col items-center justify-center text-center animate-fade-in">
+        <div className="text-5xl mb-6">👋</div>
+        <div className="flex items-center space-x-2 text-stone-600 dark:text-stone-300">
+            <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span className="text-lg font-medium">Just a moment...</span>
+        </div>
+    </div>
+);
+
 
 const SetupPage: React.FC<SetupPageProps> = ({ onComplete }) => {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
+  const [nameInput, setNameInput] = useState('');
   const [subjects, setSubjects] = useState<string[]>([]);
-  const [hiddenTabs, setHiddenTabs] = useState<string[]>([]);
+  const [revisionStyle, setRevisionStyle] = useState('');
+  const [isMuted, setIsMuted] = useState(false);
+  const [isPhoebeSpeaking, setIsPhoebeSpeaking] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(true);
 
-  const toggleSelection = (item: string, state: string[], setState: React.Dispatch<React.SetStateAction<string[]>>) => {
-    setState(prev => prev.includes(item) ? prev.filter(s => s !== item) : [...prev, item]);
-  };
+  const getSteps = (name: string) => [
+      {
+          text: "Hey there! I'm **Phoebe**, your personal AI guide. I'll be helping you on your media & film journey. First, what should I call you?"
+      },
+      {
+          text: `It's great to meet you, **${name || 'friend'}**! To get things just right for you, could you tell me which subjects you're taking?`
+      },
+      {
+          text: "Perfect. How do you like to revise? This will help me set up your dashboard."
+      },
+      {
+          text: `Got it! Just so you know, you can talk to me anytime. If you're ever stuck on **concepts**, **theorists**, or just want to **plan an essay**, click on **'Phoebe (Tutor)'** in the navigation bar. I'm here to help!`
+      },
+      {
+          text: "Awesome! We're all set. I'll get your personalized dashboard ready for you now."
+      }
+  ];
+  
+  const steps = getSteps(nameInput);
 
-  const handleContinue = () => {
-    if (step < 3) {
-      setStep(prev => prev + 1);
-    } else {
-      const visibleTabs: VisibleTabs = {
-        'media-studies': !hiddenTabs.includes('media-studies'),
-        'film-studies': !hiddenTabs.includes('film-studies'),
-      };
-      onComplete({ visibleTabs, subjects });
+  const prepareAudio = async (text: string): Promise<AudioBufferSourceNode | null> => {
+    if (isMuted) return null;
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash-preview-tts",
+            contents: [{ parts: [{ text: `Say it in a friendly and welcoming tone: ${text.replace(/\*\*/g, '')}` }] }],
+            config: {
+                responseModalities: [Modality.AUDIO],
+                speechConfig: {
+                    voiceConfig: {
+                        prebuiltVoiceConfig: { voiceName: 'Kore' },
+                    },
+                },
+            },
+        });
+        const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+        if (base64Audio) {
+            const audioBuffer = await decodeAudioData(
+                decode(base64Audio),
+                outputAudioContext,
+                24000,
+                1,
+            );
+            const source = outputAudioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(outputAudioContext.destination);
+            return source;
+        }
+        return null;
+    } catch (error) {
+        console.error("TTS Error:", error);
+        return null;
     }
   };
+  
+  const goToStep = async (nextStepIndex: number) => {
+    setIsTransitioning(true);
 
-  const CheckboxButton: React.FC<{ label: string; value: string; selected: boolean; onClick: () => void }> = ({ label, value, selected, onClick }) => (
-    <button
-      onClick={onClick}
-      className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200 flex items-center space-x-3 ${
-        selected
-          ? 'border-brand-brown-700 bg-brand-brown-700/10'
-          : 'border-beige-300 bg-glass-300 hover:border-brand-brown-700/50'
-      }`}
-    >
-      <div className={`w-5 h-5 rounded-sm border-2 flex-shrink-0 flex items-center justify-center ${selected ? 'bg-brand-brown-700 border-brand-brown-700' : 'border-stone-400'}`}>
-        {selected && <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
-      </div>
-      <span className="font-semibold text-stone-800 dark:text-beige-100">{label}</span>
-    </button>
-  );
+    // Use a temporary variable for the name if it's the step that needs it
+    const nameForStep = nextStepIndex === 1 ? nameInput : (nameInput || 'friend');
+    const text = getSteps(nameForStep)[nextStepIndex].text;
+    
+    const audioSource = await prepareAudio(text);
+
+    setStep(nextStepIndex);
+    setIsTransitioning(false);
+
+    if (audioSource) {
+        setIsPhoebeSpeaking(true);
+        audioSource.onended = () => setIsPhoebeSpeaking(false);
+        audioSource.start();
+    }
+  };
+  
+  // Initial load
+  useEffect(() => {
+    // A brief delay to allow the beautiful background to render first
+    setTimeout(() => {
+        goToStep(0);
+    }, 500);
+  }, []);
+
+  const handleNameSubmit = (e: FormEvent) => {
+      e.preventDefault();
+      if(nameInput.trim() && !isTransitioning) {
+        goToStep(1);
+      }
+  }
+  
+  const handleSubjectSelect = (subject: string) => {
+    const newSubjects = subjects.includes(subject) 
+      ? subjects.filter(s => s !== subject)
+      : [...subjects, subject];
+    setSubjects(newSubjects);
+  };
+  
+  const handleSubjectsSubmit = () => {
+      if (!isTransitioning) {
+          goToStep(2);
+      }
+  };
+  
+  const handleRevisionStyleSubmit = (style: string) => {
+      if (!isTransitioning) {
+          setRevisionStyle(style);
+          goToStep(3);
+      }
+  };
+
+  const handleFinish = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    
+    // Show the "Getting ready..." message and then complete
+    setStep(steps.length); // An index beyond the last step for our loading message
+    
+    setTimeout(() => {
+        onComplete({ 
+            name: nameInput,
+            subjects, 
+            visibleTabs: {
+                'media-studies': subjects.includes('media'),
+                'film-studies': subjects.includes('film'),
+            }
+        });
+    }, 2000);
+  };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden text-stone-800 dark:text-beige-100">
-      <video
-        src={VIDEO_URL}
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto object-cover -translate-x-1/2 -translate-y-1/2 opacity-10"
-      />
-      
-      <div className="relative z-10 w-full max-w-xl mx-auto p-4">
-        <div className="bg-glass-200 backdrop-blur-2xl rounded-2xl shadow-2xl p-8 border border-glass-border dark:border-glass-border-dark overflow-hidden">
-          <div key={step} className="animate-fade-in-up">
-            {step === 1 && (
-              <>
-                <h1 className="text-3xl font-bold text-stone-800 dark:text-beige-100 mb-2">Welcome to Project Filmia</h1>
-                <p className="text-stone-600 dark:text-stone-300 mb-6">Let's personalize your experience. First, what are you studying?</p>
-                <div className="space-y-3">
-                    <CheckboxButton label="Media Studies" value="media" selected={subjects.includes('media')} onClick={() => toggleSelection('media', subjects, setSubjects)} />
-                    <CheckboxButton label="Film Studies" value="film" selected={subjects.includes('film')} onClick={() => toggleSelection('film', subjects, setSubjects)} />
+    <div className="min-h-screen w-full flex items-center justify-center p-4">
+      <div className="relative z-10 w-full max-w-2xl mx-auto">
+        <div className="bg-glass-200 backdrop-blur-2xl rounded-2xl shadow-2xl p-6 md:p-8 border border-glass-border dark:border-glass-border-dark flex flex-col min-h-[60vh]">
+          <div className="flex-shrink-0 flex justify-end items-center mb-4">
+             <button onClick={() => setIsMuted(!isMuted)} className="p-2 rounded-full hover:bg-glass-100 text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300">
+                {isMuted ? 'UNMUTE 🔊' : 'MUTE 🔇'}
+             </button>
+          </div>
+          
+          <div className="flex-grow flex flex-col items-center justify-center text-center">
+            {isTransitioning ? <LoadingStep /> : (
+                <div key={step} className="animate-fade-in">
+                    {step < steps.length ? (
+                        <>
+                            <div className="text-5xl mb-6">👋</div>
+                            <HighlightedText text={steps[step].text} isSpeaking={isPhoebeSpeaking} />
+                        </>
+                    ) : (
+                         <div className="text-center text-lg font-semibold animate-fade-in flex items-center justify-center space-x-2">
+                            <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Getting things ready...</span>
+                         </div>
+                    )}
                 </div>
-              </>
-            )}
-            {step === 2 && (
-              <>
-                <h1 className="text-3xl font-bold text-stone-800 dark:text-beige-100 mb-2">Customize Your View</h1>
-                <p className="text-stone-600 dark:text-stone-300 mb-6">Select any sections you'd like to hide from the main navigation.</p>
-                <div className="space-y-3">
-                    <CheckboxButton label="Hide Media Studies" value="media-studies" selected={hiddenTabs.includes('media-studies')} onClick={() => toggleSelection('media-studies', hiddenTabs, setHiddenTabs)} />
-                    <CheckboxButton label="Hide Film Studies" value="film-studies" selected={hiddenTabs.includes('film-studies')} onClick={() => toggleSelection('film-studies', hiddenTabs, setHiddenTabs)} />
-                </div>
-                <div className="mt-4 p-3 bg-amber-500/10 text-amber-800 dark:text-amber-300 text-xs rounded-lg border border-amber-500/20">
-                    <strong>We highly recommend</strong> keeping both tabs visible, even if you don't study both subjects. The content often overlaps and can help solidify your overall knowledge.
-                </div>
-              </>
-            )}
-             {step === 3 && (
-              <div className="text-center">
-                <h1 className="text-3xl font-bold text-stone-800 dark:text-beige-100 mb-2">You're All Set!</h1>
-                <p className="text-stone-600 dark:text-stone-300 mb-6">Your preferences are saved. You can always change these later in the settings menu.</p>
-              </div>
             )}
           </div>
 
-          <div className="mt-8 flex justify-end">
-            <button
-              onClick={handleContinue}
-              className="px-8 py-3 bg-brand-brown-700 text-white font-bold rounded-lg hover:bg-brand-brown-600 transition-all transform hover:scale-105"
-            >
-              {step === 3 ? "Let's Go!" : 'Continue'}
-            </button>
+          <div className="flex-shrink-0 pt-6 mt-6 border-t border-glass-border">
+            {!isTransitioning && (
+                <div className="h-28">
+                    {step === 0 && (
+                        <form onSubmit={handleNameSubmit} className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up">
+                            <input 
+                                type="text"
+                                value={nameInput}
+                                onChange={(e) => setNameInput(e.target.value)}
+                                placeholder="Enter your name..."
+                                className="w-full sm:w-64 px-4 py-3 border border-glass-border dark:border-glass-border-dark rounded-lg bg-glass-300 text-stone-800 dark:text-beige-100 placeholder-stone-500 dark:placeholder-stone-400 focus:ring-2 focus:ring-brand-brown-700 focus:border-transparent text-lg text-center sm:text-left"
+                                autoFocus
+                            />
+                            <button type="submit" disabled={!nameInput.trim()} className="px-8 py-3 bg-brand-brown-700 text-white font-bold rounded-lg btn-ripple text-lg disabled:bg-stone-400">Next</button>
+                        </form>
+                    )}
+                     {step === 1 && (
+                      <div className="space-y-4 animate-fade-in-up">
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <button onClick={() => handleSubjectSelect('media')} className={`w-full p-4 text-lg font-bold rounded-lg border-2 transition-colors ${subjects.includes('media') ? 'border-brand-brown-700 bg-brand-brown-700/10' : 'border-transparent bg-glass-300'}`}>Media Studies</button>
+                            <button onClick={() => handleSubjectSelect('film')} className={`w-full p-4 text-lg font-bold rounded-lg border-2 transition-colors ${subjects.includes('film') ? 'border-brand-brown-700 bg-brand-brown-700/10' : 'border-transparent bg-glass-300'}`}>Film Studies</button>
+                        </div>
+                        <button onClick={handleSubjectsSubmit} disabled={subjects.length === 0} className="w-full px-6 py-3 bg-brand-brown-700 text-white font-bold rounded-lg disabled:bg-stone-400 btn-ripple text-lg">Next</button>
+                      </div>
+                    )}
+                     {step === 2 && (
+                      <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up">
+                            <button onClick={() => handleRevisionStyleSubmit('visual')} className={`w-full p-4 text-lg font-bold rounded-lg border-2 transition-colors border-transparent bg-glass-300`}>🎨 Visual</button>
+                            <button onClick={() => handleRevisionStyleSubmit('text')} className={`w-full p-4 text-lg font-bold rounded-lg border-2 transition-colors border-transparent bg-glass-300`}>📚 Text-based</button>
+                            <button onClick={() => handleRevisionStyleSubmit('mixed')} className={`w-full p-4 text-lg font-bold rounded-lg border-2 transition-colors border-transparent bg-glass-300`}>⚖️ A Mix of Both</button>
+                      </div>
+                    )}
+                    {step === 3 && (
+                        <div className="flex justify-center animate-fade-in-up">
+                            <button onClick={() => goToStep(4)} className="px-8 py-3 bg-brand-brown-700 text-white font-bold rounded-lg btn-ripple text-lg">Let's Go!</button>
+                        </div>
+                    )}
+                    {step === 4 && (
+                        <div className="flex justify-center animate-fade-in-up">
+                            <button onClick={handleFinish} className="px-8 py-3 bg-brand-brown-700 text-white font-bold rounded-lg btn-ripple text-lg">Finish Setup</button>
+                        </div>
+                    )}
+                </div>
+            )}
           </div>
         </div>
       </div>

@@ -16,6 +16,7 @@ import { SocialAccount, Post, LayoutItem, PinnedItem, TimetableEntry, AppLink, P
 import { LoggedInView, Theme } from '../App';
 
 interface DashboardProps {
+    userName: string | null;
     pinnedItems: PinnedItem[];
     onTogglePin: (item: PinnedItem) => void;
     timetableEntries: TimetableEntry[];
@@ -88,6 +89,7 @@ const ThemeButton: React.FC<{ value: Theme; currentTheme: Theme; onClick: (theme
 
 const Dashboard: React.FC<DashboardProps> = (props) => {
     const { 
+        userName,
         pinnedItems, onTogglePin, 
         timetableEntries, onAddTimetableEntry, onAddMultipleTimetableEntries, onRemoveTimetableEntry,
         appLinks, onAddAppLink, onRemoveAppLink,
@@ -115,6 +117,10 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
             return defaultLayout;
         }
     });
+
+    const greeting = useMemo(() => {
+        return userName ? `Hello, ${userName}` : 'Dashboard';
+    }, [userName]);
 
     const subtitle = useMemo(() => {
         if (!studiedSubjects || studiedSubjects.length === 0) {
@@ -219,6 +225,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         feed: { title: 'Live Feed', component: <RecentPosts /> },
         pins: { title: 'Pinned Items', component: <PinnedItemsWidget items={pinnedItems} onUnpin={onTogglePin} setView={setView} /> },
         time: { title: 'Clock', component: <TimeWidget /> },
+        // FIX: Changed handleAddMultipleTimetableEntries to onAddMultipleTimetableEntries to match the prop name.
         timetable: { title: 'Revision Timetable', component: <RevisionTimetableWidget entries={timetableEntries} onAdd={onAddTimetableEntry} onRemove={onRemoveTimetableEntry} onAddMultiple={onAddMultipleTimetableEntries} /> },
         calendar: { title: 'Calendar', component: <CalendarWidget entries={timetableEntries} /> },
         apps: { title: 'My Links', component: <AppLinksWidget links={appLinks} onAdd={onAddAppLink} onRemove={onRemoveAppLink} /> },
@@ -242,7 +249,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8 animate-glow rounded-3xl">
             <div className="flex justify-between items-start mb-6">
                 <div className="text-center flex-grow">
-                    <h1 id="dashboard-title" className="text-4xl font-black uppercase text-glow">Dashboard</h1>
+                    <h1 id="dashboard-title" className="text-4xl font-black uppercase text-glow">{greeting}</h1>
                     <p className="mt-2 text-lg text-stone-500 dark:text-stone-400">{subtitle}</p>
                     <div className="mt-4 flex justify-center items-center space-x-2">
                         <ThemeButton value="light" currentTheme={theme} onClick={setTheme}>Light</ThemeButton>

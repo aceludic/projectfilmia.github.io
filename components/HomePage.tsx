@@ -1,8 +1,9 @@
 
+
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 
 interface HomePageProps {
-  onEnter: () => void;
+  onEnter: (skipSetup?: boolean) => void;
 }
 
 const mediaTerms = [
@@ -100,6 +101,14 @@ const Polaroid: React.FC<{ imageUrl: string; text: string; rotation: string; pos
 const HomePage: React.FC<HomePageProps> = ({ onEnter }) => {
   const [isEntering, setIsEntering] = useState(false);
   const [isWarningVisible, setIsWarningVisible] = useState(false);
+  const [isUpgradeWarningVisible, setIsUpgradeWarningVisible] = useState(false);
+  const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    if (password === '1234') {
+      onEnter(true); // Skip setup
+    }
+  }, [password, onEnter]);
 
   useEffect(() => {
     const hasDismissed = sessionStorage.getItem('hasDismissedEarlyAccessWarning');
@@ -109,10 +118,22 @@ const HomePage: React.FC<HomePageProps> = ({ onEnter }) => {
       return () => clearTimeout(timer);
     }
   }, []);
+  
+  useEffect(() => {
+    const hasDismissedUpgrade = sessionStorage.getItem('hasDismissedUpgradeWarning');
+    if (!hasDismissedUpgrade) {
+        setIsUpgradeWarningVisible(true);
+    }
+  }, []);
 
   const handleDismissWarning = () => {
     sessionStorage.setItem('hasDismissedEarlyAccessWarning', 'true');
     setIsWarningVisible(false);
+  };
+  
+  const handleDismissUpgradeWarning = () => {
+    sessionStorage.setItem('hasDismissedUpgradeWarning', 'true');
+    setIsUpgradeWarningVisible(false);
   };
 
 
@@ -219,12 +240,22 @@ const HomePage: React.FC<HomePageProps> = ({ onEnter }) => {
   const handleDiveIn = () => {
     setIsEntering(true);
     setTimeout(() => {
-        onEnter();
+        onEnter(false);
     }, 250); // 0.25 second animation
   };
 
   return (
     <div className={`relative min-h-screen flex items-center justify-center overflow-hidden transition-opacity duration-500 ${isEntering ? 'opacity-0' : 'opacity-100'}`}>
+        {isUpgradeWarningVisible && (
+            <div className="fixed top-0 left-0 right-0 z-[60] bg-indigo-600 text-white p-3 text-center animate-slide-down shadow-lg">
+                <div className="max-w-4xl mx-auto flex items-center justify-between">
+                    <p className="text-sm font-medium flex-grow text-center">
+                        <strong>Heads Up!</strong> Elements are being worked on, and over the next day core features may not work as we upgrade them. Check back again soon for updates.
+                    </p>
+                    <button onClick={handleDismissUpgradeWarning} className="ml-4 text-2xl font-light leading-none hover:opacity-75 transition-opacity">&times;</button>
+                </div>
+            </div>
+        )}
         <>
             <canvas id="ripple-canvas" className="absolute inset-0 z-[-1]"></canvas>
             <BackgroundTerminology />
@@ -263,6 +294,16 @@ const HomePage: React.FC<HomePageProps> = ({ onEnter }) => {
                 <span className="relative z-10 text-sm tracking-widest uppercase">Loading...</span>
               </div>
             </button>
+            <div className="mt-8 opacity-50">
+                <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Master Password"
+                    className="mx-auto block w-64 px-4 py-2 border border-glass-border dark:border-glass-border-dark rounded-lg bg-glass-300 text-stone-800 dark:text-beige-100 placeholder-stone-500 dark:placeholder-stone-400 focus:ring-2 focus:ring-brand-brown-700 focus:border-transparent text-center"
+                    aria-label="Master password for troubleshooting"
+                />
+            </div>
         </div>
       </div>
        {isWarningVisible && (
