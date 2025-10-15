@@ -6,19 +6,19 @@ export const defaultUserData: UserData = {
   name: '',
   theme: 'dark',
   fontFamily: 'lexend',
-  navbarLayout: 'horizontal',
   pinnedItems: [],
   timetableEntries: [],
   appLinks: [],
   socialAccounts: [],
   journalEntries: [],
-  visibleTabs: { 'media-studies': true, 'film-studies': true },
+  customFlashcardDecks: [],
+  visibleTabs: { 'media-studies': true, 'film-studies': true, 'social-hub': true },
   studiedSubjects: [],
   studyLog: [],
   focusItems: [],
   unlockedAchievements: [],
   dailySpark: null,
-  aiInteractionCounts: { summaryCount: 0, sparkCount: 0 },
+  aiInteractionCounts: { summaryCount: 0, sparkCount: 0, synopticCount: 0 },
   notesPanelState: {
     isOpen: false,
     position: { x: window.innerWidth - 520, y: 100 },
@@ -44,13 +44,15 @@ export const getAllUsers = (): Record<string, User> => {
 // Gets a single user by username
 export const getUser = (username: string): User | null => {
   const users = getAllUsers();
-  return users[username] || null;
+  const userKey = Object.keys(users).find(key => key.toLowerCase() === username.toLowerCase());
+  return userKey ? users[userKey] : null;
 };
 
 // Saves a user object, overwriting if exists
 export const saveUser = (user: User) => {
   try {
     const users = getAllUsers();
+    // Use the original username for saving to avoid creating duplicates with different casing
     users[user.username] = user;
     localStorage.setItem(DB_KEY, JSON.stringify(users));
   } catch (e) {

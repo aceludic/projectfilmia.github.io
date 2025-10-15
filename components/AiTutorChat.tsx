@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, FormEvent } from 'react';
-import { Chat, Modality } from "@google/genai";
+import { Chat } from "@google/genai";
 import { ai } from '../utils/gemini';
 
 // Define the structure for a chat message
@@ -8,47 +8,12 @@ interface Message {
     text: string;
 }
 
-const outputAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
-
-// Audio Decoding Functions
-function decode(base64: string) {
-  const binaryString = atob(base64);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return bytes;
-}
-
-async function decodeAudioData(
-  data: Uint8Array,
-  ctx: AudioContext,
-  sampleRate: number,
-  numChannels: number,
-): Promise<AudioBuffer> {
-  const dataInt16 = new Int16Array(data.buffer);
-  const frameCount = dataInt16.length / numChannels;
-  const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
-
-  for (let channel = 0; channel < numChannels; channel++) {
-    const channelData = buffer.getChannelData(channel);
-    for (let i = 0; i < frameCount; i++) {
-      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
-    }
-  }
-  return buffer;
-}
-
-
-const AiTutorChat: React.FC = () => {
+const AiTutorChat: React.FC<{ onAddNote: (title: string, content: string) => void; }> = ({ onAddNote }) => {
     const [chat, setChat] = useState<Chat | null>(null);
     const [history, setHistory] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [isMuted, setIsMuted] = useState(false);
-    const [speakingMessageIndex, setSpeakingMessageIndex] = useState<number | null>(null);
     const chatEndRef = useRef<HTMLDivElement>(null);
 
     // Initialize the AI chat session
@@ -73,70 +38,24 @@ const AiTutorChat: React.FC = () => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [history, loading]);
 
-    const speakText = async (text: string, messageIndex: number) => {
-        if (isMuted) return;
-
-        setSpeakingMessageIndex(messageIndex);
-        try {
-            const response = await ai.models.generateContent({
-                model: "gemini-2.5-flash-preview-tts",
-                contents: [{ parts: [{ text: text.replace(/\*\*/g, '') }] }], // Remove markdown for cleaner speech
-                config: {
-                    responseModalities: [Modality.AUDIO],
-                    speechConfig: {
-                        voiceConfig: {
-                            prebuiltVoiceConfig: { voiceName: 'Kore' },
-                        },
-                    },
-                },
-            });
-            const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-            if (base64Audio) {
-                const audioBuffer = await decodeAudioData(
-                    decode(base64Audio),
-                    outputAudioContext,
-                    24000,
-                    1,
-                );
-                const source = outputAudioContext.createBufferSource();
-                source.buffer = audioBuffer;
-                source.connect(outputAudioContext.destination);
-                source.onended = () => setSpeakingMessageIndex(null);
-                source.start();
-            } else {
-                 setSpeakingMessageIndex(null);
-            }
-        } catch (error) {
-            console.error("TTS Error:", error);
-            setSpeakingMessageIndex(null);
-        }
-    };
-
-
     const handleSendMessage = async (e: FormEvent) => {
         e.preventDefault();
         if (!input.trim() || loading || !chat) return;
 
         const userMessage: Message = { role: 'user', text: input };
         setHistory(prev => [...prev, userMessage]);
-        setInput('');
+        
+        const currentInput = input;
+        setInput(''); // Clear input immediately
+        
         setLoading(true);
         setError(null);
 
         try {
-            const result = await chat.sendMessage({ message: userMessage.text });
+            const result = await chat.sendMessage({ message: currentInput });
             const modelMessage: Message = { role: 'model', text: result.text };
             
-            setHistory(prev => {
-                const newHistory = [...prev, modelMessage];
-                const modelMessageIndex = newHistory.length - 1;
-                
-                if (!isMuted) {
-                    speakText(modelMessage.text, modelMessageIndex);
-                }
-                
-                return newHistory;
-            });
+            setHistory(prev => [...prev, modelMessage]);
 
         } catch (e) {
             console.error("Gemini API Error:", e);
@@ -149,29 +68,36 @@ const AiTutorChat: React.FC = () => {
     };
     
     // Renders a single message bubble
-    const MessageBubble: React.FC<{ message: Message; isSpeaking: boolean }> = ({ message, isSpeaking }) => {
+    const MessageBubble: React.FC<{ message: Message }> = ({ message }) => {
         const isUser = message.role === 'user';
         const bubbleClasses = isUser
             ? 'bg-beige-200 dark:bg-stone-700 self-end'
             : 'bg-white dark:bg-stone-800 self-start';
         const formattedText = message.text.split('\n').map((line, index) => (
             <React.Fragment key={index}>
-                {line}
+                {line.split(/(\*\*.*?\*\*)/g).map((part, i) =>
+                    part.startsWith('**') && part.endsWith('**') ?
+                    <strong key={i}>{part.slice(2, -2)}</strong> :
+                    part
+                )}
                 <br />
             </React.Fragment>
         ));
 
+        const handleSave = () => {
+            onAddNote(`AI Tutor Response`, message.text);
+        };
+
         return (
-            <div className={`w-fit max-w-lg rounded-xl px-4 py-3 shadow-sm ${bubbleClasses}`}>
-                <p className="text-stone-800 dark:text-beige-100 whitespace-pre-wrap">{formattedText}</p>
-                 {isSpeaking && (
-                    <div className="flex items-center space-x-1 text-xs text-stone-500 dark:text-stone-400 mt-2">
-                        <span className="italic">speaking</span>
-                        <div className="w-1 h-1 bg-current rounded-full animate-pulse [animation-delay:-0.3s]"></div>
-                        <div className="w-1 h-1 bg-current rounded-full animate-pulse [animation-delay:-0.15s]"></div>
-                        <div className="w-1 h-1 bg-current rounded-full animate-pulse"></div>
-                    </div>
+            <div className={`group relative w-fit max-w-lg rounded-xl px-4 py-3 shadow-sm ${bubbleClasses}`}>
+                 {!isUser && (
+                    <button onClick={handleSave} title="Save to Notes" className="absolute top-1 right-1 p-1 bg-white/50 dark:bg-stone-700/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-stone-600 dark:text-stone-300" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6a1 1 0 10-2 0v5.586L7.707 10.293zM17 8a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V9a1 1 0 011-1h4a1 1 0 100-2H3a3 3 0 00-3 3v8a3 3 0 003 3h14a3 3 0 003-3V9a3 3 0 00-3-3h-4a1 1 0 100 2h4z" />
+                        </svg>
+                    </button>
                 )}
+                <p className="text-stone-800 dark:text-beige-100 whitespace-pre-wrap">{formattedText}</p>
             </div>
         );
     };
@@ -181,20 +107,13 @@ const AiTutorChat: React.FC = () => {
             {/* Header */}
             <div className="flex-shrink-0 p-4 border-b border-glass-border dark:border-glass-border-dark flex justify-between items-center">
                 <h3 className="text-lg font-bold text-stone-800 dark:text-beige-100">AI Tutor Chat</h3>
-                <button 
-                    onClick={() => setIsMuted(!isMuted)} 
-                    title={isMuted ? 'Unmute' : 'Mute'}
-                    className="p-2 rounded-full hover:bg-glass-100 text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300"
-                >
-                    {isMuted ? 'UNMUTE 🔊' : 'MUTE 🔇'}
-                </button>
             </div>
             
             {/* Chat History */}
             <div className="flex-grow p-4 overflow-y-auto">
                 <div className="flex flex-col space-y-4">
                     {history.map((msg, index) => (
-                        <MessageBubble key={index} message={msg} isSpeaking={speakingMessageIndex === index && msg.role === 'model'} />
+                        <MessageBubble key={index} message={msg} />
                     ))}
                     {loading && (
                         <div className="self-start flex items-center space-x-2">
@@ -221,9 +140,9 @@ const AiTutorChat: React.FC = () => {
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Ask a question about media studies..."
+                        placeholder="Ask a question..."
                         disabled={loading || !chat}
-                        className="flex-grow w-full px-4 py-2 border border-beige-300 rounded-full shadow-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-brown-700 focus:border-transparent sm:text-sm bg-white dark:bg-stone-700 text-stone-800 dark:text-beige-100 dark:border-stone-600 disabled:opacity-50"
+                        className="flex-grow w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-brown-700 focus:border-transparent sm:text-sm bg-white dark:bg-stone-700 text-stone-800 dark:text-beige-100 dark:border-stone-600 disabled:opacity-50"
                         aria-label="Chat input"
                     />
                     <button

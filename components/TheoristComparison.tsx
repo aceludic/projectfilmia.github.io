@@ -4,6 +4,7 @@ import { ai } from '../utils/gemini';
 
 interface TheoristComparisonProps {
     theorists: TheoristCategory[];
+    onAddNote: (title: string, content: string) => void;
 }
 
 const FormattedText: React.FC<{ text: string }> = ({ text }) => {
@@ -26,7 +27,7 @@ const FormattedText: React.FC<{ text: string }> = ({ text }) => {
     );
 };
 
-const TheoristComparison: React.FC<TheoristComparisonProps> = ({ theorists }) => {
+const TheoristComparison: React.FC<TheoristComparisonProps> = ({ theorists, onAddNote }) => {
     const allTheorists = theorists.flatMap(cat => cat.theorists);
     const [theorist1, setTheorist1] = useState<string>(allTheorists[0]?.id || '');
     const [theorist2, setTheorist2] = useState<string>(allTheorists[1]?.id || '');
@@ -92,26 +93,39 @@ const TheoristComparison: React.FC<TheoristComparisonProps> = ({ theorists }) =>
         }
     };
 
+    const handleSaveNote = () => {
+        const t1 = allTheorists.find(t => t.id === theorist1);
+        const t2 = allTheorists.find(t => t.id === theorist2);
+        if (!comparison || !t1 || !t2) return;
+        const title = `Comparison: ${t1.title} vs. ${t2.title}`;
+        onAddNote(title, comparison);
+    };
+
     return (
         <div className="max-w-4xl mx-auto">
             <div className="bg-glass-300 dark:bg-black/20 p-6 rounded-2xl border border-glass-border dark:border-glass-border-dark mb-6">
                 <h3 className="text-xl font-bold mb-4 text-center">Compare Theorists</h3>
-                <form onSubmit={handleCompare} className="flex flex-col md:flex-row items-center justify-center gap-4">
-                    <select value={theorist1} onChange={e => setTheorist1(e.target.value)} className="w-full md:w-auto px-3 py-2 border rounded-md bg-beige-100 dark:bg-stone-700 dark:border-stone-600">
+                <form onSubmit={handleCompare} className="flex flex-wrap items-center justify-center gap-4">
+                    <select value={theorist1} onChange={e => setTheorist1(e.target.value)} className="w-full sm:w-auto sm:flex-1 md:w-52 px-3 py-2 border rounded-md bg-white/50 dark:bg-stone-700 dark:border-stone-600">
                         {allTheorists.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
                     </select>
-                    <span className="font-bold">vs.</span>
-                    <select value={theorist2} onChange={e => setTheorist2(e.target.value)} className="w-full md:w-auto px-3 py-2 border rounded-md bg-beige-100 dark:bg-stone-700 dark:border-stone-600">
+                    <span className="font-bold text-stone-500 dark:text-stone-400">vs.</span>
+                    <select value={theorist2} onChange={e => setTheorist2(e.target.value)} className="w-full sm:w-auto sm:flex-1 md:w-52 px-3 py-2 border rounded-md bg-white/50 dark:bg-stone-700 dark:border-stone-600">
                         {allTheorists.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
                     </select>
-                    <button type="submit" disabled={loading} className="w-full md:w-auto px-6 py-2 bg-brand-brown-700 text-white font-bold rounded-lg btn-ripple disabled:bg-stone-400">
+                    <button type="submit" disabled={loading} className="w-full sm:w-auto px-6 py-2 bg-brand-brown-700 text-white font-bold rounded-lg btn-ripple disabled:bg-stone-400">
                         {loading ? 'Comparing...' : 'Compare'}
                     </button>
                 </form>
                 {error && <p className="text-red-500 text-center mt-4">{error}</p>}
             </div>
 
-            <div className="bg-glass-200 dark:bg-black/20 p-6 rounded-2xl border border-glass-border dark:border-glass-border-dark min-h-[300px]">
+            <div className="bg-glass-200 dark:bg-black/20 p-6 rounded-2xl border border-glass-border dark:border-glass-border-dark min-h-[300px] relative">
+                {comparison && !loading && (
+                    <button onClick={handleSaveNote} className="absolute top-4 right-4 px-3 py-1 bg-green-500/20 text-green-800 dark:text-green-300 text-xs font-bold rounded-md transition-colors hover:bg-green-500/30">
+                        Save to Notes
+                    </button>
+                )}
                 {loading && <div className="text-center p-12">Generating comparison...</div>}
                 {!loading && !comparison && <div className="text-center p-12 text-stone-500">Select two theorists and click compare to see an AI-generated analysis.</div>}
                 {comparison && <FormattedText text={comparison} />}

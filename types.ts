@@ -48,7 +48,6 @@ export interface FilmConcept {
     title: string;
     overview: string;
     notes: string[];
-    youtubeVideoId?: string;
 }
 
 export interface FilmConceptCategory {
@@ -138,7 +137,7 @@ export interface NotesPanelState {
 export interface PinnedItem {
     id: string;
     title: string;
-    type: 'theorist' | 'csp';
+    type: 'theorist' | 'csp' | 'film' | 'film-concept';
     category: string;
 }
 
@@ -166,8 +165,6 @@ export interface JournalEntry {
 
 export type FontFamily = 'lora' | 'merriweather' | 'playfair-display' | 'inter' | 'lato' | 'lexend' | 'inconsolata';
 
-export type NavbarLayout = 'horizontal' | 'vertical';
-
 export type SearchResult =
   | { type: 'theorist'; item: Theorist; category: string }
   | { type: 'csp'; item: CSP; category: string }
@@ -190,6 +187,7 @@ export interface TimerState {
 export interface VisibleTabs {
     'media-studies': boolean;
     'film-studies': boolean;
+    'social-hub': boolean;
 }
 
 // FIX: Added AmbientSound and AmbientSoundState types for the ambient sound widget.
@@ -256,6 +254,19 @@ export interface StudyLogEntry {
 export interface AiInteractionCounts {
   summaryCount: number;
   sparkCount: number;
+  synopticCount: number;
+}
+
+export interface CustomFlashcard {
+  id: string;
+  front: string;
+  back: string;
+}
+
+export interface CustomFlashcardDeck {
+  id: string;
+  title: string;
+  cards: CustomFlashcard[];
 }
 
 // --- USER AUTHENTICATION & DATA ---
@@ -264,12 +275,12 @@ export interface UserData {
   name: string;
   theme: 'light' | 'dark' | 'night' | 'synthwave' | 'noir';
   fontFamily: FontFamily;
-  navbarLayout: NavbarLayout;
   pinnedItems: PinnedItem[];
   timetableEntries: TimetableEntry[];
   appLinks: AppLink[];
   socialAccounts: SocialAccount[];
   journalEntries: JournalEntry[];
+  customFlashcardDecks: CustomFlashcardDeck[];
   visibleTabs: VisibleTabs;
   studiedSubjects: string[];
   studyLog: StudyLogEntry[];
@@ -285,5 +296,6 @@ export interface UserData {
 export interface User {
   username: string;
   password: string; // In a real app, this would be a hash
+  isGuest?: boolean;
   data: UserData;
 }

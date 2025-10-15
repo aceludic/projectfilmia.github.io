@@ -36,7 +36,6 @@ export const filmConceptsData: FilmConceptCategory[] = [
                     "- **Low-Key Lighting:** Dark, shadowy lighting with high contrast between light and dark areas. Creates a mood of mystery, suspense, and danger. The signature style of film noir and horror films. **Example:** The shadowy interiors of Rick's Café in *Casablanca*.",
                     "- **Chiaroscuro:** An extreme version of low-key lighting with dramatic, high-contrast areas of light and deep shadow. Often used to show a character's moral ambiguity or inner conflict."
                 ],
-                youtubeVideoId: 'J9APr4r8e_M',
             },
             {
                 id: 'mise-en-scene',
@@ -53,7 +52,6 @@ export const filmConceptsData: FilmConceptCategory[] = [
                     "- **Naturalism/Realism:** The mise-en-scène aims for a believable, true-to-life depiction of the world. This is the dominant style in social realist films like *This is England* and *Fish Tank*.",
                     "- **Expressionism:** The visual elements are stylized to externalize a character's inner emotional state or to create a particular mood. **Example:** The fantastical, uterine-like lair of the Faun in *Pan's Labyrinth* is an expression of the dark, fairytale world that mirrors the brutality of the real world."
                 ],
-                youtubeVideoId: 'ueSh66xktkk',
             },
             {
                 id: 'editing',
@@ -79,7 +77,6 @@ export const filmConceptsData: FilmConceptCategory[] = [
                     "- **Fast Motion (Accelerated):** Speeding up the action, often for comedic effect.",
                     "- **Flashback / Flashforward:** Cutting to a scene from the past or future. **Example:** *All About Eve* uses a complex flashback structure to tell its story."
                 ],
-                youtubeVideoId: 'BLphGQwlR2U',
             },
             {
                 id: 'sound',
@@ -97,7 +94,6 @@ export const filmConceptsData: FilmConceptCategory[] = [
                     "- **Sound Motif:** A recurring sound effect or piece of music that becomes associated with a particular character, location, or idea. **Example:** The iconic two-note shark theme in *Jaws*.",
                     "- **Foley:** The art of creating everyday sound effects (footsteps, cloth rustling, punches) in a recording studio and adding them to the film in post-production to enhance the audio.",
                 ],
-                youtubeVideoId: 'JW5gyO24BvQ',
             },
             {
                 id: 'performance',

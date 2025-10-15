@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { filmConceptsData, filmPapersData, filmResourcesData } from '../data/filmStudiesData';
-import { FilmConceptCategory, FilmPaper, ResourceItem, Film, CSP } from '../types';
+import { FilmConceptCategory, FilmPaper, ResourceItem, Film, CSP, CustomFlashcardDeck, NoteTab, PinnedItem } from '../types';
 import FilmConceptCard from './FilmConceptCard';
 import FilmDetailCard from './FilmDetailCard';
 import ResourceCard from './ResourceCard';
@@ -12,14 +12,21 @@ type FilmView = 'concepts' | 'films' | 'resources' | 'revise';
 interface FilmStudiesPageProps {
   setView: (view: LoggedInView) => void;
   onLaunchSceneAnalysis: (item: Film | CSP) => void;
-  onAiInteraction: (type: 'summary' | 'spark') => void;
+  onAiInteraction: (type: 'summary' | 'spark' | 'synoptic') => void;
   logStudySession: (durationInSeconds: number) => void;
   unlockAchievement: (id: string) => void;
+  customDecks: CustomFlashcardDeck[];
+  onAddDeck: (deck: Omit<CustomFlashcardDeck, 'id'>) => void;
+  onUpdateDeck: (deck: CustomFlashcardDeck) => void;
+  onDeleteDeck: (deckId: string) => void;
+  onAddNote: (title: string, content: string) => void;
+  pinnedItems: PinnedItem[];
+  onTogglePin: (item: PinnedItem) => void;
 }
 
 const DisclaimerModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
     <div className="fixed inset-0 backdrop-blur-md z-50 flex items-start justify-center pt-28 p-4 animate-fade-in">
-        <div className="bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-lg shadow-2xl max-w-lg w-full p-8 text-center animate-fade-in-up border border-glass-border dark:border-glass-border-dark">
+        <div className="liquid-glass rounded-lg shadow-2xl max-w-lg w-full p-8 text-center animate-fade-in-up">
             <h2 className="text-2xl font-bold text-stone-800 dark:text-beige-100 mb-4">WJEC/Eduqas A-Level Focus</h2>
             <p className="text-base text-stone-600 dark:text-stone-300 mb-8">
                 Please note: The content in this section is specifically tailored for the WJEC/Eduqas A-Level Film Studies specification and may not be suitable for other exam boards.
@@ -35,7 +42,12 @@ const DisclaimerModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
 );
 
 
-const FilmStudiesPage: React.FC<FilmStudiesPageProps> = ({ setView, onLaunchSceneAnalysis, onAiInteraction, logStudySession, unlockAchievement }) => {
+const FilmStudiesPage: React.FC<FilmStudiesPageProps> = (props) => {
+  const { 
+    setView, onLaunchSceneAnalysis, onAiInteraction, logStudySession, unlockAchievement,
+    customDecks, onAddDeck, onUpdateDeck, onDeleteDeck, onAddNote,
+    pinnedItems, onTogglePin,
+  } = props;
   const [activeView, setActiveView] = useState<FilmView>('concepts');
   const [searchTerm, setSearchTerm] = useState('');
   const [showDisclaimer, setShowDisclaimer] = useState(false);
@@ -95,7 +107,7 @@ const FilmStudiesPage: React.FC<FilmStudiesPageProps> = ({ setView, onLaunchScen
                 <h2 className="text-2xl font-bold uppercase tracking-wider mb-4 border-b-2 border-brand-brown-700 pb-2">{category.title}</h2>
                 <div className="space-y-4">
                   {category.concepts.map(concept => (
-                    <FilmConceptCard key={concept.id} concept={concept} onAiInteraction={onAiInteraction} />
+                    <FilmConceptCard key={concept.id} concept={concept} onAiInteraction={onAiInteraction} onAddNote={onAddNote} pinnedItems={pinnedItems} onTogglePin={onTogglePin} categoryTitle={category.title} />
                   ))}
                 </div>
               </div>
@@ -114,7 +126,7 @@ const FilmStudiesPage: React.FC<FilmStudiesPageProps> = ({ setView, onLaunchScen
                         <h3 className="text-2xl font-bold uppercase tracking-wider mb-4 border-b-2 border-brand-brown-700 pb-2">{category.title}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-500">
                           {category.films.map(film => (
-                            <FilmDetailCard key={film.id} film={film} onLaunchSceneAnalysis={onLaunchSceneAnalysis} onAiInteraction={onAiInteraction} />
+                            <FilmDetailCard key={film.id} film={film} onLaunchSceneAnalysis={onLaunchSceneAnalysis} onAiInteraction={onAiInteraction} onAddNote={onAddNote} pinnedItems={pinnedItems} onTogglePin={onTogglePin} categoryTitle={category.title} />
                           ))}
                         </div>
                       </div>
@@ -127,11 +139,24 @@ const FilmStudiesPage: React.FC<FilmStudiesPageProps> = ({ setView, onLaunchScen
       case 'resources':
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filmResourcesData.map((resource, index) => <div key={resource.id} className="animate-slide-and-fade-in" style={{ animationDelay: `${index * 100}ms` }}><ResourceCard resource={resource} /></div>)}
+                <div className="animate-slide-and-fade-in" style={{ animationDelay: `0ms` }}>
+                    <button 
+                        onClick={() => setView('timeline')}
+                        className="w-full h-full text-left liquid-glass rounded-lg flex flex-col overflow-hidden">
+                         <div className="p-4 flex flex-col flex-grow">
+                            <h3 className="text-lg font-bold text-stone-800 dark:text-beige-100">Interactive Film & Media Timeline</h3>
+                            <p className="text-sm text-stone-600 dark:text-stone-300 mt-2 flex-grow">Explore the key moments, movements, and milestones that have shaped cinema and media history.</p>
+                            <div className="mt-4 pt-4 border-t border-glass-border dark:border-glass-border-dark text-right">
+                                <span className="text-sm font-bold text-brand-brown-700 dark:text-amber-400">View Timeline →</span>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+                {filmResourcesData.map((resource, index) => <div key={resource.id} className="animate-slide-and-fade-in" style={{ animationDelay: `${(index + 1) * 100}ms` }}><ResourceCard resource={resource} /></div>)}
             </div>
         );
       case 'revise':
-        return <FilmRevisionZone concepts={filmConceptsData} films={filmPapersData} logStudySession={logStudySession} unlockAchievement={unlockAchievement} />;
+        return <FilmRevisionZone concepts={filmConceptsData} films={filmPapersData} logStudySession={logStudySession} unlockAchievement={unlockAchievement} customDecks={customDecks} onAddDeck={onAddDeck} onUpdateDeck={onUpdateDeck} onDeleteDeck={onDeleteDeck} onAddNote={onAddNote} />;
       default:
         return null;
     }
@@ -156,13 +181,8 @@ const FilmStudiesPage: React.FC<FilmStudiesPageProps> = ({ setView, onLaunchScen
                 <h1 className="text-4xl font-black uppercase text-glow">Film Studies Hub</h1>
                 <p className="mt-2 text-lg text-stone-500 dark:text-stone-400">Deep dive into film form, set texts, and critical debates.</p>
             </div>
-            
-            <div role="alert" className="max-w-3xl mx-auto bg-amber-100 border-l-4 border-amber-500 text-amber-700 p-4 rounded-r-lg mb-8 dark:bg-amber-900/20 dark:border-amber-500 dark:text-amber-300 animate-fade-in">
-                <p className="font-bold">Work in Progress</p>
-                <p className="text-sm">Content is being added and updated daily. Information that seems lacking now will be added soon. Thanks for your patience!</p>
-            </div>
 
-            <div className="sticky top-20 bg-glass-200 dark:bg-black/20 backdrop-blur-2xl z-30 p-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 border border-glass-border dark:border-glass-border-dark rounded-xl">
+            <div className="sticky top-20 liquid-glass z-30 p-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 rounded-xl">
                 <div className="flex items-center space-x-2">
                     <NavButton view="concepts">Key Concepts</NavButton>
                     <NavButton view="films">Set Films</NavButton>

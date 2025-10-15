@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import AiTutorChat from './AiTutorChat';
 import EssayPlanner from './EssayPlanner';
+import EssayMarker from './EssayMarker';
 import AiResources from './AiResources';
 
-type AiTutorMode = 'tutor' | 'planner' | 'resources';
+interface AiTutorPageProps {
+    onAddNote: (title: string, content: string) => void;
+}
 
-const AiTutorPage: React.FC = () => {
+type AiTutorMode = 'tutor' | 'planner' | 'marker' | 'resources';
+
+const AiTutorPage: React.FC<AiTutorPageProps> = ({ onAddNote }) => {
     const [mode, setMode] = useState<AiTutorMode>('tutor');
 
     const ModeButton: React.FC<{ targetMode: AiTutorMode, children: React.ReactNode }> = ({ targetMode, children }) => (
@@ -23,7 +28,7 @@ const AiTutorPage: React.FC = () => {
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="text-center mb-12">
+            <div className="text-center mb-12 pt-12">
                 <h1 className="text-4xl font-black uppercase text-glow">AI Tutor Hub</h1>
                 <p className="mt-2 text-lg text-stone-500 dark:text-stone-400 max-w-2xl mx-auto">Your personal assistant for Media & Film Studies.</p>
             </div>
@@ -33,15 +38,17 @@ const AiTutorPage: React.FC = () => {
                 <p className="mt-1 text-sm">AI should be used as a powerful tool to <strong className="text-amber-800 dark:text-amber-200">aid revision</strong>, not replace critical thinking. Use it to clarify concepts, generate ideas, and test your knowledge, but always develop your own understanding and analysis.</p>
             </div>
 
-            <div className="flex justify-center items-center space-x-4 mb-12">
+            <div className="flex justify-center items-center flex-wrap gap-4 mb-12">
                 <ModeButton targetMode="tutor">AI Tutor</ModeButton>
                 <ModeButton targetMode="planner">Essay Planner</ModeButton>
+                <ModeButton targetMode="marker">Essay Marker</ModeButton>
                 <ModeButton targetMode="resources">AI Resources</ModeButton>
             </div>
 
             <div key={mode}>
-                {mode === 'tutor' && <AiTutorChat />}
+                {mode === 'tutor' && <AiTutorChat onAddNote={onAddNote} />}
                 {mode === 'planner' && <EssayPlanner />}
+                {mode === 'marker' && <EssayMarker onAddNote={onAddNote} />}
                 {mode === 'resources' && <AiResources />}
             </div>
         </div>

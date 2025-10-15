@@ -1,11 +1,9 @@
-
-
 import React, { useRef, useCallback, useState, ChangeEvent, useEffect } from 'react';
 import { NotesPanelState, NoteTab } from '../types';
 
 interface NotesPanelProps {
   state: NotesPanelState;
-  setState: React.Dispatch<React.SetStateAction<NotesPanelState>>;
+  setState: (value: NotesPanelState) => void;
 }
 
 const MIN_WIDTH = 320;
@@ -42,10 +40,10 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
       const onMouseMove = (moveE: MouseEvent) => {
           const dx = moveE.clientX - startPos.x;
           const dy = moveE.clientY - startPos.y;
-          setState(prev => ({
-              ...prev,
+          setState({
+              ...state,
               position: { x: startPanelPos.x + dx, y: startPanelPos.y + dy }
-          }));
+          });
       };
 
       const onMouseUp = () => {
@@ -55,7 +53,7 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
 
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
-  }, [isMobile, state.position, setState]);
+  }, [isMobile, state, setState]);
 
   const handleResizeStart = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
       if (isMobile) return;
@@ -67,13 +65,13 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
       const onMouseMove = (moveE: MouseEvent) => {
           const dx = moveE.clientX - startPos.x;
           const dy = moveE.clientY - startPos.y;
-          setState(prev => ({
-              ...prev,
+          setState({
+              ...state,
               size: {
                   width: Math.max(MIN_WIDTH, startSize.width + dx),
                   height: Math.max(MIN_HEIGHT, startSize.height + dy)
               }
-          }));
+          });
       };
 
       const onMouseUp = () => {
@@ -83,22 +81,22 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
 
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
-  }, [isMobile, state.size, setState]);
+  }, [isMobile, state, setState]);
 
   const handleTabClick = (tabId: string) => {
       if (renamingTabId !== tabId) {
-          setState(prev => ({ ...prev, activeTabId: tabId }));
+          setState({ ...state, activeTabId: tabId });
       }
   };
 
   const handleAddTab = () => {
       const newTabId = Date.now().toString();
       const newTab: NoteTab = { id: newTabId, title: `Note ${state.tabs.length + 1}`, content: '' };
-      setState(prev => ({
-          ...prev,
-          tabs: [...prev.tabs, newTab],
+      setState({
+          ...state,
+          tabs: [...state.tabs, newTab],
           activeTabId: newTabId
-      }));
+      });
   };
 
   const handleDeleteTab = (e: React.MouseEvent, tabIdToDelete: string) => {
@@ -113,31 +111,31 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
           newActiveTabId = newTabs[deletedTabIndex - 1]?.id || newTabs[0]?.id || null;
       }
 
-      setState(prev => ({
-          ...prev,
+      setState({
+          ...state,
           tabs: newTabs,
           activeTabId: newActiveTabId
-      }));
+      });
   };
 
   const handleNoteChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     if (!state.activeTabId) return;
     const newContent = e.target.value;
-    setState(prev => ({
-        ...prev,
-        tabs: prev.tabs.map(tab =>
-            tab.id === prev.activeTabId ? { ...tab, content: newContent } : tab
+    setState({
+        ...state,
+        tabs: state.tabs.map(tab =>
+            tab.id === state.activeTabId ? { ...tab, content: newContent } : tab
         )
-    }));
+    });
   };
 
   const handleRename = (tabId: string, newTitle: string) => {
-      setState(prev => ({
-          ...prev,
-          tabs: prev.tabs.map(tab =>
+      setState({
+          ...state,
+          tabs: state.tabs.map(tab =>
               tab.id === tabId ? { ...tab, title: newTitle.trim() || `Note` } : tab
           )
-      }));
+      });
       setRenamingTabId(null);
   };
   
@@ -154,7 +152,7 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
         height: `${state.size.height}px`,
       };
   
-  const panelClasses = `bg-glass-200 dark:bg-black/20 backdrop-blur-2xl shadow-2xl flex flex-col border border-glass-border dark:border-glass-border-dark animate-fade-in-up z-45 ${
+  const panelClasses = `liquid-glass flex flex-col animate-fade-in-up z-50 ${
     isMobile ? 'fixed bottom-0 left-0 w-full h-[70vh] rounded-t-2xl' : 'fixed rounded-2xl'
   }`;
 
@@ -208,7 +206,7 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
                     aria-label="Add new note"
                 >+</button>
             </div>
-            <button onClick={() => setState(prev => ({...prev, isOpen: false}))} className="ml-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white flex-shrink-0 p-2 rounded-full hover:bg-glass-300">
+            <button onClick={() => setState({ ...state, isOpen: false })} className="ml-2 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white flex-shrink-0 p-2 rounded-full hover:bg-glass-300">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -224,14 +222,6 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ state, setState }) => {
                 className="flex-grow w-full p-4 bg-transparent resize-none focus:outline-none text-stone-800 dark:text-beige-200 placeholder-stone-500 dark:placeholder-stone-400"
                 aria-label="Notes content"
             />
-            <div className="flex-shrink-0 px-4 py-2 border-t border-glass-border dark:border-glass-border-dark">
-                <div className="flex items-start space-x-2 text-xs text-stone-600 dark:text-stone-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
-                    <p>Notes aren't permanent. Removing cookies from your web browser will remove them so move them to a trusted cloud notes app.</p>
-                </div>
-            </div>
         </div>
 
         {!isMobile && (

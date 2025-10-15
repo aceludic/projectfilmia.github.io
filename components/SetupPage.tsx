@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FormEvent } from 'react';
+import React, { useState, useEffect, FormEvent, useRef } from 'react';
 import { VisibleTabs } from '../types';
 import { Modality } from "@google/genai";
 import { ai } from '../utils/gemini';
@@ -26,7 +26,6 @@ async function decodeAudioData(
   sampleRate: number,
   numChannels: number,
 ): Promise<AudioBuffer> {
-  // FIX: Corrected typo from Int116Array to Int16Array.
   const dataInt16 = new Int16Array(data.buffer);
   const frameCount = dataInt16.length / numChannels;
   const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
@@ -85,6 +84,7 @@ const SetupPage: React.FC<SetupPageProps> = ({ onComplete }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [isPhoebeSpeaking, setIsPhoebeSpeaking] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(true);
+  const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
 
   const getSteps = (name: string) => [
       {
@@ -107,7 +107,12 @@ const SetupPage: React.FC<SetupPageProps> = ({ onComplete }) => {
   const steps = getSteps(nameInput);
 
   const prepareAudio = async (text: string): Promise<AudioBufferSourceNode | null> => {
+    if (audioSourceRef.current) {
+        audioSourceRef.current.stop();
+        audioSourceRef.current = null;
+    }
     if (isMuted) return null;
+
     try {
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash-preview-tts",
@@ -132,6 +137,7 @@ const SetupPage: React.FC<SetupPageProps> = ({ onComplete }) => {
             const source = outputAudioContext.createBufferSource();
             source.buffer = audioBuffer;
             source.connect(outputAudioContext.destination);
+            audioSourceRef.current = source;
             return source;
         }
         return null;
@@ -144,7 +150,6 @@ const SetupPage: React.FC<SetupPageProps> = ({ onComplete }) => {
   const goToStep = async (nextStepIndex: number) => {
     setIsTransitioning(true);
 
-    // Use a temporary variable for the name if it's the step that needs it
     const nameForStep = nextStepIndex === 1 ? nameInput : (nameInput || 'friend');
     const text = getSteps(nameForStep)[nextStepIndex].text;
     
@@ -155,14 +160,25 @@ const SetupPage: React.FC<SetupPageProps> = ({ onComplete }) => {
 
     if (audioSource) {
         setIsPhoebeSpeaking(true);
-        audioSource.onended = () => setIsPhoebeSpeaking(false);
+        audioSource.onended = () => {
+            setIsPhoebeSpeaking(false);
+            audioSourceRef.current = null;
+        };
         audioSource.start();
     }
   };
+
+  const handleMuteToggle = () => {
+    const nextMutedState = !isMuted;
+    setIsMuted(nextMutedState);
+    if (nextMutedState && audioSourceRef.current) {
+        audioSourceRef.current.stop();
+        audioSourceRef.current = null;
+        setIsPhoebeSpeaking(false);
+    }
+  };
   
-  // Initial load
   useEffect(() => {
-    // A brief delay to allow the beautiful background to render first
     setTimeout(() => {
         goToStep(0);
     }, 500);
@@ -199,8 +215,7 @@ const SetupPage: React.FC<SetupPageProps> = ({ onComplete }) => {
     if (isTransitioning) return;
     setIsTransitioning(true);
     
-    // Show the "Getting ready..." message and then complete
-    setStep(steps.length); // An index beyond the last step for our loading message
+    setStep(steps.length);
     
     setTimeout(() => {
         onComplete({ 
@@ -209,6 +224,7 @@ const SetupPage: React.FC<SetupPageProps> = ({ onComplete }) => {
             visibleTabs: {
                 'media-studies': subjects.includes('media'),
                 'film-studies': subjects.includes('film'),
+                'social-hub': true, // Always enable social hub
             }
         });
     }, 2000);
@@ -219,7 +235,7 @@ const SetupPage: React.FC<SetupPageProps> = ({ onComplete }) => {
       <div className="relative z-10 w-full max-w-2xl mx-auto">
         <div className="bg-glass-200 backdrop-blur-2xl rounded-2xl shadow-2xl p-6 md:p-8 border border-glass-border dark:border-glass-border-dark flex flex-col min-h-[60vh]">
           <div className="flex-shrink-0 flex justify-end items-center mb-4">
-             <button onClick={() => setIsMuted(!isMuted)} className="p-2 rounded-full hover:bg-glass-100 text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300">
+             <button onClick={handleMuteToggle} className="p-2 rounded-full hover:bg-glass-100 text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300">
                 {isMuted ? 'UNMUTE 🔊' : 'MUTE 🔇'}
              </button>
           </div>

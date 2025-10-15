@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Theorist, Term, PinnedItem } from '../types';
 import AiFeatureButtons from './AiFeatureButtons';
@@ -8,7 +7,8 @@ interface TheoristDetailCardProps {
     categoryTitle: string;
     pinnedItems: PinnedItem[];
     onTogglePin: (item: PinnedItem) => void;
-    onAiInteraction: (type: 'summary' | 'spark') => void;
+    onAiInteraction: (type: 'summary' | 'spark' | 'synoptic') => void;
+    onAddNote: (title: string, content: string) => void;
 }
 
 const TermList: React.FC<{ terms: Term[] }> = ({ terms }) => (
@@ -21,7 +21,7 @@ const TermList: React.FC<{ terms: Term[] }> = ({ terms }) => (
     </ul>
 );
 
-const TheoristDetailCard: React.FC<TheoristDetailCardProps> = ({ theorist, categoryTitle, pinnedItems, onTogglePin, onAiInteraction }) => {
+const TheoristDetailCard: React.FC<TheoristDetailCardProps> = ({ theorist, categoryTitle, pinnedItems, onTogglePin, onAiInteraction, onAddNote }) => {
     const [isOpen, setIsOpen] = useState(false);
     
     const isPinned = pinnedItems.some(p => p.id === theorist.id);
@@ -37,17 +37,17 @@ const TheoristDetailCard: React.FC<TheoristDetailCardProps> = ({ theorist, categ
     };
 
     return (
-        <div className="bg-glass-300 dark:bg-black/20 backdrop-blur-2xl rounded-2xl border border-glass-border dark:border-glass-border-dark transition-all duration-300 overflow-hidden glass-reflective">
+        <div className="liquid-glass rounded-2xl transition-all duration-300 overflow-hidden">
             <div
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-glass-100 transition-colors duration-200 cursor-pointer"
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-200 cursor-pointer"
                 aria-expanded={isOpen}
             >
                 <h4 className="text-lg font-bold text-stone-800 dark:text-beige-100">{theorist.title}</h4>
                 <div className="flex items-center space-x-2">
                     <button 
                         onClick={handlePinClick}
-                        className="p-2 rounded-full hover:bg-glass-100 transition-colors btn-ripple"
+                        className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors btn-ripple"
                         aria-label={isPinned ? 'Unpin from dashboard' : 'Pin to dashboard'}
                         title={isPinned ? 'Unpin from dashboard' : 'Pin to dashboard'}
                     >
@@ -67,8 +67,8 @@ const TheoristDetailCard: React.FC<TheoristDetailCardProps> = ({ theorist, categ
                 </div>
             </div>
             <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[2000px]' : 'max-h-0'}`}>
-                <div className="p-4 border-t border-glass-border dark:border-glass-border-dark">
-                    <AiFeatureButtons item={theorist} onAiInteraction={onAiInteraction} />
+                <div className="p-4 border-t border-white/20 dark:border-white/10">
+                    <AiFeatureButtons item={theorist} onAiInteraction={onAiInteraction} onAddNote={onAddNote} />
                     <div className="space-y-4 text-stone-700 dark:text-stone-300 text-sm mt-4">
                         <div>
                             <h5 className="font-bold uppercase text-stone-600 dark:text-stone-400 tracking-wider text-xs mb-1">What it says</h5>
@@ -86,11 +86,11 @@ const TheoristDetailCard: React.FC<TheoristDetailCardProps> = ({ theorist, categ
                         )}
                         <div>
                             <h5 className="font-bold uppercase text-stone-600 dark:text-stone-400 tracking-wider text-xs mb-1">Example</h5>
-                            <p className="italic bg-glass-300 p-2 rounded-md">{theorist.example}</p>
+                            <p className="italic bg-black/5 dark:bg-white/5 p-2 rounded-md">{theorist.example}</p>
                         </div>
 
                         {theorist.youtubeVideoId && (
-                            <div className="pt-4 mt-4 border-t border-glass-border dark:border-glass-border-dark">
+                            <div className="pt-4 mt-4 border-t border-white/20 dark:border-white/10">
                                 <h5 className="font-bold uppercase text-stone-600 dark:text-stone-400 tracking-wider text-xs mb-2 text-center">Watch The Video</h5>
                                 <div className="max-w-sm mx-auto rounded-lg overflow-hidden shadow-md">
                                     <div className="relative w-full pt-[56.25%]"> {/* 16:9 aspect ratio */}

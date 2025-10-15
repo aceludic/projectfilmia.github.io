@@ -6,7 +6,6 @@ import CustomizationToolbar from './CustomizationToolbar';
 import PinnedItemsWidget from './PinnedItemsWidget';
 import TimeWidget from './TimeWidget';
 import RevisionTimetableWidget from './RevisionTimetableWidget';
-import CalendarWidget from './CalendarWidget';
 import AppLinksWidget from './AppLinksWidget';
 import NewsLinkWidget from './NewsLinkWidget';
 import InitialWelcomeModal from './InitialWelcomeModal';
@@ -68,8 +67,7 @@ const defaultLayout: LayoutItem[] = [
     { i: 'timetable', x: 0, y: 18, w: 6, h: 10 },// Timetable
     { i: 'pins', x: 6, y: 18, w: 6, h: 10 },     // Pinned Items
     // Bottom Row
-    { i: 'calendar', x: 0, y: 28, w: 5, h: 10 }, // Calendar
-    { i: 'social', x: 5, y: 28, w: 7, h: 10 },   // Social Hub (Placeholder)
+    { i: 'social', x: 0, y: 28, w: 12, h: 10 },   // Social Hub
 ];
 
 const useWindowSize = () => {
@@ -178,7 +176,6 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         pins: { title: 'Pinned Items', component: <PinnedItemsWidget items={pinnedItems} onUnpin={onTogglePin} setView={setView} /> },
         time: { title: 'Clock', component: <TimeWidget /> },
         timetable: { title: 'Revision Timetable', component: <RevisionTimetableWidget entries={timetableEntries} onAdd={onAddTimetableEntry} onRemove={onRemoveTimetableEntry} onAddMultiple={onAddMultipleTimetableEntries} /> },
-        calendar: { title: 'Calendar', component: <CalendarWidget entries={timetableEntries} /> },
         apps: { title: 'My Links', component: <AppLinksWidget links={appLinks} onAdd={onAddAppLink} onRemove={onRemoveAppLink} /> },
         panda: { title: 'Study Streak', component: <PandaWidget state={pandaState} /> },
         focus: { title: "Today's Focus", component: <TodaysFocusWidget items={focusItems} setItems={setFocusItems} onAllTasksCompleted={() => unlockAchievement('focused_day')} /> },
@@ -199,8 +196,8 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
 
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8 animate-glow rounded-3xl">
-            <div className="flex justify-between items-start mb-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16 animate-glow rounded-3xl">
+            <div className="flex justify-between items-start mb-12">
                 <div className="text-center flex-grow">
                     <h1 id="dashboard-title" className="text-4xl font-black uppercase text-glow">{greeting}</h1>
                     <p className="mt-2 text-lg text-stone-500 dark:text-stone-400">{subtitle}</p>
@@ -231,8 +228,8 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
                 </div>
             </div>
             
-            <div className="text-center p-3 mb-4 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-600/50 rounded-lg text-sm text-yellow-800 dark:text-yellow-300 animate-fade-in" role="alert">
-                <p><strong>Please note:</strong> We're aware of an issue with page visibility and are working on a fix. We're also addressing some slowness that may affect loading times. Thank you for your patience!</p>
+            <div className="text-center p-3 mb-8 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-600/50 rounded-lg text-sm text-yellow-800 dark:text-yellow-300 animate-fade-in" role="alert">
+                <p><strong>Please note:</strong> This is an early-access project updated daily. Not all features are fully complete. We thank you for your patience and feedback!</p>
             </div>
 
             {showInitialWelcome && <InitialWelcomeModal onClose={handleCloseWelcome} />}

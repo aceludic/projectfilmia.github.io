@@ -8,7 +8,7 @@ import FilmStudiesPage from './components/FilmStudiesPage';
 import AiTutorPage from './components/AiTutorPage';
 import NewsPage from './components/NewsPage';
 import NotesPanel from './components/NotesPanel';
-import JournalPage from './components/JournalPage';
+import SocialHubPage from './components/SocialHubPage';
 import GlobalSearch from './components/GlobalSearch';
 import SettingsPanel from './components/SettingsPanel';
 import SetupPage from './components/SetupPage';
@@ -18,17 +18,13 @@ import FullscreenTimer from './components/FullscreenTimer';
 import MinimizedTimer from './components/MinimizedTimer';
 import SceneAnalysisTool from './components/SceneAnalysisTool';
 import TimelinePage from './components/TimelinePage';
-import { NotesPanelState, PinnedItem, TimetableEntry, AppLink, JournalEntry, FontFamily, SearchResult, TimerState, VisibleTabs, PandaState, NavbarLayout, CSP, Film, FocusItem, DailySpark, StudyLogEntry, AiInteractionCounts, User, UserData, SocialAccount } from './types';
+import { NotesPanelState, PinnedItem, TimetableEntry, AppLink, JournalEntry, FontFamily, SearchResult, TimerState, VisibleTabs, PandaState, CSP, Film, FocusItem, DailySpark, StudyLogEntry, AiInteractionCounts, User, UserData, SocialAccount, CustomFlashcardDeck, NoteTab } from './types';
 import { theoristData } from './data/theoristsData';
 import { cspsData } from './data/cspsData';
 import { getAllUsers, getUser, saveUser, defaultUserData } from './utils/auth';
 
-export type LoggedInView = 'dashboard' | 'media-studies' | 'film-studies' | 'ai-tutor' | 'news' | 'journal' | 'scene-analysis' | 'timeline';
+export type LoggedInView = 'dashboard' | 'media-studies' | 'film-studies' | 'ai-tutor' | 'news' | 'social-hub' | 'scene-analysis' | 'timeline';
 export type Theme = 'light' | 'dark' | 'night' | 'synthwave' | 'noir';
-
-const tourSteps = [
-    // ... (tour steps remain the same)
-];
 
 // A simple debounce hook
 function useDebounce<T>(value: T, delay: number): T {
@@ -44,21 +40,63 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-const TourPromptModal: React.FC<{ onStart: () => void; onDecline: () => void }> = ({ onStart, onDecline }) => (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={onDecline}>
-        <div className="bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center animate-scale-in border border-glass-border dark:border-glass-border-dark" onClick={e => e.stopPropagation()}>
-            <div className="text-5xl mb-4">👋</div>
-            <h2 className="text-2xl font-bold text-stone-800 dark:text-beige-100 mb-2">Welcome!</h2>
-            <p className="text-stone-600 dark:text-stone-300 mb-6">
-                Would you like a quick, interactive tour of the dashboard features? You can also start it later from the settings menu.
-            </p>
-            <div className="flex justify-center space-x-4">
-                <button onClick={onDecline} className="px-6 py-2 bg-glass-300 text-stone-800 dark:text-white rounded-md font-bold btn-ripple">No, thanks</button>
-                <button onClick={onStart} className="px-6 py-2 bg-brand-brown-700 text-white rounded-md font-bold btn-ripple">Start Tour</button>
+const WelcomeGuideModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
+        <div className="liquid-glass rounded-2xl shadow-2xl max-w-3xl w-full p-6 md:p-8 flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+            <h2 className="text-3xl font-bold text-stone-800 dark:text-beige-100 mb-4 text-center">Welcome to Project Filmia!</h2>
+            <p className="text-center text-stone-600 dark:text-stone-300 mb-6">Your all-in-one hub for Media & Film Studies revision. Here's everything you can do:</p>
+            <div className="overflow-y-auto pr-4 text-sm text-stone-700 dark:text-stone-300 space-y-4">
+                
+                <h3 className="font-bold text-lg text-stone-800 dark:text-beige-100 mt-2">✨ The Dashboard: Your Personal Hub</h3>
+                <ul className="list-disc list-inside space-y-2">
+                    <li><strong>Dynamic Island Navigation:</strong> Hover over the notch at the top to reveal the main menu. It includes the time and will auto-collapse when you're not using it.</li>
+                    <li><strong>Customizable Widgets:</strong> Click 'Customize' to rearrange your dashboard. Widgets include: <strong>Today's Focus</strong> (daily to-do list), <strong>Study Progress</strong> (track your revision time), <strong>Pinned Items</strong>, <strong>Revision Spark</strong> (daily AI question), <strong>Study Streak</strong> (the Panda!), <strong>Achievements</strong>, a <strong>Clock</strong>, <strong>My Links</strong> (quick access to websites), a <strong>Revision Timetable</strong>, and the <strong>Social Hub</strong> (for following creators).</li>
+                    <li><strong>Gamification:</strong> Stay motivated by building your <strong>Study Streak</strong> (complete a quiz or timer session to feed the panda) and unlocking <strong>Achievements</strong> for your hard work.</li>
+                </ul>
+
+                <h3 className="font-bold text-lg text-stone-800 dark:text-beige-100 mt-4">📚 Study Hubs: Media & Film</h3>
+                <ul className="list-disc list-inside space-y-2">
+                    <li><strong>Dedicated Sections:</strong> Dive into hubs for AQA Media Studies and WJEC/Eduqas Film Studies, with detailed notes on Theorists, CSPs, Set Films, and Key Concepts.</li>
+                    <li><strong>Pinning (☆):</strong> Click the star icon on any study card to add it to your 'Pinned Items' widget on the dashboard for quick access.</li>
+                    <li><strong>Powerful Revision Zone:</strong> Inside each hub, the 'Revise' tab contains:
+                        <ul className="list-['-_'] list-inside ml-4 space-y-1 mt-1">
+                            <li><strong>Flashcards & Mind Maps:</strong> For quick recall and visual learning.</li>
+                            <li><strong>Quizzes:</strong> Generate quizzes for a whole topic or a specific film/theorist.</li>
+                            <li><strong>Custom Flashcard Decks:</strong> Create, edit, and study your own personalized flashcards.</li>
+                            <li><strong>Theorist Comparison:</strong> Get an AI-powered breakdown of how two theorists relate to each other.</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h3 className="font-bold text-lg text-stone-800 dark:text-beige-100 mt-4">🤖 AI-Powered Tools (Phoebe)</h3>
+                <ul className="list-disc list-inside space-y-2">
+                    <li><strong>AI Tutor Hub ('Phoebe'):</strong> Your central command for AI help. Chat with Phoebe for quick answers, plan essays with the 'Essay Planner', or get your practice essays marked with the 'AI Essay Marker'.</li>
+                    <li><strong>Smart Study Tools:</strong> On any study page, use the buttons for 'AI Summaries', finding 'Synoptic Links' between topics, or launching the 'Interactive Analysis' tool for detailed feedback on scenes, ads, and more.</li>
+                    <li><strong>"Save to Notes" Integration:</strong> Almost anywhere you get feedback or generate content with AI, you can click a button to save it directly to a new note for later.</li>
+                </ul>
+
+                <h3 className="font-bold text-lg text-stone-800 dark:text-beige-100 mt-4">🛠️ Personalization & Tools</h3>
+                <ul className="list-disc list-inside space-y-2">
+                    <li><strong>Floating Tools (Bottom Right):</strong> Access your multi-tab 'Notes Panel' and 'Settings' from anywhere on the site.</li>
+                    <li><strong>Advanced Settings:</strong> Customize your experience with multiple themes (<strong>Light, Dark, Night, Synthwave, Noir</strong>) and fonts (including the dyslexic-friendly <strong>Lexend</strong>).</li>
+                    <li><strong>Global Search:</strong> Press <kbd className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">⌘K</kbd> or <kbd>Ctrl+K</kbd> to search everything in the app.</li>
+                    <li><strong>Study Timer:</strong> Start a focused revision session with the fullscreen or minimizable timer.</li>
+                    <li><strong>Social Hub:</strong> Contains your personal 'Media Journal' and links to our upcoming 'Community' platforms.</li>
+                </ul>
+
+                <h3 className="font-bold text-lg text-stone-800 dark:text-beige-100 mt-4">👤 Your Account & The Experience</h3>
+                <ul className="list-disc list-inside space-y-2">
+                    <li><strong>Local & Private:</strong> For your privacy, all account data is stored locally on your device and browser. You can also use 'Continue as Guest' for a session-only experience.</li>
+                    <li><strong>Aesthetic UI:</strong> Enjoy the 'Liquid Glass' design, the animated orb background, and the custom animated cursor for a unique and beautiful revision environment.</li>
+                </ul>
+            </div>
+            <div className="mt-6 text-center flex-shrink-0">
+                <button onClick={onClose} className="px-8 py-3 bg-brand-brown-700 text-white font-bold rounded-lg btn-ripple text-lg">Let's Get Started</button>
             </div>
         </div>
     </div>
 );
+
 
 const App: React.FC = () => {
   const [appStatus, setAppStatus] = useState<'loading' | 'auth' | 'setup' | 'main'>('loading');
@@ -70,7 +108,7 @@ const App: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSettingsPanelOpen, setIsSettingsPanelOpen] = useState(false);
   const [isTourActive, setIsTourActive] = useState(false);
-  const [isTourPromptVisible, setIsTourPromptVisible] = useState(false);
+  const [isWelcomeGuideVisible, setIsWelcomeGuideVisible] = useState(false);
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [sceneAnalysisItem, setSceneAnalysisItem] = useState<Film | CSP | null>(null);
 
@@ -90,7 +128,6 @@ const App: React.FC = () => {
   const cursorContainerRef = useRef<HTMLDivElement>(null);
 
   const debouncedUserData = useDebounce(userData, 500);
-  const debouncedTimerState = useDebounce(timerState, 1000);
 
   // --- AUTH & DATA MANAGEMENT ---
 
@@ -110,17 +147,17 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Save user data whenever it changes
-    if (currentUser && debouncedUserData) {
+    // Save user data whenever it changes, but NOT for guest users.
+    if (currentUser && !currentUser.isGuest && debouncedUserData) {
       const updatedUser = { ...currentUser, data: debouncedUserData };
       saveUser(updatedUser);
     }
   }, [currentUser, debouncedUserData]);
   
   useEffect(() => {
-    // Show tour prompt only when transitioning to main app for the first time
+    // Show welcome guide only when transitioning to main app for the first time
     if (appStatus === 'main' && userData && !userData.hasCompletedTour) {
-        setIsTourPromptVisible(true);
+        setIsWelcomeGuideVisible(true);
     }
   }, [appStatus, userData]);
 
@@ -136,6 +173,18 @@ const App: React.FC = () => {
         setAppStatus('setup');
       }
     }
+  };
+
+  const handleContinueAsGuest = () => {
+    const guestUser: User = {
+        username: `guest_${Date.now()}`,
+        password: '',
+        isGuest: true,
+        data: { ...defaultUserData, name: 'Guest' },
+    };
+    setCurrentUser(guestUser);
+    setUserData(guestUser.data);
+    setAppStatus('setup'); // Guests always go through setup
   };
 
   const handleEnterApp = () => {
@@ -170,24 +219,29 @@ const App: React.FC = () => {
     setAppStatus('main');
 
     if (!completedUserData.hasCompletedTour) {
-      setIsTourPromptVisible(true);
+      setIsWelcomeGuideVisible(true);
     }
   };
 
   // --- THEME & FONT MANAGEMENT ---
 
   useEffect(() => {
-    if (!userData) return;
-    const { theme } = userData;
     const root = document.documentElement;
+    // Always clear old theme classes first
     root.classList.remove('dark', 'night', 'synthwave', 'noir');
-    if (theme === 'dark' || theme === 'night' || theme === 'synthwave' || theme === 'noir') {
+
+    // Default to dark mode on the auth screen, otherwise use the user's preference.
+    const isDarkTheme = userData ? (userData.theme !== 'light') : true;
+
+    if (isDarkTheme) {
         root.classList.add('dark');
     }
-    if (theme === 'night' || theme === 'synthwave' || theme === 'noir') {
-        root.classList.add(theme);
+
+    // Apply specific theme variants like 'night', 'synthwave', or 'noir' if applicable
+    if (userData && userData.theme !== 'light' && userData.theme !== 'dark') {
+        root.classList.add(userData.theme);
     }
-  }, [userData?.theme]);
+  }, [appStatus, userData?.theme]);
 
   useEffect(() => {
     if (!userData) return;
@@ -276,9 +330,89 @@ const App: React.FC = () => {
     };
   }, []);
 
-  // --- BACKGROUND EFFECT ---
+  // --- NEW LIQUID ORB BACKGROUND EFFECT ---
   useEffect(() => {
-    // (Background effect logic remains the same)
+    const canvas = document.getElementById('background-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    let frame = 0;
+
+    const orb = {
+        x: width / 2,
+        y: height / 2,
+        radius: Math.min(width, height) * 0.6,
+        xOff: Math.random() * 1000,
+        yOff: Math.random() * 1000,
+    };
+
+    const smallOrbs: any[] = [];
+    for (let i = 0; i < 5; i++) {
+        smallOrbs.push({
+            angle: Math.random() * Math.PI * 2,
+            orbitRadius: orb.radius * (0.4 + Math.random() * 0.5),
+            speed: 0.001 + Math.random() * 0.002,
+            size: Math.random() * 20 + 10,
+        });
+    }
+    
+    // A simple noise function
+    function noise(x: number) {
+        return Math.sin(x * 0.5) + Math.sin(x * 1.5) + Math.sin(x * 3.5);
+    }
+
+    function animate() {
+        frame++;
+        ctx!.clearRect(0, 0, width, height);
+        
+        // Move main orb gently
+        orb.x = width / 2 + noise(frame * 0.0005 + orb.xOff) * (width * 0.1);
+        orb.y = height / 2 + noise(frame * 0.0005 + orb.yOff) * (height * 0.1);
+
+        // Main Orb
+        const hue = (frame * 0.1) % 360;
+        const mainGradient = ctx!.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.radius);
+        mainGradient.addColorStop(0, `hsla(${hue}, 100%, 70%, 0.4)`);
+        mainGradient.addColorStop(1, `hsla(${hue + 60}, 100%, 70%, 0)`);
+        ctx!.fillStyle = mainGradient;
+        ctx!.beginPath();
+        ctx!.arc(orb.x, orb.y, orb.radius, 0, Math.PI * 2);
+        ctx!.fill();
+        
+        // Small Orbs
+        smallOrbs.forEach((sOrb, i) => {
+            sOrb.angle += sOrb.speed;
+            const x = orb.x + Math.cos(sOrb.angle) * sOrb.orbitRadius;
+            const y = orb.y + Math.sin(sOrb.angle) * sOrb.orbitRadius;
+            
+            const smallHue = (hue + i * 40) % 360;
+            const smallGradient = ctx!.createRadialGradient(x, y, 0, x, y, sOrb.size);
+            smallGradient.addColorStop(0, `hsla(${smallHue}, 100%, 80%, 0.6)`);
+            smallGradient.addColorStop(1, `hsla(${smallHue}, 100%, 80%, 0)`);
+            
+            ctx!.fillStyle = smallGradient;
+            ctx!.beginPath();
+            ctx!.arc(x, y, sOrb.size, 0, Math.PI * 2);
+            ctx!.fill();
+        });
+
+        requestAnimationFrame(animate);
+    }
+    
+    function onResize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        orb.radius = Math.min(width, height) * 0.6;
+        smallOrbs.forEach(sOrb => sOrb.orbitRadius = orb.radius * (0.4 + Math.random() * 0.5));
+    }
+
+    window.addEventListener('resize', onResize);
+    animate();
+
+    return () => window.removeEventListener('resize', onResize);
   }, []);
   
    // --- KEYBOARD SHORTCUT ---
@@ -301,7 +435,6 @@ const App: React.FC = () => {
   
   const setTheme = getHandler('theme');
   const setFontFamily = getHandler('fontFamily');
-  const setNavbarLayout = getHandler('navbarLayout');
   const setNotesPanelState = getHandler('notesPanelState');
   const setVisibleTabs = getHandler('visibleTabs');
   const setFocusItems = getHandler('focusItems');
@@ -384,6 +517,40 @@ const App: React.FC = () => {
     setUserData(prev => prev ? { ...prev, journalEntries: prev.journalEntries.filter(e => e.id !== id) } : null);
   };
 
+  const handleAddNote = (title: string, content: string) => {
+    setUserData(prev => {
+        if (!prev) return null;
+        const newTab: NoteTab = {
+            id: Date.now().toString(),
+            title,
+            content,
+        };
+        return {
+            ...prev,
+            notesPanelState: {
+                ...prev.notesPanelState,
+                tabs: [...prev.notesPanelState.tabs, newTab],
+                activeTabId: newTab.id,
+                isOpen: true, // Automatically open the panel to show the new note
+            }
+        };
+    });
+};
+
+  const handleAddDeck = (newDeck: Omit<CustomFlashcardDeck, 'id'>) => {
+    const deckWithId = { ...newDeck, id: Date.now().toString() };
+    setUserData(prev => prev ? { ...prev, customFlashcardDecks: [...prev.customFlashcardDecks, deckWithId] } : null);
+  };
+
+  const handleUpdateDeck = (updatedDeck: CustomFlashcardDeck) => {
+    setUserData(prev => prev ? { ...prev, customFlashcardDecks: prev.customFlashcardDecks.map(d => d.id === updatedDeck.id ? updatedDeck : d) } : null);
+  };
+
+  const handleDeleteDeck = (deckId: string) => {
+    setUserData(prev => prev ? { ...prev, customFlashcardDecks: prev.customFlashcardDecks.filter(d => d.id !== deckId) } : null);
+  };
+
+
   const unlockAchievement = (id: string) => {
     setUserData(prev => {
       if (!prev || prev.unlockedAchievements.includes(id)) return prev;
@@ -411,12 +578,13 @@ const App: React.FC = () => {
       });
   };
 
-  const handleAiInteraction = (type: 'summary' | 'spark') => {
+  const handleAiInteraction = (type: 'summary' | 'spark' | 'synoptic') => {
     setUserData(prev => {
       if (!prev) return null;
       const newCounts = { ...prev.aiInteractionCounts };
       if (type === 'summary') newCounts.summaryCount++;
       if (type === 'spark') newCounts.sparkCount++;
+      if (type === 'synoptic') newCounts.synopticCount++;
       return { ...prev, aiInteractionCounts: newCounts };
     });
   };
@@ -478,12 +646,8 @@ const App: React.FC = () => {
     setIsTourActive(false);
     setUserData(prev => prev ? { ...prev, hasCompletedTour: true } : null);
   };
-  const handleStartTourFromPrompt = () => {
-      setIsTourPromptVisible(false);
-      handleStartTour();
-  };
-  const handleDeclineTour = () => {
-      setIsTourPromptVisible(false);
+  const handleCloseWelcomeGuide = () => {
+      setIsWelcomeGuideVisible(false);
       setUserData(prev => prev ? { ...prev, hasCompletedTour: true } : null);
   };
 
@@ -514,17 +678,17 @@ const App: React.FC = () => {
         case 'loading':
             return <div className="min-h-screen w-full flex items-center justify-center"><p>Loading...</p></div>;
         case 'auth':
-            return <HomePage currentUser={currentUser} onLoginSuccess={handleLoginSuccess} onEnterApp={handleEnterApp} onLogout={handleLogout} />;
+            return <HomePage currentUser={currentUser} onLoginSuccess={handleLoginSuccess} onContinueAsGuest={handleContinueAsGuest} onEnterApp={handleEnterApp} onLogout={handleLogout} />;
         case 'setup':
             return <SetupPage onComplete={handleSetupComplete} />;
         case 'main':
             if (!userData) return <div className="min-h-screen w-full flex items-center justify-center"><p>Loading user data...</p></div>;
             return (
                 <>
-                    {isTourPromptVisible && <TourPromptModal onStart={handleStartTourFromPrompt} onDecline={handleDeclineTour} />}
-                    {isTourActive && <WelcomeTour steps={tourSteps} onTourEnd={handleTourEnd} setCustomizing={setIsCustomizing} />}
-                    <Navbar view={view} setView={setView} onOpenSearch={() => setIsSearchOpen(true)} visibleTabs={userData.visibleTabs} layout={userData.navbarLayout} />
-                    <main className={`transition-all duration-300 ${userData.navbarLayout === 'vertical' ? 'pt-4 md:pl-28' : 'pt-20'}`}>
+                    {isWelcomeGuideVisible && <WelcomeGuideModal onClose={handleCloseWelcomeGuide} />}
+                    {isTourActive && <WelcomeTour steps={[]} onTourEnd={handleTourEnd} setCustomizing={setIsCustomizing} />}
+                    <Navbar view={view} setView={setView} onOpenSearch={() => setIsSearchOpen(true)} visibleTabs={userData.visibleTabs} />
+                    <main className="transition-all duration-300 pt-28">
                         <div key={view} className="animate-merge-in">
                             {view === 'dashboard' && (
                             <Dashboard
@@ -559,18 +723,18 @@ const App: React.FC = () => {
                                 onAiInteraction={handleAiInteraction}
                             />
                             )}
-                            {view === 'media-studies' && <MediaStudiesPage pinnedItems={userData.pinnedItems} onTogglePin={handleTogglePin} onLaunchSceneAnalysis={handleLaunchSceneAnalysis} onAiInteraction={handleAiInteraction} logStudySession={logStudySession} unlockAchievement={unlockAchievement} />}
-                            {view === 'film-studies' && <FilmStudiesPage setView={setView} onLaunchSceneAnalysis={handleLaunchSceneAnalysis} onAiInteraction={handleAiInteraction} logStudySession={logStudySession} unlockAchievement={unlockAchievement} />}
-                            {view === 'ai-tutor' && <AiTutorPage />}
+                            {view === 'media-studies' && <MediaStudiesPage setView={setView} pinnedItems={userData.pinnedItems} onTogglePin={handleTogglePin} onLaunchSceneAnalysis={handleLaunchSceneAnalysis} onAiInteraction={handleAiInteraction} logStudySession={logStudySession} unlockAchievement={unlockAchievement} customDecks={userData.customFlashcardDecks} onAddDeck={handleAddDeck} onUpdateDeck={handleUpdateDeck} onDeleteDeck={handleDeleteDeck} onAddNote={handleAddNote} />}
+                            {view === 'film-studies' && <FilmStudiesPage setView={setView} onLaunchSceneAnalysis={handleLaunchSceneAnalysis} onAiInteraction={handleAiInteraction} logStudySession={logStudySession} unlockAchievement={unlockAchievement} customDecks={userData.customFlashcardDecks} onAddDeck={handleAddDeck} onUpdateDeck={handleUpdateDeck} onDeleteDeck={handleDeleteDeck} onAddNote={handleAddNote} pinnedItems={userData.pinnedItems} onTogglePin={handleTogglePin} />}
+                            {view === 'ai-tutor' && <AiTutorPage onAddNote={handleAddNote} />}
                             {view === 'news' && <NewsPage />}
-                            {view === 'journal' && <JournalPage entries={userData.journalEntries} onAdd={handleAddJournalEntry} onUpdate={handleUpdateJournalEntry} onRemove={handleRemoveJournalEntry} />}
-                            {view === 'scene-analysis' && <SceneAnalysisTool item={sceneAnalysisItem} />}
+                            {view === 'social-hub' && <SocialHubPage entries={userData.journalEntries} onAdd={handleAddJournalEntry} onUpdate={handleUpdateJournalEntry} onRemove={handleRemoveJournalEntry} />}
+                            {view === 'scene-analysis' && <SceneAnalysisTool item={sceneAnalysisItem} onAddNote={handleAddNote} />}
                             {view === 'timeline' && <TimelinePage setView={setView} />}
                         </div>
                     </main>
                     <FloatingTools onOpenSettings={() => setIsSettingsPanelOpen(true)} onToggleNotes={() => setNotesPanelState({ ...userData.notesPanelState, isOpen: !userData.notesPanelState.isOpen })} />
                     <NotesPanel state={userData.notesPanelState} setState={setNotesPanelState} />
-                    <SettingsPanel isOpen={isSettingsPanelOpen} onClose={() => setIsSettingsPanelOpen(false)} theme={userData.theme} setTheme={setTheme} fontFamily={userData.fontFamily} setFontFamily={setFontFamily} visibleTabs={userData.visibleTabs} setVisibleTabs={setVisibleTabs} navbarLayout={userData.navbarLayout} setNavbarLayout={setNavbarLayout} onStartTour={handleStartTour} onLogout={handleLogout} />
+                    <SettingsPanel isOpen={isSettingsPanelOpen} onClose={() => setIsSettingsPanelOpen(false)} theme={userData.theme} setTheme={setTheme} fontFamily={userData.fontFamily} setFontFamily={setFontFamily} visibleTabs={userData.visibleTabs} setVisibleTabs={setVisibleTabs} onStartTour={handleStartTour} onLogout={handleLogout} />
                     <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} theorists={theoristData} csps={cspsData} journalEntries={userData.journalEntries} notes={userData.notesPanelState.tabs} onResultClick={() => {}} />
                     <TimerSetupModal isOpen={isTimerSetupOpen} onClose={() => setIsTimerSetupOpen(false)} onStart={handleStartTimer} />
                     {timerState.view === 'fullscreen' && <FullscreenTimer remainingSeconds={timerState.remaining} duration={timerState.duration} onMinimize={() => setTimerState(prev => ({ ...prev, view: 'minimized' }))} onExit={handleExitTimer} />}
@@ -584,8 +748,8 @@ const App: React.FC = () => {
   
   return (
     <div className="relative min-h-screen">
-        <div className="fixed inset-0 bg-beige-100 dark:bg-stone-900 z-[-3]" />
-        <canvas id="background-canvas" className="blur-4xl transform scale-110" />
+        <div className="fixed inset-0 bg-gray-50 dark:bg-stone-950 z-[-3]" />
+        <canvas id="background-canvas" className="blur-4xl transform scale-110 opacity-70" />
         <div className="vignette-overlay" />
         
         <div className="relative z-[1]">

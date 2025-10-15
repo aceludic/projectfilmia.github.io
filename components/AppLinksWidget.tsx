@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AppLink } from '../types';
 
@@ -92,7 +91,7 @@ const AppLinksWidget: React.FC<AppLinksWidgetProps> = ({ links, onAdd, onRemove 
                                 href={link.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="group w-full flex items-center justify-between text-left bg-beige-100 dark:bg-stone-700/50 p-2.5 rounded-md hover:bg-beige-200 dark:hover:bg-stone-700 transition-colors"
+                                className="group w-full flex items-center justify-between text-left bg-white/50 dark:bg-stone-800/30 p-2.5 rounded-md hover:bg-white/80 dark:hover:bg-stone-700/50 transition-colors"
                             >
                                 <div className="flex items-center space-x-3 flex-1 min-w-0">
                                     <img src={getFaviconUrl(link.url)} alt="" className="w-6 h-6 rounded-md flex-shrink-0" onError={(e) => (e.currentTarget.style.display = 'none')} />
@@ -115,11 +114,11 @@ const AppLinksWidget: React.FC<AppLinksWidgetProps> = ({ links, onAdd, onRemove 
                     <p className="text-center text-sm text-stone-500 dark:text-stone-400 pt-8">No links added yet.</p>
                 )}
             </div>
-            <div className="flex-shrink-0 pt-2 mt-2 border-t border-beige-200 dark:border-stone-700">
+            <div className="flex-shrink-0 pt-2 mt-2 border-t border-glass-border dark:border-stone-700">
                 {showForm ? (
                     <form onSubmit={handleAdd} className="animate-fade-in-up space-y-2">
-                        <input type="text" placeholder="Name (e.g., YouTube)" value={name} onChange={e => setName(e.target.value)} required className="w-full text-sm p-1.5 border border-beige-300 rounded-md bg-beige-100 dark:bg-stone-700 text-stone-800 dark:text-beige-100 dark:border-stone-600" />
-                        <input type="text" placeholder="URL (e.g., youtube.com)" value={url} onChange={e => setUrl(e.target.value)} required className="w-full text-sm p-1.5 border border-beige-300 rounded-md bg-beige-100 dark:bg-stone-700 text-stone-800 dark:text-beige-100 dark:border-stone-600" />
+                        <input type="text" placeholder="Name (e.g., YouTube)" value={name} onChange={e => setName(e.target.value)} required className="w-full text-sm p-1.5 border border-glass-border rounded-md bg-white/50 dark:bg-stone-700 text-stone-800 dark:text-beige-100 dark:border-stone-600" />
+                        <input type="text" placeholder="URL (e.g., youtube.com)" value={url} onChange={e => setUrl(e.target.value)} required className="w-full text-sm p-1.5 border border-glass-border rounded-md bg-white/50 dark:bg-stone-700 text-stone-800 dark:text-beige-100 dark:border-stone-600" />
                         <div className="flex items-center space-x-2">
                             <button type="submit" className="w-full bg-brand-brown-700 text-white p-2 rounded-md text-sm font-bold hover:bg-brand-brown-800 transition-colors">Add Link</button>
                             <button type="button" onClick={() => setShowForm(false)} className="w-full bg-stone-200 dark:bg-stone-600 text-stone-700 dark:text-beige-200 p-2 rounded-md text-sm font-bold hover:bg-stone-300 dark:hover:bg-stone-500 transition-colors">Cancel</button>

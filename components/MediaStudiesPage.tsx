@@ -1,13 +1,13 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { theoristData } from '../data/theoristsData';
 import { cspsData } from '../data/cspsData';
-import { ResourceItem, TheoristCategory, CSPCategory, PinnedItem, CSP, Film } from '../types';
+import { ResourceItem, TheoristCategory, CSPCategory, PinnedItem, CSP, Film, CustomFlashcardDeck, NoteTab } from '../types';
 import TheoristDetailCard from './TheoristDetailCard';
 import CspDetailCard from './CspDetailCard';
 import ResourceCard from './ResourceCard';
 import RevisionZone from './RevisionZone';
 import TheoristComparison from './TheoristComparison';
+import { LoggedInView } from '../App';
 
 type MediaView = 'theorists' | 'csps' | 'resources' | 'revise';
 
@@ -15,14 +15,20 @@ interface MediaStudiesPageProps {
   pinnedItems: PinnedItem[];
   onTogglePin: (item: PinnedItem) => void;
   onLaunchSceneAnalysis: (item: CSP | Film) => void;
-  onAiInteraction: (type: 'summary' | 'spark') => void;
+  onAiInteraction: (type: 'summary' | 'spark' | 'synoptic') => void;
   logStudySession: (durationInSeconds: number) => void;
   unlockAchievement: (id: string) => void;
+  setView: (view: LoggedInView) => void;
+  customDecks: CustomFlashcardDeck[];
+  onAddDeck: (deck: Omit<CustomFlashcardDeck, 'id'>) => void;
+  onUpdateDeck: (deck: CustomFlashcardDeck) => void;
+  onDeleteDeck: (deckId: string) => void;
+  onAddNote: (title: string, content: string) => void;
 }
 
 const DisclaimerModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
     <div className="fixed inset-0 backdrop-blur-md z-50 flex items-start justify-center pt-28 p-4 animate-fade-in">
-        <div className="bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-lg shadow-2xl max-w-lg w-full p-8 text-center animate-fade-in-up border border-glass-border dark:border-glass-border-dark">
+        <div className="liquid-glass rounded-lg shadow-2xl max-w-lg w-full p-8 text-center animate-fade-in-up">
             <h2 className="text-2xl font-bold text-stone-800 dark:text-beige-100 mb-4">AQA A-Level Focus</h2>
             <p className="text-base text-stone-600 dark:text-stone-300 mb-8">
                 Please note: The content in this section is specifically tailored for the AQA A-Level Media Studies specification and may not be suitable for other exam boards.
@@ -46,7 +52,12 @@ const resourcesData: ResourceItem[] = [
     { id: '5', title: 'Beyond the Spec/Reading', overview: 'Expand your media knowledge with this playlist of supplementary material and advanced concepts.', youtubeVideoId: '3HG8Q9ucr4k' },
 ];
 
-const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogglePin, onLaunchSceneAnalysis, onAiInteraction, logStudySession, unlockAchievement }) => {
+const MediaStudiesPage: React.FC<MediaStudiesPageProps> = (props) => {
+  const { 
+    pinnedItems, onTogglePin, onLaunchSceneAnalysis, 
+    onAiInteraction, logStudySession, unlockAchievement, setView,
+    customDecks, onAddDeck, onUpdateDeck, onDeleteDeck, onAddNote
+  } = props;
   const [activeView, setActiveView] = useState<MediaView>('theorists');
   const [searchTerm, setSearchTerm] = useState('');
   const [showDisclaimer, setShowDisclaimer] = useState(false);
@@ -111,6 +122,7 @@ const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogg
                       pinnedItems={pinnedItems}
                       onTogglePin={onTogglePin}
                       onAiInteraction={onAiInteraction}
+                      onAddNote={onAddNote}
                     />
                   ))}
                 </div>
@@ -134,6 +146,7 @@ const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogg
                       onTogglePin={onTogglePin}
                       onLaunchSceneAnalysis={onLaunchSceneAnalysis}
                       onAiInteraction={onAiInteraction}
+                      onAddNote={onAddNote}
                     />
                   ))}
                 </div>
@@ -145,19 +158,35 @@ const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogg
       case 'resources':
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {resourcesData.map((resource, index) => <div key={resource.id} className="animate-slide-and-fade-in" style={{ animationDelay: `${index * 100}ms` }}><ResourceCard resource={resource} /></div>)}
+                <div className="animate-slide-and-fade-in" style={{ animationDelay: `0ms` }}>
+                    <button 
+                        onClick={() => setView('timeline')}
+                        className="w-full h-full text-left liquid-glass rounded-lg flex flex-col overflow-hidden">
+                        <div className="p-4 flex flex-col flex-grow">
+                            <h3 className="text-lg font-bold text-stone-800 dark:text-beige-100">Interactive Film & Media Timeline</h3>
+                            <p className="text-sm text-stone-600 dark:text-stone-300 mt-2 flex-grow">Explore the key moments, movements, and milestones that have shaped cinema and media history.</p>
+                            <div className="mt-4 pt-4 border-t border-glass-border dark:border-glass-border-dark text-right">
+                                <span className="text-sm font-bold text-brand-brown-700 dark:text-amber-400">View Timeline →</span>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+                {resourcesData.map((resource, index) => <div key={resource.id} className="animate-slide-and-fade-in" style={{ animationDelay: `${(index + 1) * 100}ms` }}><ResourceCard resource={resource} /></div>)}
             </div>
         );
       case 'revise':
         return (
-            <div>
-                 <div className="flex justify-center items-center space-x-2 mb-8 bg-glass-300 dark:bg-black/20 p-2 rounded-lg max-w-xs mx-auto">
-                    <button onClick={() => setRevisionTool('revise')} className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${revisionTool === 'revise' ? 'bg-brand-brown-700 text-white' : ''}`}>Revise</button>
-                    <button onClick={() => setRevisionTool('compare')} className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${revisionTool === 'compare' ? 'bg-brand-brown-700 text-white' : ''}`}>Compare</button>
-                </div>
-                {revisionTool === 'revise' && <RevisionZone theorists={theoristData} csps={cspsData} logStudySession={logStudySession} unlockAchievement={unlockAchievement} />}
-                {revisionTool === 'compare' && <TheoristComparison theorists={theoristData} />}
-            </div>
+          <RevisionZone 
+            theorists={theoristData} 
+            csps={cspsData} 
+            logStudySession={logStudySession} 
+            unlockAchievement={unlockAchievement} 
+            customDecks={customDecks} 
+            onAddDeck={onAddDeck} 
+            onUpdateDeck={onUpdateDeck} 
+            onDeleteDeck={onDeleteDeck} 
+            onAddNote={onAddNote}
+          />
         );
       default:
         return null;
@@ -184,7 +213,7 @@ const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogg
                 <p className="mt-2 text-lg text-stone-500 dark:text-stone-400">Explore key theories, case studies, and resources.</p>
             </div>
 
-            <div className="sticky top-20 bg-glass-200 dark:bg-black/20 backdrop-blur-2xl z-30 p-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 border border-glass-border dark:border-glass-border-dark rounded-xl">
+            <div className="sticky top-20 liquid-glass z-30 p-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 rounded-xl">
                 <div className="flex items-center space-x-2">
                     <NavButton view="theorists">Theorists</NavButton>
                     <NavButton view="csps">CSPs</NavButton>

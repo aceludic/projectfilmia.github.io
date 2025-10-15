@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CSP, Film, PinnedItem } from '../types';
 import AiFeatureButtons from './AiFeatureButtons';
@@ -8,10 +7,25 @@ interface CspDetailCardProps {
     pinnedItems: PinnedItem[];
     onTogglePin: (item: PinnedItem) => void;
     onLaunchSceneAnalysis: (item: CSP | Film) => void;
-    onAiInteraction: (type: 'summary' | 'spark') => void;
+    onAiInteraction: (type: 'summary' | 'spark' | 'synoptic') => void;
+    onAddNote: (title: string, content: string) => void;
 }
 
-const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onTogglePin, onLaunchSceneAnalysis, onAiInteraction }) => {
+const getAnalysisButtonLabel = (category: string): string => {
+    switch (category) {
+        case 'Print Advertisement': return 'Interactive Ad Analysis';
+        case 'Newspaper':
+        case 'Magazine': return 'Interactive Page Analysis';
+        case 'Mobile Game':
+        case 'Video Game': return 'Interactive Gameplay Analysis';
+        case 'Radio Drama': return 'Interactive Audio Analysis';
+        case 'Online Media Case Study': return 'Interactive Case Study Analysis';
+        // Default for 'Film', 'TV Drama', 'Music Video', etc.
+        default: return 'Interactive Scene Analysis';
+    }
+};
+
+const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onTogglePin, onLaunchSceneAnalysis, onAiInteraction, onAddNote }) => {
     const [isOpen, setIsOpen] = useState(false);
     
     const isPinned = pinnedItems.some(p => p.id === csp.id);
@@ -51,7 +65,7 @@ const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onToggl
 
 
     return (
-        <div className="group bg-glass-300 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:scale-[1.03] glass-reflective hover-ripple-effect">
+        <div className="group liquid-glass rounded-2xl flex flex-col overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:scale-[1.03]">
             <div className={`relative h-48 w-full flex items-center justify-center p-4 text-white overflow-hidden`}>
                 <div className="absolute inset-0 csp-animated-bg"></div>
                 <div className="absolute inset-0 bg-black/40"></div>
@@ -75,7 +89,7 @@ const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onToggl
                 <p className="text-sm text-stone-700 dark:text-stone-300">{csp.synopsis}</p>
             </div>
 
-            <div className="p-4 border-t border-glass-border dark:border-glass-border-dark">
+            <div className="p-4 border-t border-white/20 dark:border-white/10">
                 <button
                     onClick={() => setIsOpen(!isOpen)}
                     className="w-full text-left text-sm font-bold text-stone-800 dark:text-beige-200 flex justify-between items-center btn-ripple"
@@ -96,15 +110,15 @@ const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onToggl
             
             <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isOpen ? 'max-h-[3000px]' : 'max-h-0'}`}>
                 <div className="px-4 pb-4 space-y-4">
-                    <div className="border-b border-glass-border dark:border-glass-border-dark pb-4">
-                        <AiFeatureButtons item={csp} onAiInteraction={onAiInteraction} />
+                    <div className="border-b border-white/20 dark:border-white/10 pb-4">
+                        <AiFeatureButtons item={csp} onAiInteraction={onAiInteraction} onAddNote={onAddNote} />
                     </div>
                      <div>
                         <button 
                             onClick={() => onLaunchSceneAnalysis(csp)}
                             className="w-full mt-2 bg-indigo-500/20 text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-300 p-2 rounded-md text-sm font-bold hover:bg-indigo-500/30 dark:hover:bg-indigo-500/30 transition-colors"
                         >
-                            Interactive Scene Analysis (Soon)
+                            {getAnalysisButtonLabel(csp.category)}
                         </button>
                     </div>
                     <div>
@@ -141,7 +155,7 @@ const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onToggl
                     )}
 
                     {csp.youtubeVideoIds && csp.youtubeVideoIds.length > 0 && (
-                        <div className="pt-4 mt-4 border-t border-glass-border dark:border-glass-border-dark">
+                        <div className="pt-4 mt-4 border-t border-white/20 dark:border-white/10">
                             <h5 className="font-bold uppercase text-stone-500 dark:text-stone-400 tracking-wider text-xs mb-2 text-center">Watch The Video Guides</h5>
                             <div className="space-y-4">
                                 {csp.youtubeVideoIds.map((videoId, index) => (

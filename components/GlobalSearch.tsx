@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { TheoristCategory, CSPCategory, JournalEntry, NoteTab, SearchResult } from '../types';
+import { Theorist, CSP, JournalEntry, NoteTab, SearchResult, TheoristCategory, CSPCategory } from '../types';
 
 interface GlobalSearchProps {
     isOpen: boolean;
@@ -125,7 +125,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose, theorists,
     return (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex justify-center p-4 pt-[15vh] animate-fade-in" onClick={onClose}>
             <div 
-                className="w-full max-w-2xl h-auto max-h-[70vh] bg-glass-200 dark:bg-black/20 backdrop-blur-2xl rounded-2xl shadow-2xl flex flex-col animate-scale-in border border-glass-border dark:border-glass-border-dark glass-reflective"
+                className="w-full max-w-2xl h-auto max-h-[70vh] liquid-glass rounded-2xl flex flex-col animate-scale-in"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex-shrink-0 p-4 border-b border-glass-border dark:border-glass-border-dark flex items-center space-x-3">

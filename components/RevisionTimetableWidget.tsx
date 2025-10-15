@@ -84,7 +84,7 @@ const RevisionTimetableWidget: React.FC<RevisionTimetableWidgetProps> = ({ entri
                             <h5 className="font-bold text-sm uppercase text-stone-500 dark:text-stone-400 tracking-wider mb-1.5">{d}</h5>
                             <div className="space-y-1">
                                 {groupedEntries[d].map(entry => (
-                                    <div key={entry.id} className="group flex items-center justify-between text-sm bg-beige-100 dark:bg-stone-700/50 p-2 rounded-md">
+                                    <div key={entry.id} className="group flex items-center justify-between text-sm bg-white/50 dark:bg-stone-800/30 p-2 rounded-md">
                                         <div>
                                             <span className="font-bold text-stone-700 dark:text-beige-200">{entry.time}</span>
                                             <span className="text-stone-600 dark:text-stone-300"> - {entry.subject}</span>
@@ -102,19 +102,19 @@ const RevisionTimetableWidget: React.FC<RevisionTimetableWidgetProps> = ({ entri
                      <p className="text-center text-sm text-stone-500 dark:text-stone-400 pt-16">Your timetable is empty. Add a revision session to get started.</p>
                  )}
             </div>
-            <div className="flex-shrink-0 pt-2 mt-2 border-t border-beige-200 dark:border-stone-700 space-y-2">
+            <div className="flex-shrink-0 pt-2 mt-2 border-t border-glass-border dark:border-stone-700 space-y-2">
                  <button onClick={() => setIsSmartPlannerModalOpen(true)} className="w-full bg-indigo-500/20 text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-300 p-2 rounded-md text-sm font-bold hover:bg-indigo-500/30 dark:hover:bg-indigo-500/30 transition-colors">
                     ✨ Use AI Smart Planner
                 </button>
                 {showForm ? (
                     <form onSubmit={(e) => { e.preventDefault(); if (time && subject) { onAdd({ day, time, subject }); setTime(''); setSubject(''); setShowForm(false); } }} className="space-y-2 animate-fade-in-up">
                         <div className="grid grid-cols-2 gap-2">
-                            <select value={day} onChange={e => setDay(e.target.value)} className="w-full text-sm p-1.5 border border-beige-300 rounded-md focus:ring-brand-brown-700 focus:border-brand-brown-700 bg-beige-100 dark:bg-stone-700 text-stone-800 dark:text-beige-100 dark:border-stone-600">
+                            <select value={day} onChange={e => setDay(e.target.value)} className="w-full text-sm p-1.5 border border-glass-border rounded-md focus:ring-brand-brown-700 focus:border-brand-brown-700 bg-white/50 dark:bg-stone-700 text-stone-800 dark:text-beige-100 dark:border-stone-600">
                                 {daysOfWeek.map(d => <option key={d} value={d}>{d}</option>)}
                             </select>
-                            <input type="time" value={time} onChange={e => setTime(e.target.value)} required className="w-full text-sm p-1.5 border border-beige-300 rounded-md focus:ring-brand-brown-700 focus:border-brand-brown-700 bg-beige-100 dark:bg-stone-700 text-stone-800 dark:text-beige-100 dark:border-stone-600" />
+                            <input type="time" value={time} onChange={e => setTime(e.target.value)} required className="w-full text-sm p-1.5 border border-glass-border rounded-md focus:ring-brand-brown-700 focus:border-brand-brown-700 bg-white/50 dark:bg-stone-700 text-stone-800 dark:text-beige-100 dark:border-stone-600" />
                         </div>
-                        <input type="text" placeholder="Subject or Topic" value={subject} onChange={e => setSubject(e.target.value)} required className="w-full text-sm p-1.5 border border-beige-300 rounded-md focus:ring-brand-brown-700 focus:border-brand-brown-700 bg-beige-100 dark:bg-stone-700 text-stone-800 dark:text-beige-100 dark:border-stone-600" />
+                        <input type="text" placeholder="Subject or Topic" value={subject} onChange={e => setSubject(e.target.value)} required className="w-full text-sm p-1.5 border border-glass-border rounded-md focus:ring-brand-brown-700 focus:border-brand-brown-700 bg-white/50 dark:bg-stone-700 text-stone-800 dark:text-beige-100 dark:border-stone-600" />
                         <div className="flex items-center space-x-2">
                              <button type="submit" className="w-full bg-brand-brown-700 text-white p-2 rounded-md text-sm font-bold hover:bg-brand-brown-800 transition-colors">Add Entry</button>
                              <button type="button" onClick={() => setShowForm(false)} className="w-full bg-stone-200 dark:bg-stone-600 text-stone-700 dark:text-beige-200 p-2 rounded-md text-sm font-bold hover:bg-stone-300 dark:hover:bg-stone-500 transition-colors">Cancel</button>

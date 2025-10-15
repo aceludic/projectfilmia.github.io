@@ -89,7 +89,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
     const onMouseMove = (moveE: MouseEvent) => {
         const dx = moveE.clientX - startX;
         const dy = moveE.clientY - startY;
-
+        
         const newGridW = Math.round(startGridW + dx / colWidth);
         const newGridH = Math.round(startGridH + dy / cellHeight);
         
@@ -118,7 +118,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
   const y = `${layoutItem.y * cellHeight}px`;
 
   const sectionStyle = isMobile ? { minHeight: '350px' } : { left: x, top: y, width, height };
-  const sectionClasses = `glass-reflective bg-glass-100 dark:bg-black/50 backdrop-blur-4xl rounded-2xl shadow-lg border border-glass-border dark:border-glass-border-dark transition-all duration-300 ease-in-out hover:shadow-xl hover:border-white/30 dark:hover:border-white/20 ${
+  const sectionClasses = `liquid-glass rounded-2xl transition-all duration-300 ease-in-out ${
     isMobile ? 'relative w-full' : 'absolute'
   } ${
     isCustomizing && !isMobile ? 'ring-2 ring-amber-400 ring-offset-2 ring-offset-stone-900/50 animate-pulse' : ''

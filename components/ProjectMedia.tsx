@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ProjectMediaItem } from '../types';
 
@@ -32,7 +31,7 @@ const ProjectMedia: React.FC<ProjectMediaProps> = ({ stories }) => {
               className="group transition-all duration-300 transform hover:-translate-y-1.5 hover:scale-[1.03] animate-fade-in-up"
               style={{ animationDelay: `${index * 50}ms` }}
           >
-              <div className="bg-glass-300 dark:bg-black/20 backdrop-blur-2xl p-3 pb-4 rounded-2xl shadow-lg h-full border border-glass-border dark:border-glass-border-dark">
+              <div className="liquid-glass p-3 pb-4 rounded-2xl h-full">
                   <div className="relative">
                       <img 
                           src={story.imageUrl} 

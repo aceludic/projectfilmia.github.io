@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Theme } from '../App';
-import { FontFamily, VisibleTabs, NavbarLayout } from '../types';
+import { FontFamily, VisibleTabs } from '../types';
 
 interface SettingsPanelProps {
   isOpen: boolean;
@@ -11,8 +11,6 @@ interface SettingsPanelProps {
   setFontFamily: (font: FontFamily) => void;
   visibleTabs: VisibleTabs;
   setVisibleTabs: (tabs: VisibleTabs) => void;
-  navbarLayout: NavbarLayout;
-  setNavbarLayout: (layout: NavbarLayout) => void;
   onStartTour: () => void;
   onLogout: () => void;
 }
@@ -39,8 +37,8 @@ const ToggleSwitch: React.FC<{ checked: boolean; onChange: (checked: boolean) =>
 );
 
 
-const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, setTheme, fontFamily, setFontFamily, visibleTabs, setVisibleTabs, navbarLayout, setNavbarLayout, onStartTour, onLogout }) => {
-    const [feedback, setFeedback] = useState<Record<string, string | null>>({});
+const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, setTheme, fontFamily, setFontFamily, visibleTabs, setVisibleTabs, onStartTour, onLogout }) => {
+    if (!isOpen) return null;
 
     const fontOptions: { value: FontFamily; label: string }[] = [
         { value: 'lora', label: 'Lora (Serif - Default)' },
@@ -51,33 +49,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
         { value: 'lexend', label: 'Lexend (Dyslexic Friendly)' },
         { value: 'inconsolata', label: 'Inconsolata (Monospace)' },
       ];
-
-    const handleResetModals = () => {
-        try {
-            sessionStorage.removeItem('hasSeenMediaStudiesDisclaimer');
-            localStorage.removeItem('hasSeenDashboardWelcome');
-            // This data is now per-user, so this is less effective.
-            // A better approach would be to reset the flag on the user object.
-            setFeedback({...feedback, modals: 'Welcome pop-ups & setup will now show again on next login/setup.' });
-        } catch (error) {
-            console.error("Could not reset modals", error);
-            setFeedback({...feedback, modals: 'Could not reset pop-ups.' });
-        }
-    };
-    
-    const handleResetLayout = () => {
-        // This is now per-user, so would need to reset the layout in UserData
-        setFeedback({...feedback, layout: 'Layout reset is not yet implemented for accounts.' });
-    };
-
-    const handleClearData = () => {
-        if (window.confirm('Are you sure you want to clear ALL account data? This will permanently delete your notes, journal entries, and all other settings. This action cannot be undone.')) {
-           // This would delete the entire user object
-           alert("This functionality is not yet fully implemented.");
-        }
-    };
-
-    if (!isOpen) return null;
 
     const ThemeButton: React.FC<{ value: Theme, children: string }> = ({ value, children }) => {
         const isActive = theme === value;
@@ -94,7 +65,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
     return (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 animate-fade-in flex items-center justify-center p-4" onClick={onClose}>
             <div 
-                className="w-full max-w-md h-auto max-h-[85vh] bg-glass-200 dark:bg-stone-900/60 backdrop-blur-2xl rounded-2xl shadow-2xl flex flex-col animate-scale-in border border-glass-border dark:border-glass-border-dark glass-reflective"
+                className="w-full max-w-md h-auto max-h-[85vh] liquid-glass rounded-2xl flex flex-col animate-scale-in"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="flex items-center justify-between p-4 border-b border-glass-border dark:border-glass-border-dark">
@@ -157,15 +128,10 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
                                 checked={visibleTabs['film-studies']}
                                 onChange={(checked) => setVisibleTabs({ ...visibleTabs, 'film-studies': checked })}
                            />
-                        </div>
-                    </SettingsSection>
-                    
-                    <SettingsSection title="Accessibility" description="Improve your viewing experience.">
-                        <div className="bg-glass-300 dark:bg-white/5 p-3 rounded-md space-y-3">
-                           <ToggleSwitch 
-                                label="Vertical Navigation Bar"
-                                checked={navbarLayout === 'vertical'}
-                                onChange={(checked) => setNavbarLayout(checked ? 'vertical' : 'horizontal')}
+                            <ToggleSwitch 
+                                label="Show Social Hub Tab"
+                                checked={visibleTabs['social-hub']}
+                                onChange={(checked) => setVisibleTabs({ ...visibleTabs, 'social-hub': checked })}
                            />
                         </div>
                     </SettingsSection>
