@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { TimetableEntry } from '../types';
+import SmartPlannerModal from './SmartPlannerModal';
 
 interface RevisionTimetableWidgetProps {
     entries: TimetableEntry[];
@@ -20,6 +21,7 @@ const RevisionTimetableWidget: React.FC<RevisionTimetableWidgetProps> = ({ entri
     const [subject, setSubject] = useState('');
     const [showForm, setShowForm] = useState(false);
     const [showSuggestion, setShowSuggestion] = useState(false);
+    const [isSmartPlannerModalOpen, setIsSmartPlannerModalOpen] = useState(false);
 
     useEffect(() => {
         const hasSeenSuggestion = localStorage.getItem('hasSeenTimetableSuggestion');
@@ -56,6 +58,7 @@ const RevisionTimetableWidget: React.FC<RevisionTimetableWidgetProps> = ({ entri
 
     return (
         <div className="h-full flex flex-col">
+            {isSmartPlannerModalOpen && <SmartPlannerModal onClose={() => setIsSmartPlannerModalOpen(false)} onAddEntries={onAddMultiple} />}
             <div className="flex-grow overflow-y-auto pr-2">
                 {showSuggestion && entries.length === 0 && (
                     <div className="bg-green-100/50 dark:bg-green-900/20 p-3 rounded-lg mb-4 border border-green-200 dark:border-green-500/30 animate-fade-in-up">
@@ -99,7 +102,10 @@ const RevisionTimetableWidget: React.FC<RevisionTimetableWidgetProps> = ({ entri
                      <p className="text-center text-sm text-stone-500 dark:text-stone-400 pt-16">Your timetable is empty. Add a revision session to get started.</p>
                  )}
             </div>
-            <div className="flex-shrink-0 pt-2 mt-2 border-t border-beige-200 dark:border-stone-700">
+            <div className="flex-shrink-0 pt-2 mt-2 border-t border-beige-200 dark:border-stone-700 space-y-2">
+                 <button onClick={() => setIsSmartPlannerModalOpen(true)} className="w-full bg-indigo-500/20 text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-300 p-2 rounded-md text-sm font-bold hover:bg-indigo-500/30 dark:hover:bg-indigo-500/30 transition-colors">
+                    ✨ Use AI Smart Planner
+                </button>
                 {showForm ? (
                     <form onSubmit={(e) => { e.preventDefault(); if (time && subject) { onAdd({ day, time, subject }); setTime(''); setSubject(''); setShowForm(false); } }} className="space-y-2 animate-fade-in-up">
                         <div className="grid grid-cols-2 gap-2">

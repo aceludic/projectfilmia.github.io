@@ -14,6 +14,7 @@ interface SettingsPanelProps {
   navbarLayout: NavbarLayout;
   setNavbarLayout: (layout: NavbarLayout) => void;
   onStartTour: () => void;
+  onLogout: () => void;
 }
 
 const SettingsSection: React.FC<{ title: string; description?: string; children: React.ReactNode; isDanger?: boolean }> = ({ title, description, children, isDanger = false }) => (
@@ -38,7 +39,7 @@ const ToggleSwitch: React.FC<{ checked: boolean; onChange: (checked: boolean) =>
 );
 
 
-const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, setTheme, fontFamily, setFontFamily, visibleTabs, setVisibleTabs, navbarLayout, setNavbarLayout, onStartTour }) => {
+const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, setTheme, fontFamily, setFontFamily, visibleTabs, setVisibleTabs, navbarLayout, setNavbarLayout, onStartTour, onLogout }) => {
     const [feedback, setFeedback] = useState<Record<string, string | null>>({});
 
     const fontOptions: { value: FontFamily; label: string }[] = [
@@ -55,9 +56,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
         try {
             sessionStorage.removeItem('hasSeenMediaStudiesDisclaimer');
             localStorage.removeItem('hasSeenDashboardWelcome');
-            localStorage.removeItem('hasCompletedTour');
-            localStorage.removeItem('setupCompleted');
-            setFeedback({...feedback, modals: 'Welcome pop-ups & setup will now show again.' });
+            // This data is now per-user, so this is less effective.
+            // A better approach would be to reset the flag on the user object.
+            setFeedback({...feedback, modals: 'Welcome pop-ups & setup will now show again on next login/setup.' });
         } catch (error) {
             console.error("Could not reset modals", error);
             setFeedback({...feedback, modals: 'Could not reset pop-ups.' });
@@ -65,24 +66,14 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
     };
     
     const handleResetLayout = () => {
-        try {
-            localStorage.removeItem('dashboard-layout');
-            setFeedback({...feedback, layout: 'Layout will reset on next page load.' });
-        } catch (error) {
-            console.error("Could not reset layout in localStorage", error);
-            setFeedback({...feedback, layout: 'Could not reset layout.' });
-        }
+        // This is now per-user, so would need to reset the layout in UserData
+        setFeedback({...feedback, layout: 'Layout reset is not yet implemented for accounts.' });
     };
 
     const handleClearData = () => {
-        if (window.confirm('Are you sure you want to clear ALL local data? This will remove your notes, journal entries, social accounts, and dashboard layout. This action cannot be undone.')) {
-            try {
-                localStorage.clear();
-                window.location.reload();
-            } catch (error) {
-                console.error("Could not clear localStorage", error);
-                alert("An error occurred while trying to clear data.");
-            }
+        if (window.confirm('Are you sure you want to clear ALL account data? This will permanently delete your notes, journal entries, and all other settings. This action cannot be undone.')) {
+           // This would delete the entire user object
+           alert("This functionality is not yet fully implemented.");
         }
     };
 
@@ -116,16 +107,24 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
                 </div>
 
                 <div className="overflow-y-auto">
+                    <SettingsSection title="Account">
+                        <button onClick={onLogout} className="w-full text-center px-4 py-2 bg-red-600/20 text-red-700 dark:text-red-300 rounded-md font-bold hover:bg-red-600/30 transition-colors">
+                            Log Out
+                        </button>
+                    </SettingsSection>
+                    
                     <SettingsSection title="Appearance" description="Customize the look and feel of the app.">
                         <div className="bg-glass-300 dark:bg-white/5 p-3 rounded-md space-y-4">
                             <div>
                                 <label className="text-sm font-medium text-stone-800 dark:text-beige-200 block mb-3">
                                     Theme
                                 </label>
-                                <div className="flex items-center space-x-2">
+                                <div className="grid grid-cols-3 gap-2">
                                     <ThemeButton value="light">Light</ThemeButton>
                                     <ThemeButton value="dark">Dark</ThemeButton>
                                     <ThemeButton value="night">Night</ThemeButton>
+                                    <ThemeButton value="synthwave">Synthwave</ThemeButton>
+                                    <ThemeButton value="noir">Noir</ThemeButton>
                                 </div>
                             </div>
                             <div>
@@ -168,54 +167,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose, theme, s
                                 checked={navbarLayout === 'vertical'}
                                 onChange={(checked) => setNavbarLayout(checked ? 'vertical' : 'horizontal')}
                            />
-                        </div>
-                    </SettingsSection>
-
-                    <SettingsSection title="Help & Support">
-                        <div className="flex flex-col items-start space-y-3">
-                            <button onClick={() => { onStartTour(); onClose(); }} className="text-sm text-brand-brown-700 dark:text-amber-500 hover:underline">
-                                Start Welcome Tour
-                            </button>
-                            <a
-                                href="https://docs.google.com/forms/d/e/1FAIpQLSctftbiSZdIgzk3YXlsMaEOh1Q1sI70nQ5DiKbK2I3Qd19uHw/viewform?usp=header"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-sm text-brand-brown-700 dark:text-amber-500 hover:underline"
-                            >
-                                Report an Issue
-                            </a>
-                        </div>
-                    </SettingsSection>
-
-                    <SettingsSection title="Data Management" description="Manage data stored in your browser.">
-                         <div className="flex flex-col items-start space-y-2">
-                             <button onClick={handleResetModals} className="text-sm text-brand-brown-700 dark:text-amber-500 hover:underline">
-                                 Reset Welcome & Setup Screens
-                             </button>
-                             {feedback.modals && <p className="text-xs text-stone-500 dark:text-stone-400">{feedback.modals}</p>}
-                         </div>
-                         <div className="flex flex-col items-start space-y-2">
-                             <button onClick={handleResetLayout} className="text-sm text-brand-brown-700 dark:text-amber-500 hover:underline">
-                                 Reset Dashboard Layout
-                             </button>
-                              {feedback.layout && <p className="text-xs text-stone-500 dark:text-stone-400">{feedback.layout}</p>}
-                         </div>
-                    </SettingsSection>
-                    
-                    <SettingsSection title="Danger Zone" isDanger={true}>
-                        <div className="bg-red-500/10 p-3 rounded-md border border-red-500/20">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h5 className="text-sm font-bold text-red-700 dark:text-red-400">Clear All Local Data</h5>
-                                    <p className="text-xs text-red-600 dark:text-red-400/80 mt-1">This will permanently delete all your notes, linked accounts, and dashboard layout.</p>
-                                </div>
-                                <button
-                                    onClick={handleClearData}
-                                    className="ml-4 px-3 py-1.5 text-xs font-bold text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors btn-ripple"
-                                >
-                                    Clear
-                                </button>
-                            </div>
                         </div>
                     </SettingsSection>
                 </div>

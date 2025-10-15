@@ -1,11 +1,14 @@
+
 import React, { useState } from 'react';
 import { Theorist, Term, PinnedItem } from '../types';
+import AiFeatureButtons from './AiFeatureButtons';
 
 interface TheoristDetailCardProps {
     theorist: Theorist;
     categoryTitle: string;
     pinnedItems: PinnedItem[];
     onTogglePin: (item: PinnedItem) => void;
+    onAiInteraction: (type: 'summary' | 'spark') => void;
 }
 
 const TermList: React.FC<{ terms: Term[] }> = ({ terms }) => (
@@ -18,7 +21,7 @@ const TermList: React.FC<{ terms: Term[] }> = ({ terms }) => (
     </ul>
 );
 
-const TheoristDetailCard: React.FC<TheoristDetailCardProps> = ({ theorist, categoryTitle, pinnedItems, onTogglePin }) => {
+const TheoristDetailCard: React.FC<TheoristDetailCardProps> = ({ theorist, categoryTitle, pinnedItems, onTogglePin, onAiInteraction }) => {
     const [isOpen, setIsOpen] = useState(false);
     
     const isPinned = pinnedItems.some(p => p.id === theorist.id);
@@ -65,7 +68,8 @@ const TheoristDetailCard: React.FC<TheoristDetailCardProps> = ({ theorist, categ
             </div>
             <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[2000px]' : 'max-h-0'}`}>
                 <div className="p-4 border-t border-glass-border dark:border-glass-border-dark">
-                    <div className="space-y-4 text-stone-700 dark:text-stone-300 text-sm">
+                    <AiFeatureButtons item={theorist} onAiInteraction={onAiInteraction} />
+                    <div className="space-y-4 text-stone-700 dark:text-stone-300 text-sm mt-4">
                         <div>
                             <h5 className="font-bold uppercase text-stone-600 dark:text-stone-400 tracking-wider text-xs mb-1">What it says</h5>
                             <p>{theorist.whatItSays}</p>

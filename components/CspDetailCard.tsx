@@ -1,13 +1,17 @@
+
 import React, { useState } from 'react';
-import { CSP, PinnedItem } from '../types';
+import { CSP, Film, PinnedItem } from '../types';
+import AiFeatureButtons from './AiFeatureButtons';
 
 interface CspDetailCardProps {
     csp: CSP;
     pinnedItems: PinnedItem[];
     onTogglePin: (item: PinnedItem) => void;
+    onLaunchSceneAnalysis: (item: CSP | Film) => void;
+    onAiInteraction: (type: 'summary' | 'spark') => void;
 }
 
-const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onTogglePin }) => {
+const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onTogglePin, onLaunchSceneAnalysis, onAiInteraction }) => {
     const [isOpen, setIsOpen] = useState(false);
     
     const isPinned = pinnedItems.some(p => p.id === csp.id);
@@ -92,6 +96,17 @@ const CspDetailCard: React.FC<CspDetailCardProps> = ({ csp, pinnedItems, onToggl
             
             <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isOpen ? 'max-h-[3000px]' : 'max-h-0'}`}>
                 <div className="px-4 pb-4 space-y-4">
+                    <div className="border-b border-glass-border dark:border-glass-border-dark pb-4">
+                        <AiFeatureButtons item={csp} onAiInteraction={onAiInteraction} />
+                    </div>
+                     <div>
+                        <button 
+                            onClick={() => onLaunchSceneAnalysis(csp)}
+                            className="w-full mt-2 bg-indigo-500/20 text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-300 p-2 rounded-md text-sm font-bold hover:bg-indigo-500/30 dark:hover:bg-indigo-500/30 transition-colors"
+                        >
+                            Interactive Scene Analysis (Soon)
+                        </button>
+                    </div>
                     <div>
                         <h4 className="font-bold uppercase text-stone-500 dark:text-stone-400 tracking-wider text-xs mb-2">Key Facts</h4>
                         <ul className="text-sm space-y-1 text-stone-600 dark:text-stone-300">

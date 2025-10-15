@@ -10,9 +10,12 @@ import CalendarWidget from './CalendarWidget';
 import AppLinksWidget from './AppLinksWidget';
 import NewsLinkWidget from './NewsLinkWidget';
 import InitialWelcomeModal from './InitialWelcomeModal';
-import TimerWidget from './TimerWidget';
+import StudyTimeWidget from './StudyTimeWidget';
 import PandaWidget from './PandaWidget';
-import { SocialAccount, Post, LayoutItem, PinnedItem, TimetableEntry, AppLink, PandaState } from '../types';
+import TodaysFocusWidget from './TodaysFocusWidget';
+import AchievementsWidget from './AchievementsWidget';
+import RevisionSparkWidget from './RevisionSparkWidget';
+import { SocialAccount, Post, LayoutItem, PinnedItem, TimetableEntry, AppLink, PandaState, FocusItem, DailySpark, StudyLogEntry } from '../types';
 import { LoggedInView, Theme } from '../App';
 
 interface DashboardProps {
@@ -26,39 +29,48 @@ interface DashboardProps {
     appLinks: AppLink[];
     onAddAppLink: (link: Omit<AppLink, 'id'>) => void;
     onRemoveAppLink: (id: string) => void;
+    socialAccounts: SocialAccount[];
+    onAddSocialAccount: (url: string) => void;
+    onRemoveSocialAccount: (url: string) => void;
     setView: (view: LoggedInView) => void;
     theme: Theme;
     setTheme: (theme: Theme) => void;
     onSetupTimer: () => void;
     studiedSubjects: string[];
     pandaState: PandaState;
-    onFeedPanda: () => void;
     isCustomizing: boolean;
     setIsCustomizing: (isCustomizing: boolean) => void;
+    studyLog: StudyLogEntry[];
+    focusItems: FocusItem[];
+    setFocusItems: (items: FocusItem[]) => void;
+    unlockedAchievements: string[];
+    unlockAchievement: (id: string) => void;
+    dailySpark: DailySpark | null;
+    setDailySpark: (spark: DailySpark) => void;
+    onAiInteraction: (type: 'summary' | 'spark') => void;
 }
 
 const GRID_COLS = 12;
 const CELL_HEIGHT = 50;
 
-// Reorganized layout for a more structured, cube-like grid with more vertical space
 const defaultLayout: LayoutItem[] = [
-    // Row 1
-    { i: 'panda', x: 0, y: 0, w: 4, h: 6 },     // Panda Companion
-    { i: 'time', x: 4, y: 0, w: 4, h: 6 },      // Clock (taller for symmetry)
-    { i: 'apps', x: 8, y: 0, w: 4, h: 6 },      // My Links (taller)
-    // Row 2
-    { i: 'timetable', x: 0, y: 6, w: 6, h: 12 }, // Timetable (much taller)
-    { i: 'timer', x: 6, y: 6, w: 6, h: 12 },     // Study Timer (much taller)
-    // Row 3
-    { i: 'pins', x: 0, y: 18, w: 6, h: 12 },     // Pinned Items (much taller)
-    { i: 'calendar', x: 6, y: 18, w: 6, h: 12 }, // Calendar (much taller)
-    // Row 4
-    { i: 'social', x: 0, y: 30, w: 4, h: 12 },   // Social Hub (much taller)
-    { i: 'feed', x: 4, y: 30, w: 8, h: 12 },     // Live Feed (much taller)
-    // Row 5
-    { i: 'news', x: 0, y: 42, w: 12, h: 4 },    // News (slightly taller)
+    // Top Row
+    { i: 'focus', x: 0, y: 0, w: 8, h: 6 },      // Today's Focus
+    { i: 'time', x: 8, y: 0, w: 4, h: 6 },       // Clock
+    // Second Row
+    { i: 'panda', x: 0, y: 6, w: 4, h: 6 },      // Panda Companion (Study Streak)
+    { i: 'studyTime', x: 4, y: 6, w: 4, h: 6 },      // Study Time Progress
+    { i: 'apps', x: 8, y: 6, w: 4, h: 6 },       // My Links
+    // Third Row
+    { i: 'spark', x: 0, y: 12, w: 6, h: 6 },     // Revision Spark
+    { i: 'achievements', x: 6, y: 12, w: 6, h: 6 }, // Achievements
+    // Fourth Row
+    { i: 'timetable', x: 0, y: 18, w: 6, h: 10 },// Timetable
+    { i: 'pins', x: 6, y: 18, w: 6, h: 10 },     // Pinned Items
+    // Bottom Row
+    { i: 'calendar', x: 0, y: 28, w: 5, h: 10 }, // Calendar
+    { i: 'social', x: 5, y: 28, w: 7, h: 10 },   // Social Hub (Placeholder)
 ];
-
 
 const useWindowSize = () => {
     const [size, setSize] = useState([window.innerWidth, window.innerHeight]);
@@ -93,30 +105,29 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
         pinnedItems, onTogglePin, 
         timetableEntries, onAddTimetableEntry, onAddMultipleTimetableEntries, onRemoveTimetableEntry,
         appLinks, onAddAppLink, onRemoveAppLink,
+        socialAccounts, onAddSocialAccount, onRemoveSocialAccount,
         setView,
         theme,
         setTheme,
         onSetupTimer,
         studiedSubjects,
-        pandaState, onFeedPanda,
-        isCustomizing, setIsCustomizing
+        pandaState,
+        isCustomizing, setIsCustomizing,
+        studyLog,
+        focusItems, setFocusItems,
+        unlockedAchievements, unlockAchievement,
+        dailySpark, setDailySpark,
+        onAiInteraction,
     } = props;
     
     const [windowWidth] = useWindowSize();
     const isMobile = windowWidth < 768;
 
-    const [accounts, setAccounts] = useState<SocialAccount[]>([]);
     const [showInitialWelcome, setShowInitialWelcome] = useState(false);
     
-    const [layout, setLayout] = useState<LayoutItem[]>(() => {
-        try {
-            const savedLayout = localStorage.getItem('dashboard-layout');
-            return savedLayout ? JSON.parse(savedLayout) : defaultLayout;
-        } catch (error) {
-            console.error("Failed to load layout from localStorage", error);
-            return defaultLayout;
-        }
-    });
+    // NOTE: Layout is now user-specific and should be part of UserData.
+    // This local state management of layout is now a placeholder.
+    const [layout, setLayout] = useState<LayoutItem[]>(defaultLayout);
 
     const greeting = useMemo(() => {
         return userName ? `Hello, ${userName}` : 'Dashboard';
@@ -140,59 +151,9 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     
         return 'Your personalized media and film studies hub.'; // Final fallback
     }, [studiedSubjects]);
-
-    useEffect(() => {
-        const hasSeenWelcome = localStorage.getItem('hasSeenDashboardWelcome');
-        if (!hasSeenWelcome) {
-            const timer = setTimeout(() => setShowInitialWelcome(true), 500);
-            return () => clearTimeout(timer);
-        }
-    }, []);
     
     const handleCloseWelcome = () => {
         setShowInitialWelcome(false);
-        localStorage.setItem('hasSeenDashboardWelcome', 'true');
-    };
-
-    useEffect(() => {
-        try {
-            localStorage.setItem('dashboard-layout', JSON.stringify(layout));
-        } catch (error) {
-            console.error("Failed to save layout to localStorage", error);
-        }
-    }, [layout]);
-
-    useEffect(() => {
-        try {
-            const savedAccounts = localStorage.getItem('social-accounts');
-            if (savedAccounts) setAccounts(JSON.parse(savedAccounts));
-        } catch (error) {
-            console.error("Failed to load social accounts from localStorage", error);
-        }
-    }, []);
-
-    const handleAddAccount = (url: string) => {
-        try {
-            const urlObj = new URL(url);
-            const hostname = urlObj.hostname.replace('www.', '');
-            const platform = hostname.split('.')[0];
-            const username = urlObj.pathname.split('/')[1] || platform;
-            const newAccount: SocialAccount = { url, username, platform };
-
-            if (!accounts.find(acc => acc.url === url)) {
-                const updatedAccounts = [...accounts, newAccount];
-                setAccounts(updatedAccounts);
-                localStorage.setItem('social-accounts', JSON.stringify(updatedAccounts));
-            }
-        } catch (error) {
-            console.error("Invalid URL:", error);
-        }
-    };
-    
-    const handleRemoveAccount = (url: string) => {
-        const updatedAccounts = accounts.filter(acc => acc.url !== url);
-        setAccounts(updatedAccounts);
-        localStorage.setItem('social-accounts', JSON.stringify(updatedAccounts));
     };
 
     const handleResetLayout = () => {
@@ -206,31 +167,23 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     const handleAddWidget = (widgetId: string) => {
         const widgetToAdd = defaultLayout.find(item => item.i === widgetId);
         if (!widgetToAdd || layout.some(item => item.i === widgetId)) return;
-
         const newY = layout.length > 0 ? Math.max(0, ...layout.map(l => l.y + l.h)) : 0;
-
-        const newLayoutItem = {
-            ...widgetToAdd,
-            x: 0,
-            y: newY,
-            w: Math.min(widgetToAdd.w, GRID_COLS),
-        };
-
+        const newLayoutItem = { ...widgetToAdd, x: 0, y: newY, w: Math.min(widgetToAdd.w, GRID_COLS) };
         setLayout(prev => [...prev, newLayoutItem]);
     };
 
     const sections: { [key: string]: { title: string; description?: string; component: React.ReactNode } } = {
-        timer: { title: 'Study Timer', component: <TimerWidget onSetup={onSetupTimer} /> },
-        social: { title: 'Social Hub', component: <SocialIntegrations accounts={accounts} onAddAccount={handleAddAccount} onRemoveAccount={handleRemoveAccount} /> },
-        feed: { title: 'Live Feed', component: <RecentPosts /> },
+        studyTime: { title: 'Study Progress', component: <StudyTimeWidget studyLog={studyLog} onSetup={onSetupTimer} /> },
+        social: { title: 'Social Hub', component: <SocialIntegrations accounts={socialAccounts} onAddAccount={onAddSocialAccount} onRemoveAccount={onRemoveSocialAccount} /> },
         pins: { title: 'Pinned Items', component: <PinnedItemsWidget items={pinnedItems} onUnpin={onTogglePin} setView={setView} /> },
         time: { title: 'Clock', component: <TimeWidget /> },
-        // FIX: Changed handleAddMultipleTimetableEntries to onAddMultipleTimetableEntries to match the prop name.
         timetable: { title: 'Revision Timetable', component: <RevisionTimetableWidget entries={timetableEntries} onAdd={onAddTimetableEntry} onRemove={onRemoveTimetableEntry} onAddMultiple={onAddMultipleTimetableEntries} /> },
         calendar: { title: 'Calendar', component: <CalendarWidget entries={timetableEntries} /> },
         apps: { title: 'My Links', component: <AppLinksWidget links={appLinks} onAdd={onAddAppLink} onRemove={onRemoveAppLink} /> },
-        news: { title: 'News', component: <NewsLinkWidget setView={setView} /> },
-        panda: { title: 'Panda Companion', component: <PandaWidget state={pandaState} onFeed={onFeedPanda} /> },
+        panda: { title: 'Study Streak', component: <PandaWidget state={pandaState} /> },
+        focus: { title: "Today's Focus", component: <TodaysFocusWidget items={focusItems} setItems={setFocusItems} onAllTasksCompleted={() => unlockAchievement('focused_day')} /> },
+        achievements: { title: 'Achievements', component: <AchievementsWidget unlockedIds={unlockedAchievements} /> },
+        spark: { title: 'Revision Spark', component: <RevisionSparkWidget dailySpark={dailySpark} setDailySpark={setDailySpark} onGenerate={() => onAiInteraction('spark')} /> },
     };
 
     const currentWidgetIds = layout.map(item => item.i);

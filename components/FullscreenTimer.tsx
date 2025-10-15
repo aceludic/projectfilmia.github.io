@@ -4,7 +4,7 @@ interface FullscreenTimerProps {
   remainingSeconds: number;
   duration: number;
   onMinimize: () => void;
-  onExit: () => void;
+  onExit: (timeSpent: number) => void;
 }
 
 const formatTime = (seconds: number) => {
@@ -54,7 +54,7 @@ const FullscreenTimer: React.FC<FullscreenTimerProps> = ({ remainingSeconds, dur
                     Minimize
                 </button>
                 <button
-                    onClick={onExit}
+                    onClick={() => onExit(duration - remainingSeconds)}
                     className="px-6 py-3 bg-red-600/80 text-white rounded-md font-bold backdrop-blur-sm hover:bg-red-500 transition-colors"
                 >
                     Exit Session

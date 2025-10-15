@@ -2,10 +2,11 @@ import React, { useRef, useCallback } from 'react';
 
 interface MinimizedTimerProps {
   remainingSeconds: number;
+  duration: number;
   position: { x: number, y: number };
   onPositionChange: (pos: { x: number, y: number }) => void;
   onMaximize: () => void;
-  onExit: () => void;
+  onExit: (timeSpent: number) => void;
 }
 
 const formatTime = (seconds: number) => {
@@ -15,7 +16,7 @@ const formatTime = (seconds: number) => {
 };
 
 
-const MinimizedTimer: React.FC<MinimizedTimerProps> = ({ remainingSeconds, position, onPositionChange, onMaximize, onExit }) => {
+const MinimizedTimer: React.FC<MinimizedTimerProps> = ({ remainingSeconds, duration, position, onPositionChange, onMaximize, onExit }) => {
   const timerRef = useRef<HTMLDivElement>(null);
 
   const handleDragStart = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -60,7 +61,7 @@ const MinimizedTimer: React.FC<MinimizedTimerProps> = ({ remainingSeconds, posit
       <button onClick={onMaximize} className="p-1.5 rounded-full hover:bg-stone-700 cursor-pointer" title="Maximize">
          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1v4m0 0h-4m4-4l-5 5M4 16v4m0 0h4m-4-4l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
       </button>
-       <button onClick={onExit} className="p-1.5 rounded-full hover:bg-red-900/50 cursor-pointer" title="Exit Timer">
+       <button onClick={() => onExit(duration - remainingSeconds)} className="p-1.5 rounded-full hover:bg-red-900/50 cursor-pointer" title="Exit Timer">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
       </button>
     </div>

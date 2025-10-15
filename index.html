@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -50,6 +51,20 @@
                 600: '#8B4513', // SaddleBrown
                 700: '#6F4E37', // Coffee
                 800: '#5C4033', // Dark Coffee
+              },
+              // Synthwave Theme Colors
+              synth: {
+                pink: '#ff00ff',
+                cyan: '#00ffff',
+                purple: '#9400d3',
+                bg: '#0c0c24',
+              },
+              // Noir Theme Colors
+              noir: {
+                bg: '#1a1a1a',
+                text: '#e0e0e0',
+                highlight: '#ffffff',
+                shadow: '#000000',
               },
             },
             blur: {
@@ -166,6 +181,29 @@
         z-index: 9999; /* High z-index to cover everything */
         pointer-events: none; /* Allows clicks to pass through */
       }
+      /* New Theme Styles */
+      .dark.synth {
+        --bg-color: theme('colors.synth.bg');
+        --text-color: theme('colors.synth.cyan');
+        --brand-color: theme('colors.synth.pink');
+        --glow-color: theme('colors.synth.pink');
+      }
+       .dark.noir {
+        --bg-color: theme('colors.noir.bg');
+        --text-color: theme('colors.noir.text');
+        --brand-color: theme('colors.noir.highlight');
+        --glow-color: theme('colors.noir.highlight');
+        filter: grayscale(100%) contrast(1.1);
+      }
+      .dark.synth body, .dark.noir body { background-color: var(--bg-color); color: var(--text-color); }
+      .dark.synth .text-brand-brown-700, .dark.synth .dark\\:text-amber-400 { color: var(--brand-color) !important; }
+      .dark.noir .text-brand-brown-700, .dark.noir .dark\\:text-amber-400 { color: var(--brand-color) !important; }
+      .dark.synth .bg-brand-brown-700, .dark.noir .bg-brand-brown-700 { background-color: var(--brand-color) !important; }
+      .dark.synth .text-glow, .dark.synth .text-glow-deep { text-shadow: 0 0 10px var(--glow-color), 0 0 25px var(--glow-color); }
+      .dark.noir .text-glow, .dark.noir .text-glow-deep { text-shadow: 0 0 8px var(--glow-color); }
+      .dark.noir #background-canvas, .dark.noir .vignette-overlay { display: none; } /* Hide color background for Noir */
+
+
       /* Button Splash/Ripple Effect */
       .btn-ripple {
         position: relative;

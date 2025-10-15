@@ -143,7 +143,7 @@ export interface PinnedItem {
 }
 
 export interface TimetableEntry {
-    id: string;
+    id:string;
     day: string;
     time: string;
     subject: string;
@@ -183,7 +183,7 @@ export interface TimerState {
     duration: number; // in seconds
     remaining: number; // in seconds
     view: TimerView;
-    position: { x: number; y: number };
+    position: { x: number, y: number };
 }
 
 // Navigation/Tab visibility
@@ -192,9 +192,98 @@ export interface VisibleTabs {
     'film-studies': boolean;
 }
 
+// FIX: Added AmbientSound and AmbientSoundState types for the ambient sound widget.
+// Ambient Sound
+export interface AmbientSound {
+  id: string;
+  name: string;
+  url: string;
+  icon: string;
+}
+
+export interface AmbientSoundState {
+  isPlaying: boolean;
+  track: AmbientSound | null;
+  volume: number;
+}
+
 // Panda Streak
 export interface PandaState {
     streak: number;
     lastFed: string | null; // YYYY-MM-DD
     isHappy: boolean;
+}
+
+export interface QuizQuestion {
+    question: string;
+    options: string[];
+    correctAnswer: string;
+}
+
+// --- NEW FEATURE TYPES ---
+
+export interface FocusItem {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+}
+
+export interface DailySpark {
+    date: string; // YYYY-MM-DD
+    question: string;
+}
+
+export interface TimelineEvent {
+    id: string;
+    year: number;
+    title: string;
+    description: string;
+    type: 'film' | 'theorist' | 'event';
+    link?: string;
+}
+export interface StudyLogEntry {
+  date: string; // YYYY-MM-DD
+  duration: number; // in seconds
+}
+
+export interface AiInteractionCounts {
+  summaryCount: number;
+  sparkCount: number;
+}
+
+// --- USER AUTHENTICATION & DATA ---
+
+export interface UserData {
+  name: string;
+  theme: 'light' | 'dark' | 'night' | 'synthwave' | 'noir';
+  fontFamily: FontFamily;
+  navbarLayout: NavbarLayout;
+  pinnedItems: PinnedItem[];
+  timetableEntries: TimetableEntry[];
+  appLinks: AppLink[];
+  socialAccounts: SocialAccount[];
+  journalEntries: JournalEntry[];
+  visibleTabs: VisibleTabs;
+  studiedSubjects: string[];
+  studyLog: StudyLogEntry[];
+  focusItems: FocusItem[];
+  unlockedAchievements: string[];
+  dailySpark: DailySpark | null;
+  aiInteractionCounts: AiInteractionCounts;
+  notesPanelState: NotesPanelState;
+  setupCompleted: boolean;
+  hasCompletedTour: boolean;
+}
+
+export interface User {
+  username: string;
+  password: string; // In a real app, this would be a hash
+  data: UserData;
 }

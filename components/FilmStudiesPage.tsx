@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { filmConceptsData, filmPapersData, filmResourcesData } from '../data/filmStudiesData';
-import { FilmConceptCategory, FilmPaper, ResourceItem } from '../types';
+import { FilmConceptCategory, FilmPaper, ResourceItem, Film, CSP } from '../types';
 import FilmConceptCard from './FilmConceptCard';
 import FilmDetailCard from './FilmDetailCard';
 import ResourceCard from './ResourceCard';
@@ -11,6 +11,10 @@ type FilmView = 'concepts' | 'films' | 'resources' | 'revise';
 
 interface FilmStudiesPageProps {
   setView: (view: LoggedInView) => void;
+  onLaunchSceneAnalysis: (item: Film | CSP) => void;
+  onAiInteraction: (type: 'summary' | 'spark') => void;
+  logStudySession: (durationInSeconds: number) => void;
+  unlockAchievement: (id: string) => void;
 }
 
 const DisclaimerModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
@@ -31,7 +35,7 @@ const DisclaimerModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
 );
 
 
-const FilmStudiesPage: React.FC<FilmStudiesPageProps> = ({ setView }) => {
+const FilmStudiesPage: React.FC<FilmStudiesPageProps> = ({ setView, onLaunchSceneAnalysis, onAiInteraction, logStudySession, unlockAchievement }) => {
   const [activeView, setActiveView] = useState<FilmView>('concepts');
   const [searchTerm, setSearchTerm] = useState('');
   const [showDisclaimer, setShowDisclaimer] = useState(false);
@@ -91,7 +95,7 @@ const FilmStudiesPage: React.FC<FilmStudiesPageProps> = ({ setView }) => {
                 <h2 className="text-2xl font-bold uppercase tracking-wider mb-4 border-b-2 border-brand-brown-700 pb-2">{category.title}</h2>
                 <div className="space-y-4">
                   {category.concepts.map(concept => (
-                    <FilmConceptCard key={concept.id} concept={concept} />
+                    <FilmConceptCard key={concept.id} concept={concept} onAiInteraction={onAiInteraction} />
                   ))}
                 </div>
               </div>
@@ -110,7 +114,7 @@ const FilmStudiesPage: React.FC<FilmStudiesPageProps> = ({ setView }) => {
                         <h3 className="text-2xl font-bold uppercase tracking-wider mb-4 border-b-2 border-brand-brown-700 pb-2">{category.title}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-500">
                           {category.films.map(film => (
-                            <FilmDetailCard key={film.id} film={film} />
+                            <FilmDetailCard key={film.id} film={film} onLaunchSceneAnalysis={onLaunchSceneAnalysis} onAiInteraction={onAiInteraction} />
                           ))}
                         </div>
                       </div>
@@ -127,7 +131,7 @@ const FilmStudiesPage: React.FC<FilmStudiesPageProps> = ({ setView }) => {
             </div>
         );
       case 'revise':
-        return <FilmRevisionZone concepts={filmConceptsData} films={filmPapersData} />;
+        return <FilmRevisionZone concepts={filmConceptsData} films={filmPapersData} logStudySession={logStudySession} unlockAchievement={unlockAchievement} />;
       default:
         return null;
     }

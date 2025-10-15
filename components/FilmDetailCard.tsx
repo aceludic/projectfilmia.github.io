@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { Film } from '../types';
+import { Film, CSP } from '../types';
+import AiFeatureButtons from './AiFeatureButtons';
 
 interface FilmDetailCardProps {
     film: Film;
+    onLaunchSceneAnalysis: (item: Film | CSP) => void;
+    onAiInteraction: (type: 'summary' | 'spark') => void;
 }
 
 // Helper component to format each line of the revision notes
@@ -30,7 +33,7 @@ const FormattedNote: React.FC<{ note: string }> = ({ note }) => {
 };
 
 
-const FilmDetailCard: React.FC<FilmDetailCardProps> = ({ film }) => {
+const FilmDetailCard: React.FC<FilmDetailCardProps> = ({ film, onLaunchSceneAnalysis, onAiInteraction }) => {
     const [isOpen, setIsOpen] = useState(false);
     
     return (
@@ -69,6 +72,17 @@ const FilmDetailCard: React.FC<FilmDetailCardProps> = ({ film }) => {
             
             <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isOpen ? 'max-h-[4000px]' : 'max-h-0'}`}>
                 <div className="px-4 pb-4 space-y-4">
+                    <div className="border-b border-glass-border dark:border-glass-border-dark pb-4">
+                        <AiFeatureButtons item={film} onAiInteraction={onAiInteraction} />
+                    </div>
+                     <div>
+                        <button 
+                            onClick={() => onLaunchSceneAnalysis(film)}
+                            className="w-full mt-2 bg-indigo-500/20 text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-300 p-2 rounded-md text-sm font-bold hover:bg-indigo-500/30 dark:hover:bg-indigo-500/30 transition-colors"
+                        >
+                            Interactive Scene Analysis (Soon)
+                        </button>
+                    </div>
                     <div>
                         <h4 className="font-bold uppercase text-stone-500 dark:text-stone-400 tracking-wider text-xs mb-2">Key Facts</h4>
                         <ul className="text-sm space-y-1 text-stone-600 dark:text-stone-300">

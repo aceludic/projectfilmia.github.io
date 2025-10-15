@@ -1,14 +1,17 @@
 import React, { useState, useMemo, Fragment } from 'react';
 import { FilmConceptCategory, FilmPaper, Film, FilmConcept } from '../types';
 import FilmMindMap from './FilmMindMap';
+import QuizMode from './QuizMode';
 
 interface FilmRevisionZoneProps {
     concepts: FilmConceptCategory[];
     films: FilmPaper[];
+    logStudySession: (durationInSeconds: number) => void;
+    unlockAchievement: (id: string) => void;
 }
 
 type RevisionType = 'films' | 'concepts';
-type RevisionMode = 'flashcards' | 'mindmap';
+type RevisionMode = 'flashcards' | 'mindmap' | 'quiz';
 type RevisionItem = Film | FilmConcept;
 
 // --- Flashcard Components ---
@@ -74,7 +77,7 @@ const FilmFlashcard: React.FC<{ film: Film }> = ({ film }) => {
 
 // --- Main Revision Zone Component ---
 
-const FilmRevisionZone: React.FC<FilmRevisionZoneProps> = ({ concepts, films }) => {
+const FilmRevisionZone: React.FC<FilmRevisionZoneProps> = ({ concepts, films, logStudySession, unlockAchievement }) => {
     const [revisionType, setRevisionType] = useState<RevisionType>('films');
     const [revisionMode, setRevisionMode] = useState<RevisionMode>('flashcards');
 
@@ -117,6 +120,24 @@ const FilmRevisionZone: React.FC<FilmRevisionZoneProps> = ({ concepts, films }) 
     );
     
     const currentItem = deck[currentIndex];
+    
+    const categoryTitle = useMemo(() => {
+        if (revisionType === 'films') {
+            if (selectedFilmCategory !== 'all') {
+                return filmCategories.find(c => c.id === selectedFilmCategory)?.title || 'Selected Category';
+            }
+            if (selectedFilmPaper !== 'all') {
+                return films.find(p => p.id === selectedFilmPaper)?.title || 'Selected Paper';
+            }
+            return 'All Set Films';
+        } else {
+             if (selectedConceptCategory !== 'all') {
+                return concepts.find(c => c.id === selectedConceptCategory)?.title || 'Selected Category';
+            }
+            return 'All Key Concepts';
+        }
+    }, [revisionType, selectedFilmPaper, selectedFilmCategory, selectedConceptCategory, filmCategories, films, concepts]);
+
 
     return (
         <div className="animate-fade-in-up">
@@ -126,8 +147,7 @@ const FilmRevisionZone: React.FC<FilmRevisionZoneProps> = ({ concepts, films }) 
             </div>
 
             <div className="bg-beige-50 dark:bg-stone-800/50 rounded-lg p-4 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 border border-beige-200 dark:border-stone-700">
-                <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-                    <label className="font-bold text-stone-700 dark:text-beige-100 text-sm flex-shrink-0">Revise:</label>
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
                     <div className="flex items-center space-x-2 bg-beige-100 dark:bg-stone-700/50 p-1 rounded-lg">
                        <button onClick={() => setRevisionType('films')} className={`px-3 py-1 text-sm rounded-md font-semibold ${revisionType === 'films' ? 'bg-brand-brown-700/80 text-white' : ''}`}>Set Films</button>
                        <button onClick={() => setRevisionType('concepts')} className={`px-3 py-1 text-sm rounded-md font-semibold ${revisionType === 'concepts' ? 'bg-brand-brown-700/80 text-white' : ''}`}>Key Concepts</button>
@@ -136,6 +156,7 @@ const FilmRevisionZone: React.FC<FilmRevisionZoneProps> = ({ concepts, films }) 
                 <div className="flex items-center space-x-2 bg-beige-100 dark:bg-stone-700/50 p-1 rounded-lg">
                     <ModeButton mode="flashcards">Flashcards</ModeButton>
                     <ModeButton mode="mindmap">Mind Map</ModeButton>
+                    <ModeButton mode="quiz">Quiz</ModeButton>
                 </div>
             </div>
             
@@ -160,12 +181,14 @@ const FilmRevisionZone: React.FC<FilmRevisionZoneProps> = ({ concepts, films }) 
                 )}
             </div>
             
-            {deck.length > 0 && currentItem ? (
+            {revisionMode === 'quiz' ? (
+                <QuizMode key={categoryTitle} subjectTitle={categoryTitle} logStudySession={logStudySession} unlockAchievement={unlockAchievement} />
+            ) : deck.length > 0 && currentItem ? (
                  <div className="flex flex-col items-center space-y-6">
                     {revisionMode === 'flashcards' ? (
                         'director' in currentItem ? <FilmFlashcard film={currentItem} /> : <ConceptFlashcard concept={currentItem} />
                     ) : (
-                        'director' in currentItem ? <FilmMindMap film={currentItem} /> : <div>Mind Map for concepts coming soon!</div>
+                        'director' in currentItem ? <FilmMindMap film={currentItem} /> : <div className="text-center p-8">Mind maps for concepts are coming soon!</div>
                     )}
 
                     <div className="flex items-center space-x-4">

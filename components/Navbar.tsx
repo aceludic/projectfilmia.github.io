@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { LoggedInView } from '../App';
 import ReleaseScheduleModal from './ReleaseScheduleModal';
@@ -105,9 +106,10 @@ const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch, visibleTab
                 <NavLink targetView="dashboard">Dashboard</NavLink>
                 {visibleTabs['media-studies'] && <NavLink targetView="media-studies">Media</NavLink>}
                 {visibleTabs['film-studies'] && <NavLink targetView="film-studies">Film</NavLink>}
+                <NavLink targetView="timeline">Timeline</NavLink>
                 <NavLink targetView="news">News</NavLink>
                 <NavLink targetView="journal">Journal</NavLink>
-                <NavLink targetView="ai-tutor">Phoebe (Tutor)</NavLink>
+                <NavLink targetView="ai-tutor">Phoebe</NavLink>
             </nav>
 
             {/* Bottom Section (Tools) */}
@@ -138,9 +140,10 @@ const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch, visibleTab
                     <NavLink targetView="dashboard">Dashboard</NavLink>
                     {visibleTabs['media-studies'] && <NavLink targetView="media-studies">Media Studies</NavLink>}
                     {visibleTabs['film-studies'] && <NavLink targetView="film-studies">Film Studies</NavLink>}
+                    <NavLink targetView="timeline">Timeline</NavLink>
                     <NavLink targetView="news">News</NavLink>
                     <NavLink targetView="journal">Journal</NavLink>
-                    <NavLink targetView="ai-tutor">Phoebe (Tutor)</NavLink>
+                    <NavLink targetView="ai-tutor">Phoebe</NavLink>
                   </nav>
               </div>
               <div className="flex items-center space-x-4 md:space-x-6">
@@ -187,9 +190,10 @@ const Navbar: React.FC<NavbarProps> = ({ view, setView, onOpenSearch, visibleTab
                 <NavLink targetView="dashboard" isMobile>Dashboard</NavLink>
                 {visibleTabs['media-studies'] && <NavLink targetView="media-studies" isMobile>Media Studies</NavLink>}
                 {visibleTabs['film-studies'] && <NavLink targetView="film-studies" isMobile>Film Studies</NavLink>}
+                <NavLink targetView="timeline" isMobile>Timeline</NavLink>
                 <NavLink targetView="news" isMobile>News</NavLink>
                 <NavLink targetView="journal" isMobile>Journal</NavLink>
-                <NavLink targetView="ai-tutor" isMobile>Phoebe (Tutor)</NavLink>
+                <NavLink targetView="ai-tutor" isMobile>Phoebe</NavLink>
             </nav>
         </div>
       )}

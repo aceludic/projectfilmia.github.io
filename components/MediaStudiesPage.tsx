@@ -1,17 +1,23 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { theoristData } from '../data/theoristsData';
 import { cspsData } from '../data/cspsData';
-import { ResourceItem, TheoristCategory, CSPCategory, PinnedItem } from '../types';
+import { ResourceItem, TheoristCategory, CSPCategory, PinnedItem, CSP, Film } from '../types';
 import TheoristDetailCard from './TheoristDetailCard';
 import CspDetailCard from './CspDetailCard';
 import ResourceCard from './ResourceCard';
 import RevisionZone from './RevisionZone';
+import TheoristComparison from './TheoristComparison';
 
 type MediaView = 'theorists' | 'csps' | 'resources' | 'revise';
 
 interface MediaStudiesPageProps {
   pinnedItems: PinnedItem[];
   onTogglePin: (item: PinnedItem) => void;
+  onLaunchSceneAnalysis: (item: CSP | Film) => void;
+  onAiInteraction: (type: 'summary' | 'spark') => void;
+  logStudySession: (durationInSeconds: number) => void;
+  unlockAchievement: (id: string) => void;
 }
 
 const DisclaimerModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
@@ -40,11 +46,12 @@ const resourcesData: ResourceItem[] = [
     { id: '5', title: 'Beyond the Spec/Reading', overview: 'Expand your media knowledge with this playlist of supplementary material and advanced concepts.', youtubeVideoId: '3HG8Q9ucr4k' },
 ];
 
-const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogglePin }) => {
+const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogglePin, onLaunchSceneAnalysis, onAiInteraction, logStudySession, unlockAchievement }) => {
   const [activeView, setActiveView] = useState<MediaView>('theorists');
   const [searchTerm, setSearchTerm] = useState('');
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
+  const [revisionTool, setRevisionTool] = useState<'revise' | 'compare'>('revise');
 
   useEffect(() => {
     const hasSeenDisclaimer = sessionStorage.getItem('hasSeenMediaStudiesDisclaimer');
@@ -103,6 +110,7 @@ const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogg
                       categoryTitle={category.title}
                       pinnedItems={pinnedItems}
                       onTogglePin={onTogglePin}
+                      onAiInteraction={onAiInteraction}
                     />
                   ))}
                 </div>
@@ -124,6 +132,8 @@ const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogg
                       csp={csp} 
                       pinnedItems={pinnedItems}
                       onTogglePin={onTogglePin}
+                      onLaunchSceneAnalysis={onLaunchSceneAnalysis}
+                      onAiInteraction={onAiInteraction}
                     />
                   ))}
                 </div>
@@ -139,7 +149,16 @@ const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogg
             </div>
         );
       case 'revise':
-        return <RevisionZone theorists={theoristData} csps={cspsData} />;
+        return (
+            <div>
+                 <div className="flex justify-center items-center space-x-2 mb-8 bg-glass-300 dark:bg-black/20 p-2 rounded-lg max-w-xs mx-auto">
+                    <button onClick={() => setRevisionTool('revise')} className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${revisionTool === 'revise' ? 'bg-brand-brown-700 text-white' : ''}`}>Revise</button>
+                    <button onClick={() => setRevisionTool('compare')} className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${revisionTool === 'compare' ? 'bg-brand-brown-700 text-white' : ''}`}>Compare</button>
+                </div>
+                {revisionTool === 'revise' && <RevisionZone theorists={theoristData} csps={cspsData} logStudySession={logStudySession} unlockAchievement={unlockAchievement} />}
+                {revisionTool === 'compare' && <TheoristComparison theorists={theoristData} />}
+            </div>
+        );
       default:
         return null;
     }
@@ -161,7 +180,7 @@ const MediaStudiesPage: React.FC<MediaStudiesPageProps> = ({ pinnedItems, onTogg
         {showDisclaimer && <DisclaimerModal onClose={handleDisclaimerClose} />}
         <div className={`transition-opacity duration-500 ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
             <div className="text-center mb-12">
-                <h1 className="text-4xl font-black uppercase text-glow">Media & Film Studies Hub</h1>
+                <h1 className="text-4xl font-black uppercase text-glow">Media Studies Hub</h1>
                 <p className="mt-2 text-lg text-stone-500 dark:text-stone-400">Explore key theories, case studies, and resources.</p>
             </div>
 

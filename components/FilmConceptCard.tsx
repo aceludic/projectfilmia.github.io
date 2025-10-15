@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { FilmConcept, Term } from '../types';
+import AiFeatureButtons from './AiFeatureButtons';
 
 interface FilmConceptCardProps {
     concept: FilmConcept;
+    onAiInteraction: (type: 'summary' | 'spark') => void;
 }
 
 // Helper component to format each line of the notes
@@ -30,7 +32,7 @@ const FormattedNote: React.FC<{ note: string }> = ({ note }) => {
 };
 
 
-const FilmConceptCard: React.FC<FilmConceptCardProps> = ({ concept }) => {
+const FilmConceptCard: React.FC<FilmConceptCardProps> = ({ concept, onAiInteraction }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -53,7 +55,8 @@ const FilmConceptCard: React.FC<FilmConceptCardProps> = ({ concept }) => {
             </div>
             <div className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[4000px]' : 'max-h-0'}`}>
                 <div className="p-4 border-t border-glass-border dark:border-glass-border-dark">
-                    <div className="space-y-4 text-stone-700 dark:text-stone-300 text-sm">
+                    <AiFeatureButtons item={concept} onAiInteraction={onAiInteraction} />
+                    <div className="space-y-4 text-stone-700 dark:text-stone-300 text-sm mt-4">
                         <div>
                             <h5 className="font-bold uppercase text-stone-600 dark:text-stone-400 tracking-wider text-xs mb-1">Overview</h5>
                             <p>{concept.overview}</p>

@@ -1,3 +1,4 @@
+
 import { TheoristCategory } from '../types';
 
 export const theoristData: TheoristCategory[] = [
